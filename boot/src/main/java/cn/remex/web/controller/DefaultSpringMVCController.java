@@ -1,0 +1,84 @@
+package cn.remex.web.controller;
+
+import cn.remex.RemexConstants;
+import cn.remex.core.util.Judgment;
+import cn.remex.core.util.MapHelper;
+import cn.remex.web.service.ServiceFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
+@Controller
+//@RequestMapping(value = "/hello")//表示要访问这个action的时候都要加上这个/hello路径
+public class DefaultSpringMVCController implements RemexConstants {
+
+    /* 接收参数getParameter()的时候:
+     * 如果地址栏/springmvc/hello.htm上面没有传递参数,那么当id为int型的时候会报错,当id为Integer的时候值为null
+     * 当地址栏为/springmvc/hello.htm?id=10的时候,action中有三种接收方式
+     * 1、String hello(@RequestParam(value = "userid") int id),这样会把地址栏参数名为userid的值赋给参数id,如果用地址栏上的参数名为id,则接收不到
+     * 2、String hello(@RequestParam int id),这种情况下默认会把id作为参数名来进行接收赋值
+     * 3、String hello(int id),这种情况下也会默认把id作为参数名来进行接收赋值
+        * 注:如果参数前面加上@RequestParam注解,如果地址栏上面没有加上该注解的参数,例如:id,那么会报404错误,找不到该路径
+     */
+    @RequestMapping(value = {"{bs:[a-zA-Z0-9]+}"})
+    public ModelAndView execute1(@PathVariable String bs,
+                                 @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
+                                 HttpServletRequest request, HttpServletResponse response) {
+        return execute(bs, "execute", null, request, response, files);
+    }
+
+    @RequestMapping(value = {"{bs:[a-zA-Z0-9]+}/{bsCmd:[a-zA-Z0-9]+}"})
+    public ModelAndView execute2(@PathVariable String bs,
+                                 @PathVariable String bsCmd,
+                                 @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
+                                 HttpServletRequest request, HttpServletResponse response) {
+        return execute(bs, bsCmd, null, request, response, files);
+    }
+
+    @RequestMapping(value = {"{bs:[a-zA-Z0-9]+}/{bsCmd:[a-zA-Z0-9]+}/{id:\\S+}"})
+    public ModelAndView execute3(
+            @PathVariable String bs, @PathVariable String bsCmd,
+            @PathVariable String id,
+            @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
+            HttpServletRequest request, HttpServletResponse response) {
+        return execute(bs, bsCmd, id, request, response, files);
+    }
+
+
+    @SuppressWarnings({"unchecked", "deprecation"})
+    private ModelAndView execute(
+            @PathVariable String bs, @PathVariable String bsCmd,
+            @PathVariable String id,
+            HttpServletRequest request, HttpServletResponse response, CommonsMultipartFile[] files) {
+
+        Object bsRvo = ServiceFactory.executeBs(bs, bsCmd, request, response);//调用service
+
+        Map<String,Object> map = MapHelper.toMap(bsRvo);
+
+        Object rt = request.getParameter("rt");//返回视图的类型,前端请求jsp json xml,重新定向或者指定特定的类型
+        if (Judgment.nullOrBlank(rt) && Judgment.nullOrBlank(rt = map.get("rt"))) {
+            rt = "json";
+        }
+        Object rv = request.getParameter("rv");//返回视图的参数值,默认为/WEB-INF/page/bs_bsCmd.jsp
+        if (Judgment.nullOrBlank(rv) && Judgment.nullOrBlank(rv = map.get("rv"))) {
+            rv = "WEB-INF/page/" + bs + "/" + bsCmd;
+        }
+        Object status = map.get("status");//前端判断响应是否正常的必要标识
+        if(Judgment.nullOrBlank(status)){
+            map.put("status",true);
+        }
+
+        ModelAndView mv = new ModelAndView(rv.toString());
+        mv.addAllObjects(map);
+        mv.addObject("id", id);
+        return mv;//不能重定向web-info里面的文件,而且需要写上绝对路径
+
+    }
+}

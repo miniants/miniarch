@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	
+	<!-- 切面配置 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<bean class="cn.remex.db.rsql.aspect.RsqlMonitorAspect"></bean>
+	<bean class="cn.remex.db.rsql.aspect.RsqlTransactionalAspect"></bean>
+
+	<!--此部分共享的containerFactory -->
+	<!--数据库空间初始化 id不能修改 -->
+	<bean id="containerFactory" class="cn.remex.db.ContainerFactory" scope="singleton">
+		<property name="factory"><bean class="cn.remex.db.rsql.RsqlCore">
+			<constructor-arg index="0" value="oracle.jdbc.OracleDriver com.mysql.jdbc.Driver"/>
+			<constructor-arg index="1"><map>
+				<entry key="default" value-ref="default_space"></entry>
+				</map></constructor-arg>
+			<constructor-arg index="2" value="false"/>
+			</bean></property>
+	</bean>
+	
+	<bean id="RMX_SQL_Funcitons" class="org.springframework.beans.factory.config.MapFactoryBean"
+		scope="singleton">
+		<property name="sourceMap">
+			<map>
+<entry key="RMX_parseDate"><value>
+CREATE OR REPLACE FUNCTION 
+       RMX_parseDate 
+          (dateString VARCHAR2,
+           period VARCHAR2)
+RETURN DATE
+IS
+       returnDate DATE := NULL;  --定义返回变量
+       curDateFormat VARCHAR2(21) := 'yyyy-MM-dd hh24:mi:ss';
+       curDF VARCHAR2(21) := '';
+       curDS VARCHAR2(21) := '';
+ 
+PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+
+curDS := SUBSTR(dateString,0,
+
+  CASE period
+  WHEN 'Y' THEN 4
+  WHEN 'M' THEN 7
+  WHEN 'T' THEN 9
+  WHEN 'D' THEN 10
+  WHEN 'h' THEN 13
+  WHEN 'm' THEN 16
+  WHEN 's' THEN 19
+  ELSE 0 END
+);
+
+curDF := SUBSTR(curDateFormat,0,
+
+  CASE period
+  WHEN 'Y' THEN 4
+  WHEN 'M' THEN 7
+  WHEN 'T' THEN 9
+  WHEN 'D' THEN 10
+  WHEN 'h' THEN 15
+  WHEN 'm' THEN 18
+  WHEN 's' THEN 21
+  ELSE 0 END
+);
+
+returnDate := TO_DATE(curDS,curDF);
+
+
+  return(returnDate); --返回结果
+end RMX_parseDate;
+
+</value></entry>
+
+<entry key="createSerialNumber"><value>
+CREATE OR REPLACE FUNCTION 
+       "createSerialNumber" 
+          (beanName in "SysSerialNumber"."beanName"%type,
+           fieldName in "SysSerialNumber"."fieldName"%type)
+RETURN INTEGER
+IS
+       currentValue integer := 0;  --定义返回变量
+ 
+PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    --最大数加1
+    UPDATE "SysSerialNumber" SET "currentValue" = "currentValue"+1 where "beanName" = beanName and "fieldName" = fieldName
+    Returning "currentValue" Into currentValue; --取出最大数
+    If(SQL%NOTFOUND) THEN  --第一次向数据库中插入最大数为 1 的记录
+       INSERT INTO "SysSerialNumber"("id","beanName","fieldName","currentValue") values('SSN'|| to_char(sysdate,'yyyyMMddhhmmss')||ABS(MOD(DBMS_RANDOM.RANDOM,10000)),beanName,fieldName,1) ;
+       currentValue := 1;
+    End If ;
+     commit;
+  return(currentValue); --返回结果
+end "createSerialNumber";
+</value></entry>
+
+
+
+
+			</map>
+		</property>
+	</bean> 
+
+
+</beans>

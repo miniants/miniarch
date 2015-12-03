@@ -1,0 +1,110 @@
+package cn.remex.db.model.cert;
+
+import cn.remex.db.model.Person;
+import cn.remex.db.model.Staff;
+import cn.remex.db.rsql.model.ModelableImpl;
+import cn.remex.db.sql.Column;
+import cn.remex.db.view.Element;
+import com.alibaba.fastjson.annotation.JSONField;
+
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.struts2.json.annotations.JSON;
+
+@Table(uniqueConstraints={
+		@UniqueConstraint(columnNames = {"username","password"}
+				)
+})
+public class AuthUser extends ModelableImpl{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3851128250538182731L;
+	/**登陆名*/
+	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	private String username="anonymous";
+	/** 登陆密码*/
+	@JSONField(serialize=false)
+	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	private String password="anonymous";
+	/** 真实身份*/
+	private Person person;
+	/** 所属角色*/
+	@ManyToMany(mappedBy="users",targetEntity=AuthRole.class)
+	private List<AuthRole> roles;
+	/**员工身份*/
+	private Staff staff;
+	private Map<String, AuthUri> uriAuthMap = new HashMap<String, AuthUri>();
+	private String effectFlag;		//用户是否有效
+	private String effectPeriod;			//用户有效期
+	public AuthUser() {
+		super("undefined");
+	}
+	public AuthUser(final String name) {
+		super(name);
+		setName(name);
+		setUsername(name);
+	}
+//	@JSON(serialize=false)
+	@Element(label="密码")
+	public String getPassword() {
+		return this.password;
+	}
+	@Element(label="真实身份(Person.PK)")
+	public Person getPerson() {
+		return this.person;
+	}
+	@Element(label="所属角色")
+	public List<AuthRole> getRoles() {
+		return this.roles;
+	}
+	@Element(label="员工(Staff.PK)")
+	public Staff getStaff() {
+		return this.staff;
+	}
+	@Element(label="用户名")
+	public String getUsername() {
+		return this.username;
+	}
+	public void setPassword(final String password) {
+		this.password = password;
+	}
+	public void setPerson(final Person identity) {
+		this.person = identity;
+	}
+	public void setRoles(final List<AuthRole> roles) {
+		this.roles = roles;
+	}
+	public void setStaff(final Staff staff) {
+		this.staff = staff;
+	}
+	public void setUsername(final String username) {
+		this.username = username;
+		super.setName(username);
+	}
+	public Map<String, AuthUri> obtainUriAuthMap() {
+		return uriAuthMap;
+	}
+	public void putUriAuthMap(Map<String, AuthUri> uriAuthMap) {
+		this.uriAuthMap = uriAuthMap;
+	}
+	public String getEffectFlag() {
+		return effectFlag;
+	}
+	public void setEffectFlag(String effectFlag) {
+		this.effectFlag = effectFlag;
+	}
+	public String getEffectPeriod() {
+		return effectPeriod;
+	}
+	public void setEffectPeriod(String effectPeriod) {
+		this.effectPeriod = effectPeriod;
+	}
+	
+}
