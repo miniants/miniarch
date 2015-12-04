@@ -1,13 +1,8 @@
 package cn.remex.db.model.config;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import java.sql.Types;
+import javax.persistence.*;
 import java.util.List;
 
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
@@ -17,7 +12,7 @@ public class ValueMappingGroup extends ModelableImpl {
 	 * 
 	 */
 	private static final long serialVersionUID = -1369595788982316585L;
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String desc; // 描述
 
 	private String mapType; // 映射类型
@@ -29,7 +24,7 @@ public class ValueMappingGroup extends ModelableImpl {
 
 	private ValueMappingConfig valueMappingConfig;
 
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String name;
 
 	public ValueMappingConfig getValueMappingConfig() {

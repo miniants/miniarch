@@ -5,11 +5,10 @@ import cn.remex.core.util.StringHelper;
 import cn.remex.db.DbRvo;
 import cn.remex.db.model.SysSerialNumber;
 import cn.remex.db.rsql.RsqlConstants;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.Element;
 
+import javax.persistence.Column;
 import java.io.Serializable;
-import java.sql.Types;
 
 public abstract class ModelableImpl implements Serializable, Modelable, SerialNoGenerator {
 
@@ -93,21 +92,21 @@ public abstract class ModelableImpl implements Serializable, Modelable, SerialNo
 	private String createTime;
 
 	private String dataStatus = RsqlConstants.DS_beanNew;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String id = null;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String modifyOperator;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String modifyOperator_name;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String modifyTime;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String name;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String note;
 	//LHY 2015-6-21 数据权限重新设计
 	/*private Department ownership;*/
-	@Column(type=Types.CHAR, length = 10, columnDefinition = " ")
+	@Column(length = 10, columnDefinition = " ")
 	private String ownership_name;
 
 	private int version;

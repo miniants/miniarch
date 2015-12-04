@@ -244,7 +244,7 @@ public class MysqlDialect extends Dialect {
 	 */
 	@Override
 	public boolean needLowCaseTableName() {
-		return true;
+		return false;
 	}
 
 

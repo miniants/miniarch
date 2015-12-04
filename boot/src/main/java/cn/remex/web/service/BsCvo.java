@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.validation.Valid;
-
 /**
  * 业务服务模型数据获取
  * 获取前台 form json xml 中 head body extend 节点
@@ -15,7 +13,7 @@ import javax.validation.Valid;
  * @rmx.call {@cn.remex.web.form.FormCvo}
  *@rmx.call{@cn.remex.web.json.JsonCvo}
  */
-public abstract class BsCvo implements Serializable{
+public class BsCvo implements Serializable{
     private static final long serialVersionUID = 3155133328004613812L;
     private String bs;                  //必选,调用的Bs名称或映射值
     private String bsCmd = "execute";   //可选,调用的Bs的方法名

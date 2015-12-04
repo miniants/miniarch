@@ -2,9 +2,8 @@ package cn.remex.db.model.view;
 
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 
 public class JqgEditOption extends ModelableImpl{
@@ -14,9 +13,9 @@ public class JqgEditOption extends ModelableImpl{
 	 */
 	private static final long serialVersionUID = -3079068997285934420L;
 
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String title;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = " ")
 	private String value;
 	public JqgEditOption() {
 	}

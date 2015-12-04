@@ -1,4 +1,4 @@
-package klb.appservice.beans;
+package zbh.aias.appservice.beans;
 
 import cn.remex.web.service.BsCvo;
 

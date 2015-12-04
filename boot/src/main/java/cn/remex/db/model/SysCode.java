@@ -1,11 +1,10 @@
 package cn.remex.db.model;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 
 @Table(uniqueConstraints={
 		@UniqueConstraint(columnNames = { "codeType","code" }
@@ -17,13 +16,13 @@ public class SysCode extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 5450844183308334612L;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String codeType;
-	@Column(type=Types.CHAR,length=100, columnDefinition = " ")
+	@Column(length=100, columnDefinition = " ")
 	private String codeTypeDesc;
-	@Column(type=Types.CHAR,length=10, columnDefinition = " ")
+	@Column(length=10, columnDefinition = " ")
 	private String code;
-	@Column(type=Types.CHAR,length=50, columnDefinition = " ")
+	@Column(length=50, columnDefinition = " ")
 	private String codeName;
 	public String getCodeType() {
 		return codeType;

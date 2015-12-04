@@ -1,11 +1,10 @@
 package cn.remex.db.model.config;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 
 @Table(uniqueConstraints={
 		@UniqueConstraint(columnNames = { "fieldMappingGroup","sourceField","targetField" }
@@ -21,9 +20,9 @@ public class FieldMapping extends ModelableImpl{
 	private String sourceField;	//源对象字段名
 	
 	private String targetField;	//
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String desc;	//描述
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String name;
 	
 	private FieldMappingGroup fieldMappingGroup;//n:1所属的配置组

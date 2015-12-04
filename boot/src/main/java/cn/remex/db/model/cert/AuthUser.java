@@ -3,14 +3,13 @@ package cn.remex.db.model.cert;
 import cn.remex.db.model.Person;
 import cn.remex.db.model.Staff;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.Element;
 import com.alibaba.fastjson.annotation.JSONField;
 
+import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +26,11 @@ public class AuthUser extends ModelableImpl{
 	 */
 	private static final long serialVersionUID = -3851128250538182731L;
 	/**登陆名*/
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String username="anonymous";
 	/** 登陆密码*/
 	@JSONField(serialize=false)
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String password="anonymous";
 	/** 真实身份*/
 	private Person person;

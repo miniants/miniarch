@@ -2,10 +2,9 @@ package cn.remex.db.model;
 
 import cn.remex.db.cert.DataAccessScope;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.Element;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 @DataAccessScope(scope=DataAccessScope.everyone)
 public class Department extends ModelableImpl {
@@ -17,7 +16,7 @@ public class Department extends ModelableImpl {
 	/**
 	 * 部门编号
 	 */
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String sn;
 
 	/**

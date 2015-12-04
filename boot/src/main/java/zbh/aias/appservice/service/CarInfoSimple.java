@@ -1,11 +1,10 @@
-package klb.appservice.service;
+package zbh.aias.appservice.service;
 
-import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.BusinessService;
-import klb.appservice.beans.CarInfoSimpleBsEnter;
-import klb.appservice.beans.CarInfoSimpleBsOuter;
 import org.springframework.stereotype.Service;
+import zbh.aias.appservice.beans.CarInfoSimpleBsEnter;
+import zbh.aias.appservice.beans.CarInfoSimpleBsOuter;
 
 /**
  * @auther GQY

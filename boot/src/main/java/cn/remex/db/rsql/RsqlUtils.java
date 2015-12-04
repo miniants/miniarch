@@ -16,9 +16,9 @@ import cn.remex.db.sql.*;
 import cn.remex.db.sql.SqlType.FieldType;
 import cn.remex.db.view.EditType;
 import cn.remex.db.view.Element;
-import net.sf.cglib.proxy.MethodProxy;
 import org.apache.oro.text.regex.MatchResult;
 
+import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import java.lang.reflect.Method;
@@ -33,15 +33,12 @@ public final class RsqlUtils implements RsqlConstants {
 
 	/**
 	 * 分析处理带命名参数的SQL语句。使用Map存储参数，然后将参数替换成? <br/>
-	 * @param sql
-	 * @return
 	 */
 	private static final String NamedSqlEquationRegex = "(([_\\.\\w\u4e00-\u9fa5]+)=:)";
 
 	private static final String NamedSqlEquationRegexRplc = ":";// 这个必须最后替换
 	private static final String NamedSqlParamRegex = "(:([_\\.\\w\u4e00-\u9fa5]+))";
 	private static final String NamedSqlParamRegexRplc = "(:([_\\.\\w\u4e00-\u9fa5]+))";
-	static private Map<Integer, Class<?>> SqlClass;
 
 	static Map<Class<?>, ColumnType> SqlTypes;
 	static Map<String, ColumnType> SysColumns;
@@ -90,12 +87,6 @@ public final class RsqlUtils implements RsqlConstants {
 		SqlTypes.put(String.class, new ColumnType(Types.CHAR, 100));
 		SqlTypes.put(Date.class, new ColumnType(Types.CHAR, 100));
 
-		SqlClass = new ReadOnlyMap<Integer, Class<?>>();
-		for (Class<?> i : SqlTypes.keySet()) {
-			SqlClass.put(SqlTypes.get(i).type, i);
-		}
-		
-		
 		GettersWithOutSysColumnForList = new ReadOnlyMap<Class<?>, Map<String,Method>>();
 
 	}
@@ -490,10 +481,6 @@ public final class RsqlUtils implements RsqlConstants {
 	 * @param fieldName
 	 * @param fieldType
 	 * @return 返回的treeMap中FK在前面，PK在后面。
-	 * @rmx.call {@link RsqlCore#createCollectionTable(Dialect, String, String, Type)}
-	 * @rmx.call {@link RsqlCore#refreshORMCollectionTables(RDBSpaceConfig)}
-	 * @rmx.call {@link RsqlUtils#doManyToMany_*(Class, String, String, Object, Object, boolean)}
-	 * @rmx.call {@link RsqlUtils#queryCollectionBeans(Class, String, Object)}
 	 */
 	public static Map<String, ColumnType> obtainSKeyCollectionTableColumns(final String beanName, final String fieldName, final Type fieldType) {
 //		ParameterizedTypeImpl typeImpl = (ParameterizedTypeImpl) fieldType;
@@ -517,10 +504,6 @@ public final class RsqlUtils implements RsqlConstants {
 	 * @param beanName
 	 * @param fieldName
 	 * @return String
-	 * @rmx.call {@link RsqlCore#createCollectionTable(Dialect, String, String, Type)}
-	 * @rmx.call {@link RsqlCore#refreshORMCollectionTables(RDBSpaceConfig)}
-	 * @rmx.call {@link RsqlUtils#doManyToMany_*(Class, String, String, Object, Object, boolean)}
-	 * @rmx.call {@link RsqlUtils#queryCollectionBeans(Class, String, Object)}
 	 */
 	public static String obtainSKeyCollectionTableName(final Dialect dialect, final String beanName,
 			final String fieldName) {
@@ -535,11 +518,6 @@ public final class RsqlUtils implements RsqlConstants {
 	 * @param beanClass
 	 * @param map
 	 * @return Map
-	 * @rmx.call {@link RsqlUtils#createInsertSqlBean(DbCvo)}
-	 * @rmx.call {@link RsqlUtils#createSelectSqlBean(DbCvo)}
-	 * @rmx.call {@link RsqlUtils#createUpdateSqlBean(DbCvo)}
-	 * @rmx.call {@link RsqlCore#refreshORMBaseTables(RDBSpaceConfig)}
-	 * @rmx.call {@link RsqlCore#createBaseTable(Dialect, String, Class)}
 	 */
 	public static Map<String, ColumnType> obtainSKeyColumnsBase(final Class<?> beanClass, final Map<String, Type> map) {
 		HashMap<String, ColumnType> columns = new HashMap<String, ColumnType>();
@@ -686,7 +664,7 @@ public final class RsqlUtils implements RsqlConstants {
 			try {
 				Column at = ReflectUtil.getAnnotation(beanClass, fieldName, Column.class);
 				if (at != null) {
-					return new ColumnType(at);
+					return new ColumnType(SqlTypes.get(type).type,at);
 				}
 			} catch (Exception e) {
 			}
@@ -715,8 +693,6 @@ public final class RsqlUtils implements RsqlConstants {
 	 * @param fieldName
 	 * @param beanId
 	 * @return DbRvo
-	 * @rmx.call {@link RsqlCore#intercept(Object obj, Method method, Object[] args, MethodProxy proxy)}
-	 * @rmx.call {@link RsqlContainer#storeFKList}
 	 */
 	public static DbRvo queryCollectionBeans(final Class<?> beanClass, final String fieldName, final Object beanId) {
 		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
@@ -1833,9 +1809,11 @@ class WherePart {
 }
 
 class ColumnType {
-	int length;
-	String sqlType;
-	int type ;
+	//以下属性为Column参数属性
+	int length = 50;
+	int type = Types.CHAR;
+
+	//以下属性为试图参数
 	EditType editType;
 	Class<?> codeRefBean;
 	String codeRefTypeColumn;
@@ -1843,21 +1821,22 @@ class ColumnType {
 	String codeRefDescColumn;
 	String codeRefCodeType;
 	String codeRefFilters;
-	
 
 	/**
 	 * @param type @see {@link Types}
 	 */
-	public ColumnType(int type,int length) {
+	public ColumnType(int type, int length) {
 		this.type = type;
 		this.length = length;
 	}
 
 
-	public ColumnType(Column sta) {
+	public ColumnType(int type, Column sta) {
 		this.length = sta.length();//长度
-		this.sqlType = sta.columnDefinition();//暂时不用，用于记录数据字段类型的字符串
-		this.type = sta.type();//Types下的变量，java定义的数据字段类型
+		if("CLOB".equals(sta.columnDefinition()))
+			this.type = Types.CLOB;
+		else
+			this.type = type;//Types下的变量，java定义的数据字段类型
 	}
 	
 }

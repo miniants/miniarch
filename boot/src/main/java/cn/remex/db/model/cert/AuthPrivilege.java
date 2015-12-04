@@ -1,9 +1,8 @@
 package cn.remex.db.model.cert;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 public class AuthPrivilege extends ModelableImpl {
 	public final static String CHR = "CHR";//仅本路径
@@ -20,9 +19,9 @@ public class AuthPrivilege extends ModelableImpl {
 
 	private AuthResource authResource;
 	
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String note;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String privilegeKey;
 
 

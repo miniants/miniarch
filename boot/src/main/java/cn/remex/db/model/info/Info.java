@@ -1,9 +1,8 @@
 package cn.remex.db.model.info;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 public class Info extends ModelableImpl {
 
@@ -13,19 +12,19 @@ public class Info extends ModelableImpl {
 	private static final long serialVersionUID = 1L;
 
 	private InfoClass infoClass;
-	@Column(type=Types.CLOB, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = "CLOB")
 	private String infoContent;
-	@Column(type=Types.CLOB, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = "CLOB")
 	private String infoSummary;
 	private boolean indexShow;//主页显示
-	@Column(type=Types.CHAR, length = 25, columnDefinition = " ")
+	@Column(length = 25)
 	private String publishDate;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String showImg;
 	private int showOrder;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String src;
-	@Column(type=Types.CHAR, length = 80, columnDefinition = " ")
+	@Column(length = 80)
 	private String title;
 	public boolean isIndexShow() {
 		return indexShow;

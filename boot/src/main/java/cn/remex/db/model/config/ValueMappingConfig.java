@@ -1,12 +1,11 @@
 package cn.remex.db.model.config;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
+import javax.persistence.Column;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 import java.util.List;
 
 @Table(uniqueConstraints={
@@ -18,7 +17,7 @@ import java.util.List;
 	 * 
 	 */
 	private static final long serialVersionUID = 6740571069859243817L;
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String desc;	//描述
 	
 	private String mapType="default";		//映射类型
@@ -30,7 +29,7 @@ import java.util.List;
 	private List<ValueMappingGroup> valueMappingGroups;
 	
 	
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String name;
 	
 	

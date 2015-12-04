@@ -1,9 +1,8 @@
 package cn.remex.db.model.cert;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 public class AuthResource extends ModelableImpl{
 
@@ -22,7 +21,7 @@ public class AuthResource extends ModelableImpl{
 
 
 	private String AuthenticateURI;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String note;
 	public AuthResource(final String name) {
 		super(name);

@@ -3,12 +3,10 @@ package cn.remex.db.model.cert;
 import cn.remex.db.cert.DataAccessScope;
 import cn.remex.db.model.DataDic;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.EditType;
 import cn.remex.db.view.Element;
 
 import javax.persistence.*;
-import java.sql.Types;
 import java.util.List;
 
 @DataAccessScope(scope=DataAccessScope.everyone)
@@ -22,14 +20,14 @@ public class AuthUri extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = -2661818466025261442L;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = " ")
 	private String uri;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = " ")
 	private String uriName;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = " ")
 	private String uriDesc;
 	@Element(edittype=EditType.select,editoptions="{value:{forbidden:'禁止',permit:'允许',uncertainty:'待验证'}}")
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String verifyFlag;
 	@OneToMany(mappedBy="authUri",cascade={CascadeType.PERSIST})
 	private List<AuthParam> authParams;

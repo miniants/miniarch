@@ -1,20 +1,10 @@
-package klb.appservice.service;
+package zbh.aias.appservice.service;
 
-import cn.remex.admin.RemexAdminUtil;
-import cn.remex.admin.appbeans.AdminBsCvo;
-import cn.remex.admin.appbeans.AdminBsRvo;
-import cn.remex.core.reflect.ReflectUtil;
-import cn.remex.core.util.Judgment;
-import cn.remex.db.*;
-import cn.remex.db.model.SysMenu;
-import cn.remex.db.model.cert.AuthUser;
-import cn.remex.db.model.log.LogonLogMsg;
+import cn.remex.db.rsql.RsqlCore;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.BusinessService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /** 
  * @author liuhengyang 
@@ -24,7 +14,7 @@ import java.util.List;
  */
 @BusinessService
 @Service
-public class Test {
+public class ResetDB {
 	///menu Type 对应的功能方法。
 	@BusinessService
 	public BsRvo execute(BsCvo bsCvo) {
@@ -34,6 +24,9 @@ public class Test {
 		System.out.print(a);
 		BsRvo b  =new BsRvo(true,"sd","00");
 		b.setBody("asdfas");
+
+		boolean restDB ="true".equals(bsCvo.$V("resetDB"));
+		RsqlCore.reset(restDB);
 		return b ;
 	}
 }

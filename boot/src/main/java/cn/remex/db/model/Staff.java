@@ -2,10 +2,9 @@ package cn.remex.db.model;
 
 import cn.remex.db.cert.DataAccessScope;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.Element;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 @DataAccessScope(scope=DataAccessScope.everyone)
 
@@ -16,44 +15,44 @@ public class Staff extends ModelableImpl {
 	 */
 	private static final long serialVersionUID = -5665090490996041857L;
 	// 此部分是个人基础资料
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String birthday;
 	private Department department;
 	//email
-	@Column(type=Types.CHAR, length =50, columnDefinition = " ")
+	@Column(length =50, columnDefinition = " ")
 	private String email;
 	//雇主
 	private Organization employer;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String enterDate;
-	@Column(type=Types.CHAR, length = 5, columnDefinition = " ")
+	@Column(length = 5, columnDefinition = " ")
 	private String gender;
 	//业务员登记
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String grade;
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String identificationId;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String laborContractCode;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String laborContractSignDate;
 	//雇工
 	private Person laborer;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String leaveDate;
 	//岗位职务
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String position;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String practisingCertificateCode;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String qualificationObtainDate;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String qualificationsCode;
 	//员工编号
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String sn;
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String tel;
 	@Element(label="出生日期")
 	public String getBirthday() {

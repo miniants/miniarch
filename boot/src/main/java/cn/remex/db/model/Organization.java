@@ -2,10 +2,9 @@ package cn.remex.db.model;
 
 import cn.remex.db.cert.DataAccessScope;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.Element;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 @DataAccessScope(scope=DataAccessScope.everyone)
 public class Organization extends ModelableImpl {
@@ -17,24 +16,24 @@ public class Organization extends ModelableImpl {
 	/**
 	 * 单位地址
 	 */
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String address;
 
 	/**
 	 * 经营范围或者工作内
 	 */
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String business;
 
 	/**
 	 * 法人代表
 	 */
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String legalPerson;
 	/**
 	 * 组织机构代码，或者内部的单位编码
 	 */
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String organizationSn;
 
 	/**

@@ -1,9 +1,8 @@
 package cn.remex.db.model.view;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import java.sql.Types;
+import javax.persistence.Column;
 
 public class JqgColModel extends ModelableImpl implements
 Comparable<JqgColModel> {
@@ -13,65 +12,65 @@ Comparable<JqgColModel> {
 	 */
 	private static final long serialVersionUID = -3828577709878191227L;
 
-	@Column(type=Types.CHAR, length = 10, columnDefinition = " ")
+	@Column(length = 10, columnDefinition = " ")
 	private String align = "left";
-	@Column(type=Types.CHAR, length = 300, columnDefinition = " ")
+	@Column(length = 300, columnDefinition = " ")
 	private String beanClassName;
-	@Column(type=Types.CHAR, length = 60, columnDefinition = " ")
+	@Column(length = 60, columnDefinition = " ")
 	private String beanName;
 
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String cellattr;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String classes;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String colModel;
 
 	private int colModelIndex = 100;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String colNames;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String datefmt;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String defval;
 	private boolean editable;
-	@Column(type=Types.CHAR, length = 600, columnDefinition = " ")
+	@Column(length = 600, columnDefinition = " ")
 	private String editoptions; // array
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String editrules;// array
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String edittype;
-	@Column(type=Types.CHAR, length = 300, columnDefinition = " ")
+	@Column(length = 300, columnDefinition = " ")
 	private String fieldName;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String firstsortorder;
 	private boolean fixed;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String formatoptions;// array
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String formatter;// mixed
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String formoptions;// array
 	private boolean hidden;
 	private boolean hidedlg;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String idx;
 	private boolean iskey;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String jsonmap;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String label;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String name;
 
 	private boolean resizable = true;
 	private boolean search = true;
-	@Column(type=Types.CHAR, length = 600, columnDefinition = " ")
+	@Column(length = 600, columnDefinition = " ")
 	private String searchoptions = "{sopt:['cn','eq','ne','lt','le','gt','ge','bw','bn','ew','en','nc'] }";// array
 	private boolean sortable = true;
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String sorttype;// mixed
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String stype;
 	private String surl;
 	private String template;// object

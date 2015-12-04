@@ -1,13 +1,12 @@
 package cn.remex.db.model;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 import cn.remex.db.view.EditType;
 import cn.remex.db.view.Element;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"name"})})
 public class Person extends ModelableImpl {
 
@@ -18,27 +17,27 @@ public class Person extends ModelableImpl {
 
 
 	// 此部分是个人基础资料
-	@Column(type=Types.CHAR, length = 30, columnDefinition = " ")
+	@Column(length = 30, columnDefinition = " ")
 	private String birthday;
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String birthplace;
 
 
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String familyAddress;
 	// 此部分是个人血缘信息、家庭信息
 	private Person father;
-	@Column(type=Types.CHAR, length = 5, columnDefinition = " ")
+	@Column(length = 5, columnDefinition = " ")
 	private String gender;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String graduateSchool;
-	@Column(type=Types.CHAR, length = 20, columnDefinition = " ")
+	@Column(length = 20, columnDefinition = " ")
 	private String identificationId;
 	private boolean isAloneChild;
 	private Person mother;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String nativePlace;
-	@Column(type=Types.CHAR, length = 10, columnDefinition = " ")
+	@Column(length = 10, columnDefinition = " ")
 	private String race;
 	private Person spouse;
 

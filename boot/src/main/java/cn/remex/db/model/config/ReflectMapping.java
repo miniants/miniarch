@@ -1,11 +1,10 @@
 package cn.remex.db.model.config;
 
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Types;
 
 
 @Table(uniqueConstraints={
@@ -22,18 +21,18 @@ public class ReflectMapping extends ModelableImpl{
 	private String mapClass;		//映射种类
 	private String mapType;	
 	//映射类型
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String targetClass;	//目标对象
-	@Column(type=Types.CHAR, length = 200, columnDefinition = " ")
+	@Column(length = 200, columnDefinition = " ")
 	private String sourceClass;	//源对象
 	private FieldMappingGroup fieldMappingGroup;
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String desc;	//描述
 
 	private String parentTargetClass;	//目标对象
 	private String parentSourceClass;	//源对象
 	
-	@Column(type=Types.CHAR, length = 500, columnDefinition = " ")
+	@Column(length = 500, columnDefinition = " ")
 	private String name;
 	
 	private String note;

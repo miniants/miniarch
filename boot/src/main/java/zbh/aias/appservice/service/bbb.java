@@ -1,4 +1,4 @@
-package klb.appservice.service;
+package zbh.aias.appservice.service;
 
 import cn.remex.web.service.BsCvo;
 

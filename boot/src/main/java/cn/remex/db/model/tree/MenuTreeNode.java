@@ -4,13 +4,8 @@ import cn.remex.db.cert.DataAccessScope;
 import cn.remex.db.model.cert.AuthRole;
 import cn.remex.db.model.cert.AuthUri;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.sql.Column;
 
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import java.sql.Types;
+import javax.persistence.*;
 import java.util.List;
 @DataAccessScope(scope=DataAccessScope.everyone)
 @Table(uniqueConstraints={
@@ -28,11 +23,11 @@ public class MenuTreeNode extends ModelableImpl{
 	private MenuTreeNode supNode;
 	@OneToMany(mappedBy="supNode")
 	private List<MenuTreeNode> subNodes;
-	@Column(type=Types.CHAR, length = 100, columnDefinition = " ")
+	@Column(length = 100, columnDefinition = " ")
 	private String nodeUri;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String nodeDesc;
-	@Column(type=Types.CHAR, length = 5, columnDefinition = " ")
+	@Column(length = 5, columnDefinition = " ")
 	private String nodeOrder;
 	@ManyToMany(mappedBy="menus")
 	private List<AuthRole> roles;
@@ -44,7 +39,7 @@ public class MenuTreeNode extends ModelableImpl{
 	private Icon iconOpen;		//展开图标
 	private boolean opened;
 	private boolean chkDisabled;
-	@Column(type=Types.CHAR, length = 50, columnDefinition = " ")
+	@Column(length = 50, columnDefinition = " ")
 	private String type;
 	public String getType() {
 		return type;
