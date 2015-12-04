@@ -16,7 +16,18 @@
       </configuration>
     </facet>
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-rmi.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/sp-servlet.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-sp.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-db.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-web.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-iso.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-bus.xml</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
@@ -28,7 +39,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.29" level="project" />
     <orderEntry type="library" name="Maven: net.sourceforge.jtds:jtds:1.2.4" level="project" />

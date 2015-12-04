@@ -17,7 +17,6 @@ import cn.remex.db.rsql.connection.dialect.Dialect;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.sql.SqlBean;
 import cn.remex.db.sql.SqlBeanNamedParam;
-import oracle.jdbc.internal.OraclePreparedStatement;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -305,10 +304,11 @@ public class RsqlDao {
 			for (SqlBeanNamedParam sqlNamedParam : sqlNamedParams) {
 				int t = sqlNamedParam.getType();
 				if (-1 != sqlNamedParam.getIndex())
-					if (t == Types.CLOB && pstmt instanceof OraclePreparedStatement) {
-						((OraclePreparedStatement) pstmt).setStringForClob(sqlNamedParam.getIndex(), String.valueOf(sqlNamedParam.getValue()));
-						// pstmt.setNull(sqlNamedParam.getIndex(),Types.CLOB);
-					} else if(t == Types.JAVA_OBJECT){
+//					if (t == Types.CLOB && pstmt instanceof OraclePreparedStatement) {
+//						((OraclePreparedStatement) pstmt).setStringForClob(sqlNamedParam.getIndex(), String.valueOf(sqlNamedParam.getValue()));
+//						// pstmt.setNull(sqlNamedParam.getIndex(),Types.CLOB);
+//					} else
+					if(t == Types.JAVA_OBJECT){
 						if(null == sqlNamedParam.getValue()){
 							pstmt.setBytes(sqlNamedParam.getIndex(),null);
 						}else{
