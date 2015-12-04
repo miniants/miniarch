@@ -1,5 +1,6 @@
 package cn.remex.db.bs;
 
+import cn.remex.db.sql.WhereRuleOper;
 import org.apache.log4j.Logger;
 
 import cn.remex.web.service.BsCvo;
@@ -264,7 +265,7 @@ public class DataBs implements Bs {
 			cvo.setSqlBeanWhere(sbw);			//设置过滤条件
 		}
 		if(!Judgment.nullOrBlank(dataCmd.getSearchField()) && !Judgment.nullOrBlank(dataCmd.getSearchString())){
-			cvo.addRule(dataCmd.getSearchField(), cn.remex.db.WhereRuleOper.valueOf(dataCmd.getSearchOper()), dataCmd.getSearchString());
+			cvo.addRule(dataCmd.getSearchField(), WhereRuleOper.valueOf(dataCmd.getSearchOper()), dataCmd.getSearchString());
 		}
 		
 		DbRvo dbRvo = ContainerFactory.getSession().query(cvo);
@@ -340,7 +341,7 @@ public class DataBs implements Bs {
 			dataResult.setPagination(dataCmd.getPagination());
 		}
 		if (null != ids){
-			cvo.addRule(RsqlConstants.PN_id, cn.remex.db.WhereRuleOper.in, ids);
+			cvo.addRule(RsqlConstants.PN_id, WhereRuleOper.in, ids);
 			DbRvo dbRvo =ContainerFactory.getSession().query(cvo);
 			DataBsRvoBody  dataBsRvoBody = new DataBsRvoBody();
 			bsRvo.setBody(dataBsRvoBody);

@@ -1,5 +1,6 @@
-package cn.remex.db;
+package cn.remex.db.lambdaapi;
 
+import cn.remex.db.DbCvo;
 import cn.remex.db.rsql.model.Modelable;
 
 /**

@@ -21,7 +21,7 @@ public class AuthResource extends ModelableImpl{
 
 
 	private String AuthenticateURI;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String note;
 	public AuthResource(final String name) {
 		super(name);

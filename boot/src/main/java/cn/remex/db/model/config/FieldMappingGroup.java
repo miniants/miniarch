@@ -18,7 +18,7 @@ public class FieldMappingGroup extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 6843228998756569768L;
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc;	//描述
 	
 	private FieldMappingGroup parentGroup;
@@ -27,7 +27,7 @@ public class FieldMappingGroup extends ModelableImpl{
 	private List<FieldMapping> fieldMappings;
 
 	
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String name;
 
 	

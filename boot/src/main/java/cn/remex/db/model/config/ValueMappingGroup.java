@@ -12,7 +12,7 @@ public class ValueMappingGroup extends ModelableImpl {
 	 * 
 	 */
 	private static final long serialVersionUID = -1369595788982316585L;
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc; // 描述
 
 	private String mapType; // 映射类型
@@ -24,7 +24,7 @@ public class ValueMappingGroup extends ModelableImpl {
 
 	private ValueMappingConfig valueMappingConfig;
 
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String name;
 
 	public ValueMappingConfig getValueMappingConfig() {

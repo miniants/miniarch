@@ -20,14 +20,14 @@ public class AuthUri extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = -2661818466025261442L;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String uri;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String uriName;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String uriDesc;
 	@Element(edittype=EditType.select,editoptions="{value:{forbidden:'禁止',permit:'允许',uncertainty:'待验证'}}")
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String verifyFlag;
 	@OneToMany(mappedBy="authUri",cascade={CascadeType.PERSIST})
 	private List<AuthParam> authParams;

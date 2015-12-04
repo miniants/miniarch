@@ -1,4 +1,4 @@
-package cn.remex.db;
+package cn.remex.db.sql;
 
 /**
  * Created by LIU on 15/12/1.

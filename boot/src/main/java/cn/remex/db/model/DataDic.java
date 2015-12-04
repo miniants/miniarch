@@ -15,13 +15,13 @@ public class DataDic extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = -1090462642025409610L;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String dataType;
-	@Column(length = 50, columnDefinition = " ")
-	private String TypeDesc;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 50)
+	private String typeDesc;
+	@Column(length = 30)
 	private String dataCode;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String dataDesc;
 	public String getDataType() {
 		return dataType;
@@ -30,10 +30,10 @@ public class DataDic extends ModelableImpl{
 		this.dataType = dataType;
 	}
 	public String getTypeDesc() {
-		return TypeDesc;
+		return typeDesc;
 	}
 	public void setTypeDesc(String typeDesc) {
-		TypeDesc = typeDesc;
+		this.typeDesc = typeDesc;
 	}
 	public String getDataCode() {
 		return dataCode;

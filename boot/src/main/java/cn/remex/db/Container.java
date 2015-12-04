@@ -7,6 +7,7 @@ import cn.remex.db.rsql.RsqlUtils;
 import cn.remex.db.rsql.connection.RDBSpaceConfig;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.rsql.transactional.RsqlTransaction;
+import cn.remex.db.sql.WhereRuleOper;
 
 import javax.persistence.ManyToMany;
 import java.util.HashMap;

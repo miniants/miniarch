@@ -228,7 +228,6 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 	 * @param beanName
 	 * @param fieldName
 	 * @param fieldType
-	 * @rmx.call {@link RsqlCore#refreshORMCollectionTables(RDBSpaceConfig)}
 	 */
 	public static void createCollectionTable(final Dialect dialect, final String beanName, final String fieldName, final Type fieldType) {
 
@@ -269,8 +268,6 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 	 * 直接获取非缓存dbbean
 	 * @param clazz
 	 * @return T
-	 * @rmx.call {@link RDBSpaceConfig#getDBBean(Class, Object)}
-	 * @rmx.call {@link RsqlRvo#setValue}
 	 */
 	public static <T> T createDBBean(final Class<T> clazz) {
 		RsqlAssert.notNull(clazz, "没有找到对应的ORMClass,无法创建相应的");

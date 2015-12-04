@@ -6,6 +6,7 @@ import cn.remex.db.rsql.RsqlConstants.SqlOper;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.sql.SqlBean;
 import cn.remex.db.sql.SqlType;
+import cn.remex.db.lambdaapi.WherePredicate;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -93,18 +94,10 @@ public class DbCvo<T extends Modelable> extends DbCvoChain<T> {
 		this.oper = oper;
 		if (null != params)
 			putParameters(params);
-
-
 		init(null);
 	}
-
-
-	public DbCvo<T> dataColumns(WherePredicat<T> ... ws){
+	public DbCvo<T> dataColumns(WherePredicate<T>... ws){
         ws[0].init(createAOPBean());
 		return this;
 	}
-
-	;
-
-
 }

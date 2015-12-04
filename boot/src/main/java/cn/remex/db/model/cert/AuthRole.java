@@ -1,7 +1,6 @@
 package cn.remex.db.model.cert;
 
 import cn.remex.db.cert.DataAccessScope;
-import cn.remex.db.model.Department;
 import cn.remex.db.model.tree.MenuTreeNode;
 import cn.remex.db.rsql.model.ModelableImpl;
 import cn.remex.db.view.Element;
@@ -31,21 +30,10 @@ public class AuthRole  extends ModelableImpl{
 	 * 允许访问的数据
 	 * 根据组织结构中的部门来决定。
 	 */
-	private List<Department> departmentsCanAccess;
 	public AuthRole(final String name) {
 		super(name);
 	}
-	public AuthRole() {
-	}
-
-	@Element(label="可访问数据的部门")
-	public List<Department> getDepartmentsCanAccess() {
-		return this.departmentsCanAccess;
-	}
-
-	public void setDepartmentsCanAccess(final List<Department> departmentsCanAccess) {
-		this.departmentsCanAccess = departmentsCanAccess;
-	}
+	public AuthRole() {}
 	public List<AuthUri> getAuthUris() {
 		return authUris;
 	}

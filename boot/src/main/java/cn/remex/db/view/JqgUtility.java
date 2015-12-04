@@ -11,6 +11,7 @@ import cn.remex.db.rsql.RsqlRvo;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.sql.SqlType;
 import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.WhereRuleOper;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -154,7 +155,7 @@ public class JqgUtility implements RemexConstants {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void initRules(final JqgColModel t) {
-					addRule(t.getBeanName(), cn.remex.db.WhereRuleOper.eq, beanName);
+					addRule(t.getBeanName(), WhereRuleOper.eq, beanName);
 				}
 			});
 			if (rvo.getRowCount() > 0) {

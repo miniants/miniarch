@@ -16,21 +16,21 @@ public class ConfigInfo extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 4986751129808284721L;
-	@Column(length = 10, columnDefinition = " ")
+	@Column(length = 10)
 	private String environment;
-	@Column(length = 25, columnDefinition = " ")
+	@Column(length = 25)
 	private String confClass;
-	@Column(length = 25, columnDefinition = " ")
+	@Column(length = 25)
 	private String confKind;
-	@Column(length = 25, columnDefinition = " ")
+	@Column(length = 25)
 	private String confType;
-	@Column(length = 10, columnDefinition = " ")
+	@Column(length = 10)
 	private String group;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String key;
-	@Column(length = 120, columnDefinition = " ")
+	@Column(length = 120)
 	private String value;
-	@Column(length = 300, columnDefinition = " ")
+	@Column(length = 300)
 	private String keyDesc;
 	public String getConfKind() {
 		return confKind;

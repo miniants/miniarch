@@ -1,6 +1,7 @@
 package cn.remex.db;
 
 import cn.remex.db.exception.RsqlDBExecuteException;
+import cn.remex.db.lambdaapi.SessionPredicate;
 import cn.remex.db.rsql.RsqlContainer;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.core.util.Judgment;
@@ -77,12 +78,12 @@ public class ContainerFactory {
 
 	public static  <T extends Modelable> DbCvo<T> createDbCvo(Class<T> beanClass){
 		return getSession().createDbCvo(beanClass);
-	};
+	}
 	public static  <T extends Modelable> Container createSession(Class<T> beanClass,SessionPredicate<T> sessionPredicate){
 		Container session = getSession();
 		DbCvo<T> dbCvo = session.createDbCvo(beanClass);
 		sessionPredicate.initDbCvo(dbCvo,dbCvo.createAOPBean());
 		return session;
-	};
+	}
 
 }

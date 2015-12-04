@@ -21,6 +21,7 @@ import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.rsql.transactional.RsqlTransaction;
 import cn.remex.db.sql.SqlType;
 import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.WhereRuleOper;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ManyToMany;
@@ -304,11 +305,11 @@ public class RsqlContainer implements Container, RsqlConstants {
 					value = ReflectUtil.invokeMethod(method, model);
 					if (null != value)
 						if (value instanceof Modelable)
-							addRule(key, cn.remex.db.WhereRuleOper.eq, ((Modelable) value).getId());
+							addRule(key, WhereRuleOper.eq, ((Modelable) value).getId());
 						else if (ReflectUtil.isNumeralType(value.getClass()) && Double.valueOf(value.toString()) == 0)
 							;// 将所有的数字类型为零的约束条件去掉
 						else if (ReflectUtil.isSimpleType(value.getClass()) && !SYS_dataStatus.equals(key) && !"version".equals(key))
-							addRule(key, cn.remex.db.WhereRuleOper.eq, value.toString());
+							addRule(key, WhereRuleOper.eq, value.toString());
 				}
 			}
 		}).obtainBeans();
@@ -423,7 +424,7 @@ public class RsqlContainer implements Container, RsqlConstants {
 		DbCvo<T> dbCvo = null == innerDbCvo? new DbCvo<T>(clazz):innerDbCvo;
 		dbCvo.setId(idObject.toString());
 		dbCvo.setDataType(DT_base + DT_object);
-		dbCvo.addRule(SYS_id, cn.remex.db.WhereRuleOper.eq, idObject.toString());
+		dbCvo.addRule(SYS_id, WhereRuleOper.eq, idObject.toString());
 		return this.query(dbCvo);
 	}
 
@@ -1061,7 +1062,7 @@ public class RsqlContainer implements Container, RsqlConstants {
 			Method getter = ReflectUtil.getGetter(clazz, fields[i]);
 			if (null == getter)
 				throw new RsqlExecuteException("数据库保存时(queryByFields)，所依据的fields在模型中不存在！");
-			dbCvo.addRule(fields[i], cn.remex.db.WhereRuleOper.eq, String.valueOf(values[i]));
+			dbCvo.addRule(fields[i], WhereRuleOper.eq, String.valueOf(values[i]));
 		}
 		dbCvo.setDataColumns(resultFields);
 		return query(dbCvo);
@@ -1129,7 +1130,7 @@ public class RsqlContainer implements Container, RsqlConstants {
 				Method getter = ReflectUtil.getGetter(dbCvo.getBeanClass(), field);
 				if (null == getter)
 					throw new RsqlExecuteException("数据库保存时(storeByField)，所依据的fields在模型中不存在！");
-				dbCvo.addRule(field, cn.remex.db.WhereRuleOper.eq, String.valueOf(ReflectUtil.invokeMethod(getter, bean)));
+				dbCvo.addRule(field, WhereRuleOper.eq, String.valueOf(ReflectUtil.invokeMethod(getter, bean)));
 			}
 			dbCvo.setUpdateByWhere(true);
 

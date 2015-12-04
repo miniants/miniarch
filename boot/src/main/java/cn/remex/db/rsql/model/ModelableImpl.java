@@ -63,7 +63,6 @@ public abstract class ModelableImpl implements Serializable, Modelable, SerialNo
 //	private StringBuilder _modifyFieldsDataTypeHasnot_cd=true;
 	/**
 	 * 用于添加已被修改的属性
-	 * @param m
 	 * @param fields
 	 */
 	public void _addModifyFileds(String... fields){
@@ -92,21 +91,21 @@ public abstract class ModelableImpl implements Serializable, Modelable, SerialNo
 	private String createTime;
 
 	private String dataStatus = RsqlConstants.DS_beanNew;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String id = null;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String modifyOperator;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String modifyOperator_name;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String modifyTime;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String name;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String note;
 	//LHY 2015-6-21 数据权限重新设计
 	/*private Department ownership;*/
-	@Column(length = 10, columnDefinition = " ")
+	@Column(length = 10)
 	private String ownership_name;
 
 	private int version;

@@ -16,13 +16,13 @@ public class SysCode extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 5450844183308334612L;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String codeType;
-	@Column(length=100, columnDefinition = " ")
+	@Column(length=100)
 	private String codeTypeDesc;
-	@Column(length=10, columnDefinition = " ")
+	@Column(length=10)
 	private String code;
-	@Column(length=50, columnDefinition = " ")
+	@Column(length=50)
 	private String codeName;
 	public String getCodeType() {
 		return codeType;

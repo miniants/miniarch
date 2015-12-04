@@ -13,19 +13,19 @@ public class AuthValue extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 1461748452524828978L;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String paramValue;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String valueDesc;
 	@Element(edittype=EditType.select,editoptions="{value:{forbidden:'禁止',permit:'允许'}}")
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String verifyFlag;
 	@Element(edittype=EditType.select,editoptions="{value:{f:'禁止访问',r:'只读',rw:'可读可写'}}")
-	@Column(length = 10, columnDefinition = " ")
+	@Column(length = 10)
 	private String dataAuth;
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String dataAuthDesc;
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String verifyOper;
 	private AuthParam authParam;
 	public String getParamValue() {

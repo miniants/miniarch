@@ -21,18 +21,18 @@ public class ReflectMapping extends ModelableImpl{
 	private String mapClass;		//映射种类
 	private String mapType;	
 	//映射类型
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String targetClass;	//目标对象
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String sourceClass;	//源对象
 	private FieldMappingGroup fieldMappingGroup;
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc;	//描述
 
 	private String parentTargetClass;	//目标对象
 	private String parentSourceClass;	//源对象
 	
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String name;
 	
 	private String note;

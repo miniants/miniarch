@@ -20,9 +20,9 @@ public class FieldMapping extends ModelableImpl{
 	private String sourceField;	//源对象字段名
 	
 	private String targetField;	//
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc;	//描述
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String name;
 	
 	private FieldMappingGroup fieldMappingGroup;//n:1所属的配置组

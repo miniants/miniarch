@@ -17,7 +17,7 @@ import java.util.List;
 	 * 
 	 */
 	private static final long serialVersionUID = 6740571069859243817L;
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc;	//描述
 	
 	private String mapType="default";		//映射类型
@@ -29,7 +29,7 @@ import java.util.List;
 	private List<ValueMappingGroup> valueMappingGroups;
 	
 	
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String name;
 	
 	

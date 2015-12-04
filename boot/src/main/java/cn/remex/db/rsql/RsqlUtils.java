@@ -1379,7 +1379,7 @@ public final class RsqlUtils implements RsqlConstants {
 			@Override
 			public void initRules(Modelable t) {
 				if(null!=refTypeColumn && null!=refCodeType)
-					addRule(refTypeColumn, cn.remex.db.WhereRuleOper.eq, refCodeType);
+					addRule(refTypeColumn, WhereRuleOper.eq, refCodeType);
 			}
 		});
 		Map<String, String> map = rvo.obtainMap(codeColumn, descColumn);
@@ -1421,7 +1421,7 @@ public final class RsqlUtils implements RsqlConstants {
 					SqlBeanWhere sbw = JsonHelper.toJavaObject(filters, SqlBeanWhere.class);
 					addGroup(sbw);
 				}else{//默认通过dataType=来匹配搜索
-					addRule(typeColumn, cn.remex.db.WhereRuleOper.eq, codeType);
+					addRule(typeColumn, WhereRuleOper.eq, codeType);
 				}
 			}
 		});

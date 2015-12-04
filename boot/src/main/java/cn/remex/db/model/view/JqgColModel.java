@@ -12,65 +12,65 @@ Comparable<JqgColModel> {
 	 */
 	private static final long serialVersionUID = -3828577709878191227L;
 
-	@Column(length = 10, columnDefinition = " ")
+	@Column(length = 10)
 	private String align = "left";
-	@Column(length = 300, columnDefinition = " ")
+	@Column(length = 300)
 	private String beanClassName;
-	@Column(length = 60, columnDefinition = " ")
+	@Column(length = 60)
 	private String beanName;
 
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String cellattr;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String classes;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String colModel;
 
 	private int colModelIndex = 100;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String colNames;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String datefmt;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String defval;
 	private boolean editable;
-	@Column(length = 600, columnDefinition = " ")
+	@Column(length = 600)
 	private String editoptions; // array
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String editrules;// array
-	@Column(length = 20, columnDefinition = " ")
+	@Column(length = 20)
 	private String edittype;
-	@Column(length = 300, columnDefinition = " ")
+	@Column(length = 300)
 	private String fieldName;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String firstsortorder;
 	private boolean fixed;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String formatoptions;// array
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String formatter;// mixed
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String formoptions;// array
 	private boolean hidden;
 	private boolean hidedlg;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String idx;
 	private boolean iskey;
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String jsonmap;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String label;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String name;
 
 	private boolean resizable = true;
 	private boolean search = true;
-	@Column(length = 600, columnDefinition = " ")
+	@Column(length = 600)
 	private String searchoptions = "{sopt:['cn','eq','ne','lt','le','gt','ge','bw','bn','ew','en','nc'] }";// array
 	private boolean sortable = true;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String sorttype;// mixed
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String stype;
 	private String surl;
 	private String template;// object

@@ -18,12 +18,12 @@ public class ValueMapping extends ModelableImpl{
 	private static final long serialVersionUID = 1001522598621838002L;
 	private String sourceCode;	//源对象字段名
 	private String targetCode;	//
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String desc;	//描述
 	
 	private ValueMappingGroup valueMappingGroup;
 	
-	@Column(length = 500, columnDefinition = " ")
+	@Column(length = 500)
 	private String name;
 
 	public String getName() {

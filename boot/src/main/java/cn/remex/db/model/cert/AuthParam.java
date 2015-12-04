@@ -16,10 +16,10 @@ public class AuthParam extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = 1889024500467572760L;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String paramName;
 //	@Element(edittype=EditType.select,editoptions="{value:{forbidden:'禁止',permit:'允许',uncertainty:'待验证'}}")
-//	@Column(length = 20, columnDefinition = " ")
+//	@Column(length = 20)
 	private String verifyFlag;
 	@OneToMany(mappedBy="authParam")
 	private List<AuthValue> authValues;

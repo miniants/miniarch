@@ -19,9 +19,9 @@ public class AuthPrivilege extends ModelableImpl {
 
 	private AuthResource authResource;
 	
-	@Column(length = 200, columnDefinition = " ")
+	@Column(length = 200)
 	private String note;
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String privilegeKey;
 
 

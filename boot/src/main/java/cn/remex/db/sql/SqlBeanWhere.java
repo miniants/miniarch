@@ -2,7 +2,6 @@ package cn.remex.db.sql;
 
 import cn.remex.core.exception.IllegalArgumentException;
 import cn.remex.db.DbCvo;
-import cn.remex.db.WhereRuleOper;
 import cn.remex.db.rsql.RsqlConstants.WhereGroupOp;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.connection.dialect.Dialect;
@@ -47,7 +46,7 @@ public class SqlBeanWhere implements Serializable {
 		StringBuilder cont = new StringBuilder();
 		// cont.append(dialect.quoteKey(tableName)).append(".");
 
-		WhereRuleOper ruleOper = cn.remex.db.WhereRuleOper.valueOf(sOper.trim());
+		WhereRuleOper ruleOper = WhereRuleOper.valueOf(sOper.trim());
 		switch (ruleOper) {
 		case eq: // 等于
 			cont.append(fullField).append("= :").append(sParamName).append(" ");

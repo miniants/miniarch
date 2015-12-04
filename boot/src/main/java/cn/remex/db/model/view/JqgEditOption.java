@@ -13,9 +13,9 @@ public class JqgEditOption extends ModelableImpl{
 	 */
 	private static final long serialVersionUID = -3079068997285934420L;
 
-	@Column(length = 30, columnDefinition = " ")
+	@Column(length = 30)
 	private String title;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String value;
 	public JqgEditOption() {
 	}

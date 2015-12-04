@@ -23,11 +23,11 @@ public class MenuTreeNode extends ModelableImpl{
 	private MenuTreeNode supNode;
 	@OneToMany(mappedBy="supNode")
 	private List<MenuTreeNode> subNodes;
-	@Column(length = 100, columnDefinition = " ")
+	@Column(length = 100)
 	private String nodeUri;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String nodeDesc;
-	@Column(length = 5, columnDefinition = " ")
+	@Column(length = 5)
 	private String nodeOrder;
 	@ManyToMany(mappedBy="menus")
 	private List<AuthRole> roles;
@@ -39,7 +39,7 @@ public class MenuTreeNode extends ModelableImpl{
 	private Icon iconOpen;		//展开图标
 	private boolean opened;
 	private boolean chkDisabled;
-	@Column(length = 50, columnDefinition = " ")
+	@Column(length = 50)
 	private String type;
 	public String getType() {
 		return type;

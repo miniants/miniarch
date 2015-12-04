@@ -14,6 +14,7 @@ import cn.remex.db.DbRvo;
 import cn.remex.db.model.SysMenu;
 import cn.remex.db.model.config.ConfigInfo;
 import cn.remex.db.rsql.model.ModelableImpl;
+import cn.remex.db.sql.WhereRuleOper;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 
@@ -44,7 +45,7 @@ public class RemexAdminUtil {
 			
 			l0.setSubMenus(new ArrayList<SysMenu>());
 			List<SysMenu> sm1list = s.createDbCvo(SysMenu.class)
-					.putOrder(true, "nodeOrder", "asc").putRule("parent", cn.remex.db.WhereRuleOper.eq, sysMenu1.getId())
+					.putOrder(true, "nodeOrder", "asc").putRule("parent", WhereRuleOper.eq, sysMenu1.getId())
 					.ready().query().obtainBeans();
 			for(SysMenu sm1:sm1list){
 				SysMenu l1 = new SysMenu();
@@ -54,7 +55,7 @@ public class RemexAdminUtil {
 				
 				l1.setSubMenus(new ArrayList<SysMenu>());
 				List<SysMenu> sm2list = s.createDbCvo(SysMenu.class)
-						.putOrder(true, "nodeOrder", "asc").putRule("parent", cn.remex.db.WhereRuleOper.eq, sm1.getId())
+						.putOrder(true, "nodeOrder", "asc").putRule("parent", WhereRuleOper.eq, sm1.getId())
 						.ready().query().obtainBeans();
 				for(SysMenu sm2:sm2list){
 					SysMenu l2 = new SysMenu();

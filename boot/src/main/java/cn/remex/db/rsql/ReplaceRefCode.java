@@ -9,6 +9,7 @@ import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.connection.RDBSpaceConfig;
 import cn.remex.db.rsql.connection.dialect.Dialect;
 import cn.remex.db.rsql.model.Modelable;
+import cn.remex.db.sql.WhereRuleOper;
 import org.apache.log4j.Logger;
 import org.apache.oro.text.regex.MatchResult;
 
@@ -144,7 +145,7 @@ public class ReplaceRefCode {
 			@Override
 			public void initRules(Modelable t) {
 				if(null!=refTypeColumn && null!=refCodeType)
-					addRule(refTypeColumn, cn.remex.db.WhereRuleOper.eq, refCodeType);
+					addRule(refTypeColumn, WhereRuleOper.eq, refCodeType);
 			}
 		});
 		Map<String, String> map = rvo.obtainMap(codeColumn, descColumn);
