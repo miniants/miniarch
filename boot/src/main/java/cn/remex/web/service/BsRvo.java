@@ -38,6 +38,7 @@ public class BsRvo implements Serializable{
      */
     public BsRvo(boolean status, Object body) {
         this.status = status;
+		this.body = body;
     }
 
     /**
@@ -61,6 +62,15 @@ public class BsRvo implements Serializable{
 		this.status = status;
 		this.msg = msg;
 		this.code = code;
+		this.body = body;
+	}
+	public BsRvo(boolean status, String msg, String code, Object body,String rv, String rt) {
+		this.status = status;
+		this.msg = msg;
+		this.code = code;
+		this.body = body;
+		this.rv = rv;
+		this.rt = rt;
 	}
 
 	public String getMsg() {

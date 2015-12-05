@@ -117,7 +117,7 @@ public class AdminBs {
 		if(r == null)
 			r = new AuthUser();
 		
-		AuthUser body = bsCvo.getBody();
+		AuthUser body = bsCvo.getUser();
 		
 		ReflectUtil.copyProperties(r, body);
 		r.setUsername(r.getName());

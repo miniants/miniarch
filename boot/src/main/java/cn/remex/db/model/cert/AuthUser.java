@@ -44,7 +44,6 @@ public class AuthUser extends ModelableImpl{
 		setName(name);
 		setUsername(name);
 	}
-//	@JSON(serialize=false)
 	@Element(label="密码")
 	public String getPassword() {
 		return this.password;

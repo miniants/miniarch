@@ -87,7 +87,7 @@ public final class ServiceFactory implements RemexRefreshable {
      * 根据bsName获得业务分发处理类
      *
      */
-    static public Object executeBs(String bs, String bsCmd, HttpServletRequest request, HttpServletResponse response) {
+    static public BsRvo executeBs(String bs, String bsCmd, HttpServletRequest request, HttpServletResponse response) {
         try {
 
             RemexConstants.logger.info("Executing Bs=" + bs + ";bsCmd=" + bsCmd);
@@ -129,7 +129,7 @@ public final class ServiceFactory implements RemexRefreshable {
                 paramArra.add(paramObj);
             }
 
-            return ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
+            return (BsRvo)ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
         } catch (Exception e) {
             RemexConstants.logger.error("调用本地Bs服务出现异常。", e);
             return new BsRvo(false,e.toString());
