@@ -29,6 +29,6 @@ public class CarInfoSimple {
             bb.setBody(carInfoSimpleBsOuter);
             return bb;
         }
-        return new BsRvo(true,"不存在","2",carInfoSimpleBsOuter);
+        return new BsRvo(true,"不存在","2",carInfoSimpleBsOuter,"index",null);
     }
 }

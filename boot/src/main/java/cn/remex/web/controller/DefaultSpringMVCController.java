@@ -3,6 +3,7 @@ package cn.remex.web.controller;
 import cn.remex.RemexConstants;
 import cn.remex.core.util.Judgment;
 import cn.remex.core.util.MapHelper;
+import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.ServiceFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,17 +59,19 @@ public class DefaultSpringMVCController implements RemexConstants {
             @PathVariable String id,
             HttpServletRequest request, HttpServletResponse response, CommonsMultipartFile[] files) {
 
-        Object bsRvo = ServiceFactory.executeBs(bs, bsCmd, request, response);//调用service
+        BsRvo bsRvo = ServiceFactory.executeBs(bs, bsCmd, request, response);//调用service
 
         Map<String,Object> map = MapHelper.toMap(bsRvo);
 
         Object rt = request.getParameter("rt");//返回视图的类型,前端请求jsp json xml,重新定向或者指定特定的类型
         if (Judgment.nullOrBlank(rt) && Judgment.nullOrBlank(rt = map.get("rt"))) {
-            rt = "json";
+            if(Judgment.nullOrBlank(rt = bsRvo.getRt()))
+                rt = "json";
         }
         Object rv = request.getParameter("rv");//返回视图的参数值,默认为/WEB-INF/page/bs_bsCmd.jsp
         if (Judgment.nullOrBlank(rv) && Judgment.nullOrBlank(rv = map.get("rv"))) {
-            rv = "WEB-INF/page/" + bs + "/" + bsCmd;
+            if(Judgment.nullOrBlank(rv = bsRvo.getRv()))
+                rv = "bspage/" + bs + "_" + bsCmd;
         }
         Object status = map.get("status");//前端判断响应是否正常的必要标识
         if(Judgment.nullOrBlank(status)){

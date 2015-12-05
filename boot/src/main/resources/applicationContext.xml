@@ -32,7 +32,7 @@
         <property name="ormBeanPackages">
             <list>
                 <value>cn.remex.model</value>
-                <value>klb.aibc.model</value>
+                <value>zhb.aias.model.vehicle</value>
             </list>
         </property>
     </bean>
