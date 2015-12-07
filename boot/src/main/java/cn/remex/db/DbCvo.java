@@ -4,9 +4,11 @@ import cn.remex.core.util.Assert;
 import cn.remex.db.exception.RsqlExecuteException;
 import cn.remex.db.rsql.RsqlConstants.SqlOper;
 import cn.remex.db.rsql.model.Modelable;
+import cn.remex.db.sql.Sort;
 import cn.remex.db.sql.SqlBean;
 import cn.remex.db.sql.SqlType;
 import cn.remex.db.lambdaapi.WherePredicate;
+import cn.remex.db.sql.WhereRuleOper;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -17,7 +19,7 @@ public class DbCvo<T extends Modelable> extends DbCvoChain<T> {
 	 * 用于通过切面捕获lambda表达式中调用get方法而获得field的.
 	 */
 	protected T aopBean;
-	public T createAOPBean(){
+	public T obtainAOPBean(){
 		return aopBean!=null? aopBean:(aopBean = DbCvoFactory.getBean(beanClass));
 	}
 
@@ -97,7 +99,19 @@ public class DbCvo<T extends Modelable> extends DbCvoChain<T> {
 		init(null);
 	}
 	public DbCvo<T> dataColumns(WherePredicate<T>... ws){
-        ws[0].init(createAOPBean());
+        ws[0].init(obtainAOPBean());
 		return this;
 	}
+	public DbCvo<T> filterBy(WherePredicate<T> wp, WhereRuleOper oper, String value) {
+        wp.init(obtainAOPBean());
+        String fieldName = obtainPredicateBeanField(null);
+        this.putRule(fieldName, oper, value);
+        return this;
+    }
+    public DbCvo<T> orderBy(WherePredicate<T> wp,Sort s) {
+        wp.init(obtainAOPBean());
+        String fieldName = obtainPredicateBeanField(null);
+        this.putOrder(true,fieldName,s.toString());
+        return this;
+    }
 }

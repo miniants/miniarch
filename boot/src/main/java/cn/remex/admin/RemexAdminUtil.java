@@ -3,6 +3,7 @@
  */
 package cn.remex.admin;
 
+import cn.remex.admin.appbeans.AdminBsCvo;
 import cn.remex.admin.appbeans.AdminBsRvo;
 import cn.remex.admin.appbeans.DataMeta;
 import cn.remex.core.reflect.ReflectUtil;
@@ -14,6 +15,7 @@ import cn.remex.db.DbRvo;
 import cn.remex.db.model.SysMenu;
 import cn.remex.db.model.config.ConfigInfo;
 import cn.remex.db.rsql.model.ModelableImpl;
+import cn.remex.db.sql.Sort;
 import cn.remex.db.sql.WhereRuleOper;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
@@ -30,23 +32,27 @@ import java.util.List;
 public class RemexAdminUtil {
 	private static SysMenu sysMenu;
 	/**
-	 * @param bsRvo
 	 * @param url
 	 * @return
 	 */
-	public static BsRvo obtainAdminRvo(AdminBsRvo bsRvo, String url) {
+	public static BsRvo obtainAdminRvo(AdminBsCvo bsCvo, String url) {
 		AdminBsRvo rvoBody;
 		Container s = ContainerFactory.getSession();
 
 		if(null==sysMenu){
 			SysMenu l0 = new SysMenu();
-			SysMenu sysMenu1 = s .createDbCvo(SysMenu.class).putOrder(true, "nodeOrder", "asc").ready().queryBeanByJpk(SysMenu.class, null, "id", "1");
+			SysMenu sysMenu1 = ContainerFactory.createDbCvo(SysMenu.class)
+					.orderBy(SysMenu::getNodeOrder, Sort.ASC)
+					.filterBy(SysMenu::getNodeName, WhereRuleOper.eq, "root")
+					.ready().queryBean();
 			ReflectUtil.copyProperties(l0, sysMenu1);
 			
 			l0.setSubMenus(new ArrayList<SysMenu>());
 			List<SysMenu> sm1list = s.createDbCvo(SysMenu.class)
-					.putOrder(true, "nodeOrder", "asc").putRule("parent", WhereRuleOper.eq, sysMenu1.getId())
-					.ready().query().obtainBeans();
+					.orderBy(SysMenu::getNodeOrder, Sort.ASC)
+					.filterBy(SysMenu::getParent, WhereRuleOper.eq, sysMenu1.getId())
+					.ready().queryBeans();
+			if(sm1list.size()>0)
 			for(SysMenu sm1:sm1list){
 				SysMenu l1 = new SysMenu();
 				ReflectUtil.copyProperties(l1, sm1);
@@ -55,8 +61,10 @@ public class RemexAdminUtil {
 				
 				l1.setSubMenus(new ArrayList<SysMenu>());
 				List<SysMenu> sm2list = s.createDbCvo(SysMenu.class)
-						.putOrder(true, "nodeOrder", "asc").putRule("parent", WhereRuleOper.eq, sm1.getId())
-						.ready().query().obtainBeans();
+						.orderBy(SysMenu::getNodeOrder, Sort.ASC)
+						.filterBy(SysMenu::getParent, WhereRuleOper.eq, sm1.getId())
+						.ready().queryBeans();
+				if(sm2list.size()>0)
 				for(SysMenu sm2:sm2list){
 					SysMenu l2 = new SysMenu();
 					ReflectUtil.copyProperties(l2, sm2);
@@ -67,7 +75,10 @@ public class RemexAdminUtil {
 			
 			sysMenu = l0;
 		}
-		bsRvo.setSysMenu(sysMenu);
+
+		AdminBsRvo bsRvo = new AdminBsRvo();
+		bsRvo.setStatus(true);
+		bsRvo.setSysMenus(sysMenu.getSubMenus());
 		bsRvo.setRv(url);
 		return bsRvo;
 	}

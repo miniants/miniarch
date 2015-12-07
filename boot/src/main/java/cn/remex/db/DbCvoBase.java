@@ -72,9 +72,6 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 					return null;
 				}
 			});
-	public T createAOPBean(){
-		return DbCvoFactory.getBean(beanClass);
-	}
 	/**
 	 * 用于匹配StringParam化的sql语句中的参数。
 	 * <li>原整个sql字符串:group(0)

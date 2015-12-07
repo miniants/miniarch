@@ -79,7 +79,7 @@ public class DefaultSpringMVCController implements RemexConstants {
         }
 
         ModelAndView mv = new ModelAndView(rv.toString());
-        mv.addAllObjects(map);
+        map.forEach((k,v)->mv.addObject(k,v));
         mv.addObject("id", id);
         return mv;//不能重定向web-info里面的文件,而且需要写上绝对路径
 

@@ -30,16 +30,22 @@
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
             <li class="header">Miniarch菜单</li>
-            <li class="active treeview">
-                <a href="#">
-                    <i class="fa fa-dashboard"></i> <span>Dashboard</span> <i
-                        class="fa fa-angle-left pull-right"></i>
-                </a>
-                <ul class="treeview-menu">
-                    <li class="active"><a href=""><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-                    <li><a href="index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
-                </ul>
-            </li>
+            <c:forEach items="${sysMenus}" var="menu">
+                <li class="${menu.checked? "active":""} ${menu.parentFlag? "treeview":""}">
+                    <a href="${""}#">
+                        <i class="fa fa-dashboard"></i>
+                        <span>${menu.nodeName}</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <c:if test="${menu.parentFlag}">
+                        <ul class="treeview-menu">
+                            <c:forEach items="${menu.subMenus}" var="s1menu">
+                                <li class="${s1menu.checked? "active":""}"><a href="${s1menu.nodeUri}"><i class="fa ${s1menu.icon}"></i>${s1menu.nodeName}</a></li>
+                            </c:forEach>
+                        </ul>
+                    </c:if>
+                </li>
+            </c:forEach>
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-files-o"></i>

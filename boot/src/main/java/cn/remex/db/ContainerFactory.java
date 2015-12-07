@@ -82,7 +82,7 @@ public class ContainerFactory {
 	public static  <T extends Modelable> Container createSession(Class<T> beanClass,SessionPredicate<T> sessionPredicate){
 		Container session = getSession();
 		DbCvo<T> dbCvo = session.createDbCvo(beanClass);
-		sessionPredicate.initDbCvo(dbCvo,dbCvo.createAOPBean());
+		sessionPredicate.initDbCvo(dbCvo,dbCvo.obtainAOPBean());
 		return session;
 	}
 

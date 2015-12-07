@@ -395,6 +395,41 @@ public class RsqlContainer implements Container, RsqlConstants {
 		// return RsqlDao.getDefaultRemexDao().executeQuery(dbCvo);
 		return query(innerDbCvo);
 	}
+
+	@Override
+	public <T> T queryBean() {
+		List<T> beans = (List<T>)query(innerDbCvo).obtainBeans();
+
+		return beans.size()>0?beans.get(0):null;
+	}
+
+	@Override
+	public <T> List<T> queryBeans() {
+		return (List<T>)query(innerDbCvo).obtainBeans();
+	}
+
+	@Override
+	public <T> T queryObject() {
+		List<T> beans = (List<T>)query(innerDbCvo).obtainObjects(innerDbCvo.getBeanClass());
+		return beans.size()>0?beans.get(0):null;
+	}
+
+	@Override
+	public <O> O queryObject(Class<O> clazz) {
+		List<O> beans = (List<O>)query(innerDbCvo).obtainObjects(clazz);
+		return beans.size()>0?beans.get(0):null;
+	}
+
+	@Override
+	public <T> List<T> queryObjects() {
+		return (List<T>)query(innerDbCvo).obtainObjects(innerDbCvo.getBeanClass());
+	}
+
+	@Override
+	public <O> List<O> queryObjects(Class<O> clazz) {
+		return (List<O>)query(innerDbCvo).obtainObjects(clazz);
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends Modelable> DbRvo query(final Class<T> clazz, String fields) {
 		DbCvo<T> dbCvo =  null==innerDbCvo?new DbCvo<T>(clazz):innerDbCvo;

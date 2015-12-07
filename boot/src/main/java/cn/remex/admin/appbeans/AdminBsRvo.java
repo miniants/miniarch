@@ -9,6 +9,7 @@ import java.util.List;
 
 public class AdminBsRvo extends BsRvo {
     private SysMenu sysMenu;
+    private List<SysMenu> sysMenus;
     private List<?> datas;
     private DataMeta dataMeta;
     private AuthUser user;
@@ -45,7 +46,11 @@ public class AdminBsRvo extends BsRvo {
 		this.dataMeta = dataMeta;
 	}
 
+    public List<SysMenu> getSysMenus() {
+        return sysMenus;
+    }
 
-
-
+    public void setSysMenus(List<SysMenu> sysMenus) {
+        this.sysMenus = sysMenus;
+    }
 }

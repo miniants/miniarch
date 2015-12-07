@@ -342,5 +342,11 @@ public interface Container {
 	 * @return
 	 */
 	public DbRvo query();
+	public <T> T queryBean();
+	public <T> List<T> queryBeans();
+	public <T> T queryObject();
+	public <O> O queryObject(Class<O> clazz);
+	public <T> List<T> queryObjects();
+	public <O> List<O> queryObjects(Class<O> clazz);
 
 }
