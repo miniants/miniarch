@@ -6,9 +6,9 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <head>
+<!DOCTYPE html>
+<html ng-app="indexApp">
+    <head ng-controller="mainCtrl">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Miniarch</title>
@@ -24,7 +24,7 @@
         <!-- Ionicons -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/plugins/ionicons/css/ionicons.min.css">
         <!-- Theme style -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/admin/css/AdminLTE.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/admin/css/AdminLTE.min.css">
         <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/admin/css/skins/_all-skins.min.css">
@@ -46,8 +46,11 @@
         <%--<!--[if lt IE 9]>--%>
         <%--<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>--%>
         <%--<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>--%>
+
+        <!-- jQuery 2.1.4 -->
+        <script src="${pageContext.request.contextPath}/static/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+        <script src="${pageContext.request.contextPath}/static/plugins/angular-1.3.9/angular.js"></script>
     </head>
-</head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
     <!-- 头部 head-->
@@ -56,7 +59,7 @@
     <!-- 左侧导航栏 left-->
     <%@include file="comm/admin_left.jsp" %>
     <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+    <%--<div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
@@ -70,10 +73,10 @@
         </section>
         <!-- Main content -->
         <section class="content">
-            <%--<%@include file="comm/admin_left.jsp" %>--%>
         </section>
         <!-- /.content -->
-    </div>
+    </div>--%>
+    <jsp:include page="${rp}.jsp"></jsp:include>
     <!-- /.content-wrapper -->
     <footer class="main-footer">
         <div class="pull-right hidden-xs">
@@ -83,8 +86,7 @@
         reserved.
     </footer>
 </div>
-<!-- jQuery 2.1.4 -->
-<script src="${pageContext.request.contextPath}/static/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+
 <!-- Bootstrap 3.3.5 -->
 <script src="${pageContext.request.contextPath}/static/plugins/bootstrap/js/bootstrap.min.js"></script>
 <!-- FastClick -->
@@ -115,5 +117,26 @@
 <!--<script src="dist/js/pages/dashboard.js"></script>-->
 <!-- AdminLTE for demo purposes -->
 <!--<script src="dist/js/demo.js"></script>-->
+
+<script>
+    var appRoot = "${pageContext.request.contextPath}/smvc/";
+    var app = angular.module('indexApp', []);
+    app.factory('Data', function() {
+        return {
+            name: "IndexData"
+        }
+    });
+    app.controller('mainCtrl', function($scope, $http, Data) {
+        $http.get(appRoot+"AdminBs/adminIndex.json")
+            .success(function (response) {
+                Data.sysMenus = response.sysMenus;
+            });
+    }).controller('navCtrl', function($scope, $http) {
+
+
+    }).controller('menuCtrl', function($scope, $http, Data) {
+        $scope.Data=Data;
+    });
+</script>
 </body>
 </html>

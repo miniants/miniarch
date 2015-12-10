@@ -18,6 +18,7 @@ public class BsRvo implements Serializable{
 
 	private String rt;
 	private String rv;
+	private String rp;
 
     /**
      */
@@ -119,5 +120,13 @@ public class BsRvo implements Serializable{
 
 	public void setRt(String rt) {
 		this.rt = rt;
+	}
+
+	public String getRp() {
+		return rp;
+	}
+
+	public void setRp(String rp) {
+		this.rp = rp;
 	}
 }

@@ -56,10 +56,10 @@ public class DefaultSpringMVCController implements RemexConstants {
     @SuppressWarnings({"unchecked", "deprecation"})
     private ModelAndView execute(
             @PathVariable String bs, @PathVariable String bsCmd,
-            @PathVariable String id,
+            @PathVariable String pk,
             HttpServletRequest request, HttpServletResponse response, CommonsMultipartFile[] files) {
 
-        BsRvo bsRvo = ServiceFactory.executeBs(bs, bsCmd, request, response);//调用service
+        BsRvo bsRvo = ServiceFactory.executeBs(bs, bsCmd, pk, request, response);//调用service
 
         Map<String,Object> map = MapHelper.toMap(bsRvo);
 
@@ -71,7 +71,12 @@ public class DefaultSpringMVCController implements RemexConstants {
         Object rv = request.getParameter("rv");//返回视图的参数值,默认为/WEB-INF/page/bs_bsCmd.jsp
         if (Judgment.nullOrBlank(rv) && Judgment.nullOrBlank(rv = map.get("rv"))) {
             if(Judgment.nullOrBlank(rv = bsRvo.getRv()))
-                rv = "bspage/" + bs + "_" + bsCmd;
+                rv = "default_layout";
+        }
+        Object rp = request.getParameter("rp");//返回视图的参数值,默认为/WEB-INF/page/bs_bsCmd.jsp
+        if (Judgment.nullOrBlank(rp) && Judgment.nullOrBlank(rp = map.get("rp"))) {
+            if(Judgment.nullOrBlank(rp = bsRvo.getRv()))
+                map.put("rp",("bspage/" + bs + "_" + bsCmd).toLowerCase());
         }
         Object status = map.get("status");//前端判断响应是否正常的必要标识
         if(Judgment.nullOrBlank(status)){
@@ -80,7 +85,7 @@ public class DefaultSpringMVCController implements RemexConstants {
 
         ModelAndView mv = new ModelAndView(rv.toString());
         map.forEach((k,v)->mv.addObject(k,v));
-        mv.addObject("id", id);
+        mv.addObject("pk", pk);
         return mv;//不能重定向web-info里面的文件,而且需要写上绝对路径
 
     }

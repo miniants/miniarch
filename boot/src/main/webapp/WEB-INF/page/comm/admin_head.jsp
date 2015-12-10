@@ -7,9 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
-<html>
-<body>
-<header class="main-header">
+<header class="main-header" ng-controller="navCtrl">
     <!-- Logo -->
     <a href="" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
@@ -67,5 +65,3 @@
         </div>
     </nav>
 </header>
-</body>
-</html>

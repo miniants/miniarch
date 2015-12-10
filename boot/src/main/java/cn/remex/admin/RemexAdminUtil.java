@@ -32,10 +32,10 @@ import java.util.List;
 public class RemexAdminUtil {
 	private static SysMenu sysMenu;
 	/**
-	 * @param url
+	 * @param rv
 	 * @return
 	 */
-	public static BsRvo obtainAdminRvo(AdminBsCvo bsCvo, String url) {
+	public static BsRvo obtainAdminRvo(AdminBsCvo bsCvo, String rv, String rp) {
 		AdminBsRvo rvoBody;
 		Container s = ContainerFactory.getSession();
 
@@ -79,7 +79,8 @@ public class RemexAdminUtil {
 		AdminBsRvo bsRvo = new AdminBsRvo();
 		bsRvo.setStatus(true);
 		bsRvo.setSysMenus(sysMenu.getSubMenus());
-		bsRvo.setRv(url);
+		bsRvo.setRv(rv);
+		bsRvo.setRp(rp);
 		return bsRvo;
 	}
 	

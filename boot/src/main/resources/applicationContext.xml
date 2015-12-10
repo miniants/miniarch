@@ -23,8 +23,8 @@
                   value="cn.remex.db.rsql.connection.dialect.MysqlDialect"/>
         <property name="url" value="jdbc:mysql://101.200.75.191:3306/KLB?characterEncoding=utf-8"/>
         <!--
-                <property name="url" 		value="jdbc:oracle:thin:@192.168.1.123:1521:orcl"></property>
-                 <property name="url" 		value="jdbc:oracle:thin:@localhost:1521:orcl"></property>  -->
+                <property name="rv" 		value="jdbc:oracle:thin:@192.168.1.123:1521:orcl"></property>
+                 <property name="rv" 		value="jdbc:oracle:thin:@localhost:1521:orcl"></property>  -->
         <property name="username" value="root"/>
         <property name="password" value="UR4miniants"/>
         <property name="maxconn" value="10"/>

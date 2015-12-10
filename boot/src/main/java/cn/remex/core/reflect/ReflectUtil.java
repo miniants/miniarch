@@ -354,7 +354,7 @@ public class ReflectUtil implements RemexConstants {
 	}
 	/**
 	 * 判断两个{@link Type}参数是否完全相等。
-	 * @rmx.summary 以下情况则返回true <li>1.当都是Class<?>并且完全相等 <li>2.如果是{@link Map}、{@link List}、{@link Collection}等<br>{@link ParameterizedTypeImpl},复杂类型则需RawType和ActualTypeArguments完全相等
+	 * @rmx.summary 以下情况则返回true <li>1.当都是Class<?>并且完全相等 <li>2.如果是{@link Map}、{@link List}、{@link Collection}等<br> ParameterizedTypeImpl,复杂类型则需RawType和ActualTypeArguments完全相等
 	 * @param type1 传入类型1
 	 * @param type2 传入类型2
 	 * @return 以下情况则返回true <li>1.当都是Class<?>并且完全相等 <li>2.如果是{@link Map}、
@@ -617,7 +617,7 @@ public class ReflectUtil implements RemexConstants {
 
 	/**
 	 * 获得List声明的对应的泛型类型
-	 * @param field
+	 * @param type
 	 * @return 泛型类型
 	 * TODO 未用
 	 */
@@ -720,7 +720,7 @@ public class ReflectUtil implements RemexConstants {
 	} 
 	/**
 	 * 根据类全名调用默认的无参构造函数生成相对应实例
-	 * @param clazz 所要生成实例的类
+	 * @param classFullName 所要生成实例的类
 	 * @return 返回该实例
 	 */
 	@SuppressWarnings("unchecked")
@@ -837,11 +837,10 @@ public class ReflectUtil implements RemexConstants {
 	/**
 	 * 调用setter方法对target赋值
 	 * @rmx.summary 调用默认的类型转化器，将value转化为适当的类型后<br>
-	 * @see ReflectUtil#caseObject(Type, Object)
 	 * @param setter 对象的setter方法
 	 * @param dest 目标对象
 	 * @param value 欲转换的value对象
-	 * @param features 附件功能
+	 * @param status 附件功能
 	 */
 	@SuppressWarnings({ "unchecked"})
 	public static void invokeSetterWithDefaultTypeCoventer(final Object dest,
@@ -1095,7 +1094,7 @@ public class ReflectUtil implements RemexConstants {
 	}
 	/**
 	 * 获取集合中实际元素的泛型类型
-	 * @param ex
+	 * @param type
 	 */
 	public static Class<?> obtainCollectionRawType(final Type type) {
 			Class<?> clazz;
@@ -1450,10 +1449,6 @@ public class ReflectUtil implements RemexConstants {
 	 * 例如：source名为getValueMethodName的方法的唯一参数类型为String.class
 	 * <p>
 	 * 默认无需特性功能. 如果不开启特性功能 默认将进行全值赋值 即不进行null->""转化，并无论value是何值，将覆盖dest相应的值。
-	 * 
-	 * 
-	 * @see ReflectUtil#setProperties(Object, Method, Object, SPFeature[],
-	 *      String...)
 	 */
 	public static void setProperties(final Object target, final Object source,
 			final String getValueMethodName, final String... nameFixs) {
@@ -1563,9 +1558,17 @@ public class ReflectUtil implements RemexConstants {
 			}
 		}
 	}
+	static public <T extends Annotation> T getMethodAnnotation(final Class<?> clazz,final String methodName,final Class<T> annotationClass){
+		Method m = getMethod(clazz,methodName);
+        if(null!=m){
+            T anno = m.getAnnotation(annotationClass);
+            if(null!=anno) {
+                return anno;
+            }
+        }
+		return null;
+	}
 	static public <T extends Annotation> T getAnnotation(final Class<?> clazz,final Class<T> annotationClass){
-		
-		
 		return clazz.getAnnotation(annotationClass);
 	}
 	/**

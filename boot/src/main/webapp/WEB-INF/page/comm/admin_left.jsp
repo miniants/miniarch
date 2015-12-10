@@ -9,12 +9,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
-<html>
-<head>
-    <title>Title</title>
-</head>
-<body>
-<aside class="main-sidebar">
+<aside class="main-sidebar" ng-controller="menuCtrl">
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <!-- Sidebar user panel -->
@@ -29,7 +24,7 @@
         </div>
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
-            <li class="header">Miniarch菜单</li>
+            <li class="header">Miniarch菜单{{Data.sysMenus[0].nodeName}}</li>
             <c:forEach items="${sysMenus}" var="menu">
                 <li class="${menu.checked? "active":""} ${menu.parentFlag? "treeview":""}">
                     <a href="${""}#">
@@ -178,5 +173,3 @@
     </section>
     <!-- /.sidebar -->
 </aside>
-</body>
-</html>

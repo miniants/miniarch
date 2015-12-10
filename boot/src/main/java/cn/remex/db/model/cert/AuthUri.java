@@ -26,26 +26,8 @@ public class AuthUri extends ModelableImpl{
 	private String uriName;
 	@Column(length = 100)
 	private String uriDesc;
-	@Element(edittype=EditType.select,editoptions="{value:{forbidden:'禁止',permit:'允许',uncertainty:'待验证'}}")
-	@Column(length = 20)
-	private String verifyFlag;
-	@OneToMany(mappedBy="authUri",cascade={CascadeType.PERSIST})
-	private List<AuthParam> authParams;
-	private DataDic group;
 	@ManyToMany(mappedBy="authUris")
 	private List<AuthRole> roles;
-	public String getVerifyFlag() {
-		return verifyFlag;
-	}
-	public void setVerifyFlag(String verifyFlag) {
-		this.verifyFlag = verifyFlag;
-	}
-	public List<AuthParam> getAuthParams() {
-		return authParams;
-	}
-	public void setAuthParams(List<AuthParam> authParams) {
-		this.authParams = authParams;
-	}
 	public String getUri() {
 		return uri;
 	}
@@ -63,12 +45,6 @@ public class AuthUri extends ModelableImpl{
 	}
 	public void setUriDesc(String uriDesc) {
 		this.uriDesc = uriDesc;
-	}
-	public DataDic getGroup() {
-		return group;
-	}
-	public void setGroup(DataDic group) {
-		this.group = group;
 	}
 	public List<AuthRole> getRoles() {
 		return roles;

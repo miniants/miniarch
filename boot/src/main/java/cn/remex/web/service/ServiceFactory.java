@@ -16,10 +16,7 @@ import cn.remex.RemexConstants;
 import cn.remex.core.RemexApplication;
 import cn.remex.core.RemexRefreshable;
 import cn.remex.core.reflect.ReflectUtil;
-import cn.remex.core.util.Judgment;
-import cn.remex.core.util.MapHelper;
-import cn.remex.core.util.PackageUtil;
-import cn.remex.core.util.StringHelper;
+import cn.remex.core.util.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -38,8 +35,17 @@ import java.util.*;
  * @since 2013-7-20
  */
 public final class ServiceFactory implements RemexRefreshable {
+    public static Map<String, Class<?>> getBsMap() {
+        return bsMap;
+    }
+
+    public static void setBsMap(Map<String, Class<?>> bsMap) {
+        ServiceFactory.bsMap = bsMap;
+    }
+
     private static Map<String, Class<?>> bsMap = new HashMap<String, Class<?>>();
     private static List<String> bsPackages = new ArrayList<String>();
+
     static {
         String defaultPackage = "cn.remex";
         bsPackages.add(defaultPackage);
@@ -65,7 +71,7 @@ public final class ServiceFactory implements RemexRefreshable {
             if (c.isAnnotationPresent(BusinessService.class) && !c.isInterface()) {
                 String bsName = StringHelper.getClassSimpleName(c);
                 if (bsMap.containsKey(bsName))
-                    throw new BsException("扫描BusinessPackage发现异常,有重复的bsName:"+bsName);
+                    throw new BsException("扫描BusinessPackage发现异常,有重复的bsName:" + bsName);
                 bsMap.put(bsName, (Class<?>) c);
             }
         }
@@ -85,42 +91,45 @@ public final class ServiceFactory implements RemexRefreshable {
 
     /**
      * 根据bsName获得业务分发处理类
-     *
      */
-    static public BsRvo executeBs(String bs, String bsCmd, HttpServletRequest request, HttpServletResponse response) {
+    static public BsRvo executeBs(String bs, String bsCmd, String pk, HttpServletRequest request, HttpServletResponse response) {
         try {
 
             RemexConstants.logger.info("Executing Bs=" + bs + ";bsCmd=" + bsCmd);
+            BusinessService bsan = ReflectUtil.getMethodAnnotation(bsMap.get(bs), bsCmd, BusinessService.class);
+            Assert.notNull(bsan, "业务服务不存在!", BsException.class);
+
             Object bsObj = ServiceFactory.createBs(bs);
             Method cglibBsCmdMethod = ReflectUtil.getMethod(bsObj.getClass(), bsCmd); // 此处应该用实例的类来查找对应的方法,否则会越过代理直接调用原始方法
 
             ArrayList<Object> paramArra = new ArrayList();
             //处理文件上传
-            BusinessService bsan = ReflectUtil.getAnnotation(bsMap.get(bs), bsCmd, BusinessService.class);
-            if(null != bsan && bsan.withMultiPart()){
+            if (null != bsan && bsan.withMultiPart()) {
 
             }
-            Map params = request.getParameterMap();
+            Map params = new HashMap();
+            params.putAll(request.getParameterMap());
+            params.put("pk",pk);
             Parameter[] parameters = cglibBsCmdMethod.getParameters();
-            for(Parameter param:parameters){
+            for (Parameter param : parameters) {
                 Class paramType = param.getType();
                 String paramName = param.getName();
                 Object paramObj;
-                if(ReflectUtil.isSimpleType(paramType)){
-                    if(Judgment.nullOrBlank(paramName)){
+                if (ReflectUtil.isSimpleType(paramType)) {
+                    if (Judgment.nullOrBlank(paramName)) {
                         RemexConstants.logger.warn("无法获得参数名,本框架需要Java8以上版本,且编译时需要指定参数-parameters");
                     }
-                    paramObj = ReflectUtil.caseObject(paramType,params.get(paramName));
-                }else{
+                    paramObj = ReflectUtil.caseObject(paramType, params.get(paramName));
+                } else {
                     paramObj = ReflectUtil.invokeNewInstance(param.getType());
                     MapHelper.objectFromFlat(paramObj, params);
                 }
 
-                if(BsCvo.class.isAssignableFrom(paramType)){//如果是符合框架bsCvo的模式,将参数列表放进去以便后续灵活的操作
-                    BsCvo bsCvo = (BsCvo)paramObj;
-                    if(bsCvo.getParams()!=null){
+                if (BsCvo.class.isAssignableFrom(paramType)) {//如果是符合框架bsCvo的模式,将参数列表放进去以便后续灵活的操作
+                    BsCvo bsCvo = (BsCvo) paramObj;
+                    if (bsCvo.getParams() != null) {
                         bsCvo.getParams().putAll(params);
-                    }else{
+                    } else {
                         bsCvo.setParams(params);
                     }
                     bsCvo.setContextPath(request.getContextPath());
@@ -129,10 +138,10 @@ public final class ServiceFactory implements RemexRefreshable {
                 paramArra.add(paramObj);
             }
 
-            return (BsRvo)ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
+            return (BsRvo) ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
         } catch (Exception e) {
             RemexConstants.logger.error("调用本地Bs服务出现异常。", e);
-            return new BsRvo(false,e.toString());
+            return new BsRvo(false, e.toString());
         }
 
     }
@@ -140,27 +149,29 @@ public final class ServiceFactory implements RemexRefreshable {
     @Override
     public void refresh() {
         bsMap = new HashMap<String, Class<?>>();
-        bsPackages.stream().forEach(p->{scanPackagesForBs(p);});
+        bsPackages.stream().forEach(p -> {
+            scanPackagesForBs(p);
+        });
     }
 
-    private static Files[] uploadFiles(HttpServletRequest request){
+    private static Files[] uploadFiles(HttpServletRequest request) {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         //判断 request 是否有文件上传,即多部分请求
-        if(multipartResolver.isMultipart(request)){
+        if (multipartResolver.isMultipart(request)) {
             //转换成多部分request
-            MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest)request;
+            MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
             //取得request中的所有文件名
             Iterator<String> iter = multiRequest.getFileNames();
-            while(iter.hasNext()){
+            while (iter.hasNext()) {
                 //记录上传过程起始时的时间，用来计算上传时间
                 int pre = (int) System.currentTimeMillis();
                 //取得上传文件
                 MultipartFile file = multiRequest.getFile(iter.next());
-                if(file != null){
+                if (file != null) {
                     //取得当前上传文件的文件名称
                     String myFileName = file.getOriginalFilename();
                     //如果名称不为“”,说明该文件存在，否则说明该文件不存在
-                    if(myFileName.trim() !=""){
+                    if (myFileName.trim() != "") {
                         System.out.println(myFileName);
 //                        //重命名上传后的文件名
 //                        String fileName = "demoUpload" + file.getOriginalFilename();

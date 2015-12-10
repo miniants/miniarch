@@ -81,11 +81,19 @@ public class AdminBs {
 //        List<SysMenu> sysMenus = ContainerFactory.createDbCvo(SysMenu.class).filterBy(SysMenu::getParent,WhereRuleOper.eq,"root")
 //                .ready().query().obtainBeans();
 
-        return RemexAdminUtil.obtainAdminRvo(bsCvo,"index");
+        return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
 	@BusinessService
 	public BsRvo confSysMenu(AdminBsCvo bsCvo) {
-		return RemexAdminUtil.obtainAdminRvo(bsCvo, "/admin/admin");
+		return RemexAdminUtil.obtainAdminRvo(bsCvo, null,null);
+	}
+	@BusinessService
+	public BsRvo adminIndex(AdminBsCvo bsCvo){
+		return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
+	}
+	@BusinessService
+	public BsRvo roles(AdminBsCvo bsCvo){
+		return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
 	@BusinessService
 	public BsRvo delUser(AdminBsCvo bsCvo) {
@@ -103,7 +111,7 @@ public class AdminBs {
 	public BsRvo editUser(AdminBsCvo bsCvo,BsRvo bsRvo) {
 		String id = bsCvo.getPk();
 		
-		bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo,"/admin/editUser");
+		bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 		Container session = ContainerFactory.getSession();
 		
 		List<?> data = session.queryById(AuthUser.class, id).obtainObjects(AuthUser.class);
@@ -139,10 +147,10 @@ public class AdminBs {
 	@BusinessService
 	public BsRvo listLogonLogMsg(AdminBsCvo bsCvo) {
 		//String id = bsCvo.getHead().getResources();
-		BsRvo bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo, "/admin/listLogonLogMsg");
+		BsRvo bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo, null,null);
 		
 		DbRvo dbRvo = RemexAdminUtil.obtainDbCvo(LogonLogMsg.class, bsCvo).ready().query();
-		
+
 		((AdminBsRvo) bsRvo.getBody()).setDatas(dbRvo.obtainObjects(LogonLogMsg.class));
 		RemexAdminUtil.saveDataMeta(bsRvo, dbRvo);
 		
