@@ -1,5 +1,6 @@
 package cn.remex.db;
 
+import cn.remex.db.lambdaapi.ColumnPredicate;
 import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlContainer;
 import cn.remex.db.rsql.RsqlCore;
@@ -348,5 +349,6 @@ public interface Container {
 	public <O> O queryObject(Class<O> clazz);
 	public <T> List<T> queryObjects();
 	public <O> List<O> queryObjects(Class<O> clazz);
-
+	public <T extends Modelable> List queryObjectsByCollectionField(Class<T> clazz,ColumnPredicate<T> cpK,Object foreignKey);
+	public <T extends Modelable> DbRvo queryByCollectionField(Class<T> clazz, ColumnPredicate<T> cp,Object foreignKey);
 }

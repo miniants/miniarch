@@ -501,7 +501,6 @@ public class RsqlRvo  extends DbRvo  {
 	 * 获得该列明是第几列
 	 * @param columnName
 	 * @return int
-	 * @rmx.call {@link RsqlRvo#getCell()}
 	 * @rmx.call {@link RsqlRvo#getColumn(String)}
 	 * @rmx.call {@link RsqlRvo#getMapFromColumns(String, String, String, String)}
 	 * @rmx.call {@link RsqlRvo#getRows(String, String)}
@@ -947,6 +946,12 @@ public class RsqlRvo  extends DbRvo  {
 	@Override
 	public <T extends Modelable> List<T> obtainBeans(Class<? extends Modelable> modelClass) {
 		return (List<T>) obtainBeans(modelClass, true,null);
+	}
+
+	@Override
+	public List<?> obtainObjects() {
+		List<?> list = obtainObjects(this.beanClass);
+		return list;
 	}
 
 	public DbCvo<?> _getRsqlCvo() {

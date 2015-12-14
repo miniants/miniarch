@@ -5,6 +5,7 @@ import cn.remex.db.model.tree.MenuTreeNode;
 import cn.remex.db.rsql.model.ModelableImpl;
 import cn.remex.db.view.Element;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;

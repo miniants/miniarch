@@ -8,6 +8,7 @@ import cn.remex.core.reflect.ReflectUtil;
 import cn.remex.core.reflect.ReflectUtil.SPFeature;
 import cn.remex.core.util.Assert;
 import cn.remex.core.util.StringHelper;
+import cn.remex.db.exception.RsqlException;
 import cn.remex.db.exception.RsqlInitException;
 import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlConstants.SqlOper;
@@ -55,37 +56,24 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	protected static AOPFactory DbCvoFactory = new AOPFactory(
 			new AOPCaller(null) {
 				@Override
-				public Object intercept(final Object obj, final Method method,
-										final Object[] args, final MethodProxy proxy)
-						throws Throwable {
+				public Object intercept(final Object obj, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {
 					// 查找
 					String name = method.getName();
 					if (name.startsWith("get")
 							&& method.getParameterTypes().length == 0) {// predicate
 						// 中用get的方法来获得sql中需要操作的field
-						Assert.isNull(CoreSvo.$VL(PredicateBean_Invoked_Field),
-								"请在addrule方法的参数中直接使用变量或值，或者至少保证其参数不能是自动查询数据库的，否则将在rule的生成逻辑中出现嵌套错误！");
-						CoreSvo.$SL(PredicateBean_Invoked_Field,StringHelper.lowerFirstLetter(name.substring(3)));
+						if(null !=CoreSvo.$VL(PredicateBean_Invoked_Field)){
+							CoreSvo.$SL(PredicateBean_Invoked_Field,null);
+							throw new RsqlException("请在addrule方法的参数中直接使用变量或值，或者至少保证其参数不能是自动查询数据库的，否则将在rule的生成逻辑中出现嵌套错误！");
+						}else{
+							CoreSvo.$SL(PredicateBean_Invoked_Field,StringHelper.lowerFirstLetter(name.substring(3)));
+						}
 
 					}
 					// 只是为了截获属性名称,不用真实的调用
 					return null;
 				}
 			});
-	/**
-	 * 用于匹配StringParam化的sql语句中的参数。
-	 * <li>原整个sql字符串:group(0)
-	 * <li>含有$后缀的参数 :group(1)
-	 * <li>参数名 :group(2)
-	 * <li>参数名 :group(3)  Flag
-	 * <li>最小长度:group(4) width
-	 * <li>最大长度:group(6) precision
-	 * <li>conversion:group(7)
-	 */
-	protected static String stringParamRegx = "%((\\w{2,})\\$)?([\\-#+ 0,\\(]?)(\\d*?)(\\.(\\d*))?([bscdf])";
-	protected static String stringParamRegxForReplace = "$3$4$5$7";
-
-
 	/**
 	 * 此方法通过切面，在目标对象属性调用getter时， 捕获属性的名称作为sql语句中where条件的参数。
 	 * 在一次whererule的创建中只能用一次。
@@ -102,6 +90,23 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 		CoreSvo.$SL(PredicateBean_Invoked_Field,null);
 		return fieldName;
 	}
+	public static <T> T createAOPBean(Class<T> beanClass){
+		return DbCvoFactory.getBean(beanClass);
+	}
+	/**
+	 * 用于匹配StringParam化的sql语句中的参数。
+	 * <li>原整个sql字符串:group(0)
+	 * <li>含有$后缀的参数 :group(1)
+	 * <li>参数名 :group(2)
+	 * <li>参数名 :group(3)  Flag
+	 * <li>最小长度:group(4) width
+	 * <li>最大长度:group(6) precision
+	 * <li>conversion:group(7)
+	 */
+	protected static String stringParamRegx = "%((\\w{2,})\\$)?([\\-#+ 0,\\(]?)(\\d*?)(\\.(\\d*))?([bscdf])";
+
+
+	protected static String stringParamRegxForReplace = "$3$4$5$7";
 	/**
 	 * 官方的写法：%[argument_<font color=green>index</font>$][flags][width][.precision]conversion
 	 *

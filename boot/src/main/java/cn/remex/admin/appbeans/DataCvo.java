@@ -2,11 +2,11 @@ package cn.remex.admin.appbeans;
 
 import cn.remex.web.service.BsCvo;
 
-public class DataMeta  extends BsCvo {
-	private int rowCount;
-	private int pagination;
-	private int pageCount;
-	private int recordCount;
+public class DataCvo extends BsCvo {
+	private int rowCount=10;
+	private int pagination=1;
+	private int pageCount=0;
+	private int recordCount=0;
 	public int getRowCount() {
 		return rowCount;
 	}
@@ -31,5 +31,4 @@ public class DataMeta  extends BsCvo {
 	public void setPageCount(int pageCount) {
 		this.pageCount = pageCount;
 	}
-
 }

@@ -7,11 +7,9 @@ import cn.remex.web.service.BsRvo;
 import java.util.List;
 
 
-public class AdminBsRvo extends BsRvo {
+public class AdminBsRvo extends DataRvo {
     private SysMenu sysMenu;
     private List<SysMenu> sysMenus;
-    private List<?> datas;
-    private DataMeta dataMeta;
     private AuthUser user;
 
     public AuthUser getUser() {
@@ -29,22 +27,6 @@ public class AdminBsRvo extends BsRvo {
     public void setSysMenu(SysMenu sysMenu) {
         this.sysMenu = sysMenu;
     }
-
-    public List<?> getDatas() {
-        return datas;
-    }
-
-    public void setDatas(List<?> datas) {
-        this.datas = datas;
-    }
-
-	public DataMeta getDataMeta() {
-		return dataMeta;
-	}
-
-	public void setDataMeta(DataMeta dataMeta) {
-		this.dataMeta = dataMeta;
-	}
 
     public List<SysMenu> getSysMenus() {
         return sysMenus;

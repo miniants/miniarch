@@ -15,6 +15,8 @@ import cn.remex.db.exception.FatalOrmBeanException;
 import cn.remex.db.exception.IllegalSqlBeanArgumentException;
 import cn.remex.db.exception.RsqlException;
 import cn.remex.db.exception.RsqlExecuteException;
+import cn.remex.db.lambdaapi.ColumnPredicate;
+import cn.remex.db.model.cert.AuthRole;
 import cn.remex.db.model.cert.AuthUser;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.model.Modelable;
@@ -155,12 +157,13 @@ public class RsqlContainer implements Container, RsqlConstants {
 
 	@Override
 	public RsqlRvo executeQuery(final String sql, final HashMap<String, Object> params) {
-		Assert.isTrue(null==innerDbCvo,"此处executeQuery(final String sql, final HashMap<String, Object> params)不支持链式模式的数据库访问！",RsqlException.class);
+		Assert.isTrue(null == innerDbCvo, "此处executeQuery(final String sql, final HashMap<String, Object> params)不支持链式模式的数据库访问！", RsqlException.class);
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		DbCvo<?> dbCvo = new DbCvo(obtainManualSql(sql), params);
 		dbCvo.setSpaceName(spaceName);
 		dbCvo.setRowCount(0); // TODO 现在是自动全查
 		dbCvo.initParam();// LHY 2015-1-17 挪到此处更加恰当，Dao切面捕获异常时需要用到sqlbean，必须提前初始化。
+		dbCvo.setBeanClass((Class) params.get("RMX_beanClass"));
 		return RsqlDao.getDefaultRemexDao().executeQuery(dbCvo);
 	}
 
@@ -168,7 +171,7 @@ public class RsqlContainer implements Container, RsqlConstants {
 	@RsqlTransaction
 	// 此方法被外部调用时需要配置该声明。该声明在本模块内部调用时无法触发事务切面的。
 	public RsqlRvo executeUpdate(final String sql, final HashMap<String, Object> params) {
-		Assert.isTrue(null==innerDbCvo,"此处executeUpdate(final String sql, final HashMap<String, Object> params)不支持链式模式的数据库访问！",RsqlException.class);
+		Assert.isTrue(null == innerDbCvo, "此处executeUpdate(final String sql, final HashMap<String, Object> params)不支持链式模式的数据库访问！", RsqlException.class);
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		DbCvo<?> dbCvo = new DbCvo(obtainManualSql(sql), params);
 		dbCvo.setSpaceName(spaceName);
@@ -430,6 +433,16 @@ public class RsqlContainer implements Container, RsqlConstants {
 		return (List<O>)query(innerDbCvo).obtainObjects(clazz);
 	}
 
+	@Override
+	public <T extends Modelable> List queryObjectsByCollectionField(Class<T> clazz, ColumnPredicate<T> cp,Object foreignKey) {
+		return queryByCollectionField(clazz,cp,foreignKey).obtainObjects();
+	}
+	@Override
+	public <T extends Modelable> DbRvo queryByCollectionField(Class<T> clazz, ColumnPredicate<T> cp,Object foreignKey) {
+		cp.init(DbCvo.createAOPBean(clazz));
+		String fieldName = DbCvo.obtainPredicateBeanField(null);
+		return RsqlUtils.queryCollectionBeans(clazz, fieldName,foreignKey);
+	}
 	@SuppressWarnings("unchecked")
 	public <T extends Modelable> DbRvo query(final Class<T> clazz, String fields) {
 		DbCvo<T> dbCvo =  null==innerDbCvo?new DbCvo<T>(clazz):innerDbCvo;
@@ -732,7 +745,7 @@ public class RsqlContainer implements Container, RsqlConstants {
 			return SqlOper.add;
 		else if (!idForNew && (!isUpdateByWhere) && (DS_removed.equals(dataStatus) || SqlOper.del.equals(sqlOper)))
 			return SqlOper.del;
-		else if (isUpdateByWhere || (!idForNew && (DS_managed.equals(dataStatus) || DS_needSave.equals(dataStatus) || DS_part.equals(dataStatus) || SqlOper.edit.equals(sqlOper))))
+		else if (isUpdateByWhere || (!idForNew && (DS_beanNew.equals(dataStatus) || DS_managed.equals(dataStatus) || DS_needSave.equals(dataStatus) || DS_part.equals(dataStatus) || SqlOper.edit.equals(sqlOper))))
 			return SqlOper.edit;
 		else
 			throw new InvalidOperException("数据状态id及dataStatus错误！(add：id为空或者-1 && beanNew或者needSave)；del:id不能为空并且removed；edit:isUpdateByWhere=true/id不能为空 && managed或者needSave");

@@ -25,7 +25,19 @@
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
             <li class="header">Miniarch菜单{{Data.sysMenus[0].nodeName}}</li>
-            <c:forEach items="${sysMenus}" var="menu">
+
+
+            <li ng-repeat="sysMenu in Data.sysMenus" class="{{sysMenu.checked | filter:{true:'active'} }} {{sysMenu.parentFlag | filter:{true:'treeview'} }}">
+                <a href="{{sysMenu.nodeUri}}">
+                    <i class="fa fa-dashboard"></i>
+                    <span>{{sysMenu.nodeName}}</span>
+                    <i class="fa fa-angle-left pull-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li ng-repeat="s1menu in sysMenu.subMenus" class="{{s1menu.checked | filter:{true:'active'} }}"><a href="${mvcRoot}{{s1menu.nodeUri}}"><i class="fa {{s1menu.icon}}"></i>{{s1menu.nodeName}}</a></li>
+                </ul>
+            </li>
+<%--            <c:forEach items="${sysMenus}" var="menu">
                 <li class="${menu.checked? "active":""} ${menu.parentFlag? "treeview":""}">
                     <a href="${""}#">
                         <i class="fa fa-dashboard"></i>
@@ -40,7 +52,7 @@
                         </ul>
                     </c:if>
                 </li>
-            </c:forEach>
+            </c:forEach>--%>
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-files-o"></i>

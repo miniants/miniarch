@@ -2,12 +2,11 @@ package cn.remex.admin.appbeans;
 
 
 import cn.remex.db.model.cert.AuthUser;
-import cn.remex.web.service.BsCvo;
 
 /**
  *
  */
-public class AdminBsCvo extends BsCvo {
+public class AdminBsCvo extends DataCvo {
 	private AuthUser user;
 
 	public AuthUser getUser() {

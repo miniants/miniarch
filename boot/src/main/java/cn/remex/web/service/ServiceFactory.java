@@ -15,6 +15,7 @@ package cn.remex.web.service;
 import cn.remex.RemexConstants;
 import cn.remex.core.RemexApplication;
 import cn.remex.core.RemexRefreshable;
+import cn.remex.core.net.HttpHelper;
 import cn.remex.core.reflect.ReflectUtil;
 import cn.remex.core.util.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,6 +108,8 @@ public final class ServiceFactory implements RemexRefreshable {
             if (null != bsan && bsan.withMultiPart()) {
 
             }
+
+
             Map params = new HashMap();
             params.putAll(request.getParameterMap());
             params.put("pk",pk);
@@ -121,8 +124,13 @@ public final class ServiceFactory implements RemexRefreshable {
                     }
                     paramObj = ReflectUtil.caseObject(paramType, params.get(paramName));
                 } else {
-                    paramObj = ReflectUtil.invokeNewInstance(param.getType());
-                    MapHelper.objectFromFlat(paramObj, params);
+                    if (null != bsan && bsan.requestBody()) {
+                        String requestBody = HttpHelper.obtainHttpPack(request.getInputStream());
+                        paramObj = JsonHelper.toJavaObject(requestBody, param.getType());
+                    }else {
+                        paramObj = ReflectUtil.invokeNewInstance(param.getType());
+                        MapHelper.objectFromFlat(paramObj, params);
+                    }
                 }
 
                 if (BsCvo.class.isAssignableFrom(paramType)) {//如果是符合框架bsCvo的模式,将参数列表放进去以便后续灵活的操作

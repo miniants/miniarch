@@ -797,6 +797,7 @@ public final class RsqlUtils implements RsqlConstants {
 		
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("RMX_beanId", beanId);
+		params.put("RMX_beanClass",subBeanClass);
 		return ContainerFactory.getSession().executeQuery(sqlString.toString(), params);
 		// return RsqlDao.executeQuery(sqlString.toString(), params );
 	}

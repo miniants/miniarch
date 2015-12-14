@@ -18,4 +18,5 @@ import java.lang.annotation.Target;
 @Target(value = { ElementType.METHOD,ElementType.TYPE})
 public @interface BusinessService {
     boolean withMultiPart() default false;
+    boolean requestBody() default false;
 }

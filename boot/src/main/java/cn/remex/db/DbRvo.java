@@ -114,19 +114,15 @@ public abstract class DbRvo implements Rvo {
 	 */
 	public abstract <T extends Modelable> void assignRow(T bean);
 	public abstract <T extends Modelable> List<T> obtainBeans();
-	
 	public abstract <T extends Modelable> List<T> obtainBeans(Class<? extends Modelable> modelClass);
 
-	public abstract Map<String, String> obtainMap(final String keyColumn,
-			final String valueColumn);
-
-	public abstract Map<String, String> obtainMap(String keyColumn,
-			String valueColumn, String restrainColumn, String restrainValue);
-
+	public abstract List<?> obtainObjects();
 	public abstract <T> List<T> obtainObjects(final Class<T> clazz);
 
-	public abstract <T> Map<String, T> obtainObjectsMap(
-			final String columnName, final Class<T> clazz);
+	public abstract Map<String, String> obtainMap(final String keyColumn, final String valueColumn);
+	public abstract Map<String, String> obtainMap(String keyColumn, String valueColumn, String restrainColumn, String restrainValue);
+
+	public abstract <T> Map<String, T> obtainObjectsMap(final String columnName, final Class<T> clazz);
 	public abstract <T> BeanVo<T> obtainBeanVo(Class<T> clazz);
 	public abstract MapVo obtainMapVo();
 }

@@ -5,9 +5,8 @@ package cn.remex.admin;
 
 import cn.remex.admin.appbeans.AdminBsCvo;
 import cn.remex.admin.appbeans.AdminBsRvo;
-import cn.remex.admin.appbeans.DataMeta;
+import cn.remex.admin.appbeans.DataCvo;
 import cn.remex.core.reflect.ReflectUtil;
-import cn.remex.core.util.Judgment;
 import cn.remex.db.Container;
 import cn.remex.db.ContainerFactory;
 import cn.remex.db.DbCvo;
@@ -17,7 +16,6 @@ import cn.remex.db.model.config.ConfigInfo;
 import cn.remex.db.rsql.model.ModelableImpl;
 import cn.remex.db.sql.Sort;
 import cn.remex.db.sql.WhereRuleOper;
-import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 
 import java.util.ArrayList;
@@ -87,42 +85,26 @@ public class RemexAdminUtil {
 	/**
 	 * @param clazz
 	 * @param bsCvo
-	 * @param params 用于程序中强制赋值参数，0为排序
 	 * @return
 	 */
-	public static <T extends ModelableImpl> DbCvo<T> obtainDbCvo(Class<T> clazz,BsCvo bsCvo,String... params){
-		
-		
-		int rc = Integer.parseInt((String) (Judgment.notEmpty(bsCvo.$V("rc"))?bsCvo.$V("rc"):"12"));
-		int p = Integer.parseInt((String) (Judgment.notEmpty(bsCvo.$V("p"))?bsCvo.$V("p"):"1"));
-		
-		//params的第一个参数 或者cvo中的or参数是排序
-		String orders = params.length>0?params[0]:((String) (Judgment.notEmpty(bsCvo.$V("or"))?bsCvo.$V("or"):"createTime"));
-		//params的第二个参数或者cvo中的ss参数是搜索字符串
-		
-		DbCvo<T> ret = (DbCvo<T>)ContainerFactory.getSession().createDbCvo(clazz)
-				.putRowCount(rc).putPagination(p).putDoCount(true).putDoPaging(true);
-		
-		for(String or:orders.split(";")){
-			String[] orParts = or.split(" ");
-			ret.putOrder(true, orParts[0], orParts.length == 1 || Judgment.nullOrBlank(orParts[1])?"DESC":orParts[1]);
-		}
-		
+	public static <T extends ModelableImpl> DbCvo<T> obtainDbCvo(Class<T> clazz,DataCvo bsCvo){
+		DbCvo<T> ret = (DbCvo<T>)ContainerFactory.getSession().createDbCvo(clazz)//.orderBy(t->t.getId(),Sort.ASC)
+				.putRowCount(bsCvo.getRowCount()).putPagination(bsCvo.getPagination()).putDoCount(true).putDoPaging(true);
 		return ret;
 	}
-	public static <T extends ModelableImpl> void saveDataMeta(BsRvo bsRvo,DbRvo dbRvo){
-		AdminBsRvo adminBsRvo = (AdminBsRvo) bsRvo.getBody();
-		DataMeta meta = new DataMeta();
-
-		meta.setRowCount(12);
-		meta.setPagination(dbRvo.getPagination());
-		meta.setRecordCount(dbRvo.getRecordCount());
-		if(dbRvo.getRowCount() != 0){
-			double b = (meta.getRecordCount()*1.00)/meta.getRowCount();
-			meta.setPageCount((int)Math.ceil(b));
-		}
-		adminBsRvo.setDataMeta(meta);
-	}
+//	public static <T extends ModelableImpl> void saveDataMeta(BsRvo bsRvo,DbRvo dbRvo){
+//		AdminBsRvo adminBsRvo = (AdminBsRvo) bsRvo.getBody();
+//		DataCvo meta = new DataCvo();
+//
+//		meta.setRowCount(12);
+//		meta.setPagination(dbRvo.getPagination());
+//		meta.setRecordCount(dbRvo.getRecordCount());
+//		if(dbRvo.getRowCount() != 0){
+//			double b = (meta.getRecordCount()*1.00)/meta.getRowCount();
+//			meta.setPageCount((int)Math.ceil(b));
+//		}
+//		adminBsRvo.setDataCvo(meta);
+//	}
 //	private static HashMap<String, String> config = new HashMap<String, String>();
 	public static String obtainConfig(String key){
 		return obtainConfig("default","default","default","default","default", key);

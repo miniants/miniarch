@@ -20,7 +20,7 @@ public class DbCvo<T extends Modelable> extends DbCvoChain<T> {
 	 */
 	protected T aopBean;
 	public T obtainAOPBean(){
-		return aopBean!=null? aopBean:(aopBean = DbCvoFactory.getBean(beanClass));
+		return aopBean!=null? aopBean:(aopBean = createAOPBean(beanClass));
 	}
 
 	public void initParam() {

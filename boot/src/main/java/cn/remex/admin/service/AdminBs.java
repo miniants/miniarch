@@ -3,19 +3,22 @@ package cn.remex.admin.service;
 import cn.remex.admin.RemexAdminUtil;
 import cn.remex.admin.appbeans.AdminBsCvo;
 import cn.remex.admin.appbeans.AdminBsRvo;
+import cn.remex.admin.appbeans.DataCvo;
+import cn.remex.admin.appbeans.DataRvo;
 import cn.remex.core.reflect.ReflectUtil;
 import cn.remex.core.util.Judgment;
 import cn.remex.db.*;
 import cn.remex.db.model.SysMenu;
+import cn.remex.db.model.cert.AuthRole;
+import cn.remex.db.model.cert.AuthUri;
 import cn.remex.db.model.cert.AuthUser;
 import cn.remex.db.model.log.LogonLogMsg;
-import cn.remex.db.sql.WhereRuleOper;
+import cn.remex.db.rsql.RsqlUtils;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.BusinessService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,10 +94,39 @@ public class AdminBs {
 	public BsRvo adminIndex(AdminBsCvo bsCvo){
 		return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
-	@BusinessService
-	public BsRvo roles(AdminBsCvo bsCvo){
-		return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
-	}
+
+    //角色
+    @BusinessService
+    public BsRvo rolesHome(AdminBsCvo bsCvo){
+        return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
+    }
+    @BusinessService
+    public BsRvo roles(DataCvo bsCvo){
+        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class,bsCvo);
+        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+    }
+    @BusinessService(requestBody = true)
+    public BsRvo saveRole(AuthRole role){
+        DbRvo dbRvo = ContainerFactory.getSession().store(role);
+        return new BsRvo(true,dbRvo.getMsg());
+    }
+    @BusinessService(requestBody = true)
+    public BsRvo delRole(AuthRole role){
+        DbRvo dbRvo = ContainerFactory.getSession().delete(role);
+        return new BsRvo(dbRvo.getEffectRowCount()==1,dbRvo.getMsg());
+    }
+    @BusinessService(requestBody = true)
+    public BsRvo roleUris(String pk){
+        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class,AuthRole::getAuthUris,pk));
+    }
+    //功能权限
+    @BusinessService
+    public BsRvo uris(DataCvo bsCvo){
+        DbCvo<AuthUri> dbCvo = RemexAdminUtil.obtainDbCvo(AuthUri.class, bsCvo);
+        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+    }
+
+    //用户
 	@BusinessService
 	public BsRvo delUser(AdminBsCvo bsCvo) {
 		String id = bsCvo.getPk();
@@ -152,7 +184,7 @@ public class AdminBs {
 		DbRvo dbRvo = RemexAdminUtil.obtainDbCvo(LogonLogMsg.class, bsCvo).ready().query();
 
 		((AdminBsRvo) bsRvo.getBody()).setDatas(dbRvo.obtainObjects(LogonLogMsg.class));
-		RemexAdminUtil.saveDataMeta(bsRvo, dbRvo);
+//		RemexAdminUtil.saveDataMeta(bsRvo, dbRvo);
 		
 		return bsRvo;
 	}

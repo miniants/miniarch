@@ -6,6 +6,11 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
+
+<c:set var="mvcRoot" value="${pageContext.request.contextPath}/smvc/"></c:set>
 <!DOCTYPE html>
 <html ng-app="indexApp">
     <head ng-controller="mainCtrl">
@@ -49,7 +54,10 @@
 
         <!-- jQuery 2.1.4 -->
         <script src="${pageContext.request.contextPath}/static/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+        <script src="${pageContext.request.contextPath}/static/plugins/underscore/underscore-min.js"></script>
         <script src="${pageContext.request.contextPath}/static/plugins/angular-1.3.9/angular.js"></script>
+
+
     </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -117,9 +125,8 @@
 <!--<script src="dist/js/pages/dashboard.js"></script>-->
 <!-- AdminLTE for demo purposes -->
 <!--<script src="dist/js/demo.js"></script>-->
-
 <script>
-    var appRoot = "${pageContext.request.contextPath}/smvc/";
+    var mvcRoot = "${mvcRoot}";
     var app = angular.module('indexApp', []);
     app.factory('Data', function() {
         return {
@@ -127,16 +134,92 @@
         }
     });
     app.controller('mainCtrl', function($scope, $http, Data) {
-        $http.get(appRoot+"AdminBs/adminIndex.json")
-            .success(function (response) {
-                Data.sysMenus = response.sysMenus;
-            });
+        $http.get(mvcRoot+"AdminBs/adminIndex.json")
+                .success(function (response) {
+                    Data.sysMenus = response.sysMenus;
+                });
     }).controller('navCtrl', function($scope, $http) {
 
 
     }).controller('menuCtrl', function($scope, $http, Data) {
         $scope.Data=Data;
     });
+
+    app.controller('rolesCtrl', function($scope, $http, Data) {
+        $scope.editType = "baseForm"; //uri | baseForm
+
+
+        //角色
+        $http.get(mvcRoot+"AdminBs/roles.json").success(function (response) {
+            $scope.roles=response.datas;
+            $scope.roles && $scope.selectRole($scope.roles[0]);
+        });
+        $scope.selectRole=function(role){
+            $scope.bckRole = angular.copy(role);//保存副本用户reset
+            $scope.curRole = role;
+            if(!role.authUris){//如果没有权限,则取后台取一下
+                $http.get(mvcRoot+"AdminBs/roleUris/"+(role.id)+".json").success(function (response) {
+                    role.authUris=response.datas;
+                });
+            }
+        };
+        $scope.createRole=function(){
+            $scope.curRole = {name:"unnamed",noSaved:true};
+            $scope.roles.unshift($scope.curRole);
+            $scope.editType = 'baseForm';
+        };
+        $scope.resetRoleBase=function(){
+            if($scope.curRole.id){
+                angular.extend($scope.curRole,$scope.bckRole);
+            }else{
+                $scope.roles.splice($scope.roles.indexOf($scope.curRole),1);
+                $scope.curRole=$scope.roles && $scope.roles[0];
+            }
+        };
+        $scope.saveRoleBase=function(){
+            $http.post(mvcRoot+"AdminBs/saveRole/"+($scope.curRole.id||-1)+".json",$scope.curRole).success(function (response) {
+                $scope.curRole.noSaved=!response.status;
+                if(!response.status){
+                    alert(response.msg);
+                }
+            });
+        };
+        $scope.delRole=function(){
+            $http.post(mvcRoot+"AdminBs/delRole/"+($scope.curRole.id||-1)+".json",$scope.curRole).success(function (response) {
+                if(!response.status){
+                    alert(response.msg);
+                }else{
+                    $scope.roles.splice($scope.roles.indexOf($scope.curRole),1);
+                    $scope.curRole=$scope.roles && $scope.roles[0];
+                }
+            });
+        };
+        $scope.uriBelongToRole = function(uri,role){
+            return _.findIndex($scope.curRole.authUris,function(i){
+                return i.id==uri.id
+            });
+        };
+        $scope.checkUri = function($event,uri){
+            var idx = $scope.uriBelongToRole(uri,$scope.curRole);
+            if($event.currentTarget.checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
+                $scope.curRole.authUris.push(uri);
+                $scope.curRole.noSaved=true;
+            }else if(idx>-1){
+                $scope.curRole.authUris.splice(idx,1);
+                $scope.curRole.noSaved=true;
+            }
+        };
+
+        //功能权限
+        $http.get(mvcRoot+"AdminBs/uris.json").success(function (response) {
+            $scope.uris=response.datas;
+        });
+        $scope.uris=function(){
+
+        }
+
+
+    })
 </script>
 </body>
 </html>
