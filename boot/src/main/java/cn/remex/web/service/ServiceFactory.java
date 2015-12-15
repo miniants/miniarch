@@ -99,6 +99,8 @@ public final class ServiceFactory implements RemexRefreshable {
             RemexConstants.logger.info("Executing Bs=" + bs + ";bsCmd=" + bsCmd);
             BusinessService bsan = ReflectUtil.getMethodAnnotation(bsMap.get(bs), bsCmd, BusinessService.class);
             Assert.notNull(bsan, "业务服务不存在!", BsException.class);
+            String contentType = request.getContentType();
+            boolean isJson = Judgment.notEmpty(contentType) && contentType.contains("application/json");
 
             Object bsObj = ServiceFactory.createBs(bs);
             Method cglibBsCmdMethod = ReflectUtil.getMethod(bsObj.getClass(), bsCmd); // 此处应该用实例的类来查找对应的方法,否则会越过代理直接调用原始方法
@@ -124,7 +126,7 @@ public final class ServiceFactory implements RemexRefreshable {
                     }
                     paramObj = ReflectUtil.caseObject(paramType, params.get(paramName));
                 } else {
-                    if (null != bsan && bsan.requestBody()) {
+                    if (null != bsan && (isJson || bsan.requestBody())) {
                         String requestBody = HttpHelper.obtainHttpPack(request.getInputStream());
                         paramObj = JsonHelper.toJavaObject(requestBody, param.getType());
                     }else {

@@ -8,12 +8,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
 <!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper" ng-controller="rolesCtrl">
+<div ng-controller="rolesCtrl">
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
             角色管理
-            <small>角色新增|编辑|删除,角色权限维护</small>
+            <small>角色新增|编辑|删除,角色权限维护 {{Data.name}}</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -44,7 +44,7 @@
                                 <th>描述</th>
                             </tr>--%>
                             <tr ng-repeat="role in roles" ng-click="selectRole(role)"
-                                ng-style="{'background-color':role.noSaved? '#dd4b39':role==curRole?'#f4f4f4':''}">
+                                ng-style="{'background-color':role._noSaved? '#dd4b39':role==curRole?'#f4f4f4':''}">
                                 <td>{{$index}}.</td>
                                 <td>{{role.name}}</td>
                                 <td>{{role.note}}</td>
@@ -53,17 +53,15 @@
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
             </div><!-- /.col -->
-            <div class="col-md-8">
+            <div class="col-md-8 ">
                 <div class="box box-info" ng-show="editType == 'uri'">
                     <div class="box-header">
                         <h3 class="box-title">{{curRole.name || "[无名称]"}}的权限</h3>
                         <div class="box-tools">
                             <ul class="pagination pagination-sm no-margin pull-right">
-                                <li><a href="#">&laquo;</a></li>
-                                <li><a href="#">1</a></li>
-                                <li><a href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">&raquo;</a></li>
+                                <li><a href="#" ng-click="showUris(1)">&laquo;</a></li>
+                                <li ng-repeat="up in urisVo.pages"><a href="#" ng-click="showUris(up)">{{up}}</a></li>
+                                <li><a href="#" ng-click="showUris(urisVo.pageCount)">&raquo;</a></li>
                             </ul>
                         </div>
                     </div><!-- /.box-header -->
@@ -74,9 +72,9 @@
                                 <th>权限功能描述</th>
                             </tr>--%>
                             <tr ng-repeat="uri in uris">
-                                <td style="width: 40px;"><input type="checkbox" ng-click="checkUri($event,uri)" ng-checked="uriBelongToRole(uri,curRole)>-1"></td>
+                                <td style="width: 40px;"><input type="checkbox" ng-click="checkUri(curRole,uri,$event)" ng-checked="indexUri(curRole,uri)>-1"></td>
                                 <td style="width: 50px">{{$index}}.</td>
-                                <td style="width: 80px"><span ng-if="uriBelongToRole(uri,curRole)>-1" class="label label-success">Approved</span></td>
+                                <td style="width: 80px"><span ng-if="indexUri(curRole,uri)>-1" class="label label-success">Approved</span></td>
                                 <td>{{uri.uriName}}</td>
                                 <td>{{uri.uri}}</td>
                             </tr>
@@ -93,20 +91,20 @@
                             <div class="form-group">
                                 <label for="inputRoleName" class="col-sm-2 control-label">名称</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputRoleName" placeholder="角色名称" ng-model="curRole.name" ng-change="curRole.noSaved=true">
+                                    <input type="text" class="form-control" id="inputRoleName" placeholder="角色名称" ng-model="curRole.name" ng-change="curRole._noSaved=true">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputRoleDesc" class="col-sm-2 control-label">描述</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputRoleDesc" placeholder="角色描述" ng-model="curRole.note" ng-change="curRole.noSaved=true">
+                                    <input type="text" class="form-control" id="inputRoleDesc" placeholder="角色描述" ng-model="curRole.note" ng-change="curRole._noSaved=true">
                                 </div>
                             </div>
                         </div><!-- /.box-body -->
                         <div class="box-footer">
-                            <button type="button" class="btn btn-default" ng-click="resetRoleBase()">取消</button>
-                            <button type="button" class="btn btn-default" ng-click="delRole()">删除</button>
-                            <button type="button" class="btn btn-info pull-right" ng-click="saveRoleBase()">保存</button>
+                            <button type="button" class="btn btn-default" ng-click="resetRoleBase(curRole)">取消</button>
+                            <button type="button" class="btn btn-default" ng-click="delRole(curRole)">删除</button>
+                            <button type="button" class="btn btn-info pull-right" ng-click="saveRole(curRole)">保存</button>
                         </div><!-- /.box-footer -->
                     </form>
                 </div>
@@ -114,4 +112,4 @@
 
         </div><!-- /.row -->
     </section><!-- /.content -->
-</div><!-- /.content-wrapper -->
+</div><!-- /inner .content-wrapper -->

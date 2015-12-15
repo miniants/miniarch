@@ -16,7 +16,7 @@
     <head ng-controller="mainCtrl">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Miniarch</title>
+        <title>Miniarch </title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <%--<!--加载requirejs-->--%>
@@ -59,7 +59,7 @@
 
 
     </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini fixed">
 <div class="wrapper">
     <!-- 头部 head-->
     <%@include file="comm/admin_head.jsp" %>
@@ -84,7 +84,9 @@
         </section>
         <!-- /.content -->
     </div>--%>
+    <div class="content-wrapper">
     <jsp:include page="${rp}.jsp"></jsp:include>
+    </div><!-- /.content-wrapper -->
     <!-- /.content-wrapper -->
     <footer class="main-footer">
         <div class="pull-right hidden-xs">
@@ -127,10 +129,11 @@
 <!--<script src="dist/js/demo.js"></script>-->
 <script>
     var mvcRoot = "${mvcRoot}";
+
     var app = angular.module('indexApp', []);
     app.factory('Data', function() {
         return {
-            name: "IndexData"
+            name: "IndexData",
         }
     });
     app.controller('mainCtrl', function($scope, $http, Data) {
@@ -139,85 +142,160 @@
                     Data.sysMenus = response.sysMenus;
                 });
     }).controller('navCtrl', function($scope, $http) {
-
-
     }).controller('menuCtrl', function($scope, $http, Data) {
         $scope.Data=Data;
     });
+    app.service('RoleService',function($http){
+        var ctx = this;
+        //通用数据组件
+        ctx.dataVos={};
+        ctx.fetch=function(serviceUri,pagination,callback,options){
+            var UUID = serviceUri+angular.toJson(options);
+            var options = options || {};
+            options.pagination=pagination;
 
-    app.controller('rolesCtrl', function($scope, $http, Data) {
-        $scope.editType = "baseForm"; //uri | baseForm
-
-
-        //角色
-        $http.get(mvcRoot+"AdminBs/roles.json").success(function (response) {
-            $scope.roles=response.datas;
-            $scope.roles && $scope.selectRole($scope.roles[0]);
-        });
-        $scope.selectRole=function(role){
-            $scope.bckRole = angular.copy(role);//保存副本用户reset
-            $scope.curRole = role;
-            if(!role.authUris){//如果没有权限,则取后台取一下
-                $http.get(mvcRoot+"AdminBs/roleUris/"+(role.id)+".json").success(function (response) {
-                    role.authUris=response.datas;
+            if(ctx.dataVos[UUID]&&ctx.dataVos[UUID][pagination]){//读缓存
+                callback.call(ctx,ctx.dataVos[UUID][pagination],ctx.dataVos[UUID]);
+            }else{//读服务器
+                $http.post(mvcRoot+serviceUri+".json",options).success(function (response) {
+                    (!ctx.dataVos[UUID]) && (ctx.dataVos[UUID]=response);
+                    ctx.dataVos[UUID][pagination]=response.datas;
+                    ctx.dataVos[UUID].pages=[];//初始化分页
+                    for (var i = 1; i<=ctx.dataVos[UUID].pageCount; i++) {
+                        ctx.dataVos[UUID].pages.push(i);
+                    }
+                    callback.call(ctx,ctx.dataVos[UUID][pagination],ctx.dataVos[UUID]);
                 });
-            }
-        };
-        $scope.createRole=function(){
-            $scope.curRole = {name:"unnamed",noSaved:true};
-            $scope.roles.unshift($scope.curRole);
-            $scope.editType = 'baseForm';
-        };
-        $scope.resetRoleBase=function(){
-            if($scope.curRole.id){
-                angular.extend($scope.curRole,$scope.bckRole);
-            }else{
-                $scope.roles.splice($scope.roles.indexOf($scope.curRole),1);
-                $scope.curRole=$scope.roles && $scope.roles[0];
-            }
-        };
-        $scope.saveRoleBase=function(){
-            $http.post(mvcRoot+"AdminBs/saveRole/"+($scope.curRole.id||-1)+".json",$scope.curRole).success(function (response) {
-                $scope.curRole.noSaved=!response.status;
-                if(!response.status){
-                    alert(response.msg);
-                }
-            });
-        };
-        $scope.delRole=function(){
-            $http.post(mvcRoot+"AdminBs/delRole/"+($scope.curRole.id||-1)+".json",$scope.curRole).success(function (response) {
-                if(!response.status){
-                    alert(response.msg);
-                }else{
-                    $scope.roles.splice($scope.roles.indexOf($scope.curRole),1);
-                    $scope.curRole=$scope.roles && $scope.roles[0];
-                }
-            });
-        };
-        $scope.uriBelongToRole = function(uri,role){
-            return _.findIndex($scope.curRole.authUris,function(i){
-                return i.id==uri.id
-            });
-        };
-        $scope.checkUri = function($event,uri){
-            var idx = $scope.uriBelongToRole(uri,$scope.curRole);
-            if($event.currentTarget.checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
-                $scope.curRole.authUris.push(uri);
-                $scope.curRole.noSaved=true;
-            }else if(idx>-1){
-                $scope.curRole.authUris.splice(idx,1);
-                $scope.curRole.noSaved=true;
             }
         };
 
         //功能权限
-        $http.get(mvcRoot+"AdminBs/uris.json").success(function (response) {
-            $scope.uris=response.datas;
-        });
-        $scope.uris=function(){
-
+        ctx.fetchUris=function(pagination,callback,options){
+            ctx.fetch("AdminBs/uris",pagination,callback,options);
         }
 
+        //角色
+        ctx.roles={};
+        ctx.rolesVo;
+        ctx.initRoles=function(callback,options){
+            ctx.fetch("AdminBs/roles",1,function(roles,rolesVo){
+                ctx.roles=roles;
+                ctx.rolesVo=rolesVo;
+                callback(roles,rolesVo);
+            },options);
+        }
+        ctx.indexUri = function(role,uri){
+            return _.findIndex(role.authUris,function(i){
+                return i.id==uri.id
+            });
+        };
+        ctx.checkUri = function(role,uri,checked){
+            var idx = ctx.indexUri(role,uri);
+            if(checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
+                role.authUris.push(uri);
+                role._noSaved=true;
+            }else if(idx>-1){
+                role.authUris.splice(idx,1);
+                role._noSaved=true;
+            }
+        };
+    });
+    app.controller('rolesCtrl', function($scope, $http, Data,RoleService) {
+        $scope.editType="uri"; //uri | baseForm
+        $scope.roles={};
+        $scope.uris={};
+        $scope.curRole={};
+        $scope.bckRoles={};
+        $scope.newRole=undefined;
+        $scope.urisVo=undefined;
+
+
+        $scope.indexUri = function(role,uri){
+            return _.findIndex(role.authUris,function(i){
+                return i.id==uri.id
+            });
+        };
+        $scope.checkUri = function(role,uri,checked){
+            var idx = $scope.indexUri(role,uri);
+            if(checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
+                role.authUris.push(uri);
+                role._noSaved=true;
+            }else if(idx>-1){
+                role.authUris.splice(idx,1);
+                role._noSaved=true;
+            }
+        };
+
+        $scope.selectRole=function(role){
+            $scope.bckRoles[role.id] = angular.copy(role);//保存副本用户reset
+            $scope.curRole = role;
+            if(!role.authUris){//如果没有权限,则取后台取一下
+                $http.get(mvcRoot+"AdminBs/roleUris/"+(role.id)+".json").success(function (response) {
+                    role.authUris=response.datas || [];
+                });
+            }
+        };
+        $scope.createRole=function(role){
+            if($scope.newRole){
+                alert("新建角色尚未保存,请保存后再新建.");
+                return;
+            }
+            $scope.curRole = angular.extend({name:"unnamed"+(Math.random()*1000+10000).toFixed(0),authUris:[],_noSaved:true,_isNew:true},role);
+            $scope.newRole = $scope.curRole;
+            $scope.roles.unshift($scope.curRole);
+            $scope.editType='baseForm';
+        };
+        $scope.resetRoleBase=function(role){
+            if(role._isNew){
+                $scope.roles.splice($scope.roles.indexOf($scope.curRole),1);
+                $scope.curRole==role && ($scope.curRole=$scope.roles && $scope.roles[0]);//如果当前就是删除的,需要重新选中
+                $scope.newRole=undefined;
+            }else{
+                angular.extend($scope.curRole,$scope.bckRoles[role.id]);
+                $scope.curRole._noSaved=false;
+            }
+        };
+        $scope.saveRole=function(role){
+            $http.post(mvcRoot+"AdminBs/saveRole/"+(role.id||-1)+".json",role).success(function (response) {
+                role._noSaved=!response.status;
+                if(role._noSaved){
+                    alert(response.msg);
+                }else{
+                    role.id=response.body.id;
+                    role._isNew=undefined;
+                    role._noSaved=false;
+                    ($scope.newRole==role) && ($scope.newRole=undefined);//如果是新建对象保存了,则清空当前新建的对象,这样就允许继续新建了.
+                }
+            });
+        };
+        $scope.delRole=function(role){
+            if(role._isNew){
+                $scope.roles.splice($scope.roles.indexOf(role),1);//删除
+                $scope.curRole==role && ($scope.curRole=$scope.roles && $scope.roles[0]);//如果当前就是删除的,需要重新选中
+            }else{
+                $http.post(mvcRoot+"AdminBs/delRole/"+(role.id)+".json",role).success(function (response) {
+                    if(!response.status){
+                        alert(response.msg);
+                    }else{
+                        $scope.roles.splice($scope.roles.indexOf(role),1);//删除
+                        $scope.curRole==role && ($scope.curRole=$scope.roles && $scope.roles[0]);//如果当前就是删除的,需要重新选中
+                    }
+                });
+            }
+        };
+
+        $scope.showUris=function(pagination){
+            RoleService.fetchUris(pagination,function(uris,urisVo){
+                $scope.uris = uris;
+                $scope.urisVo = urisVo;
+            });
+        };
+        $scope.showUris(1);
+
+        RoleService.initRoles(function(){
+            $scope.roles = RoleService.roles;
+            $scope.roles && $scope.selectRole($scope.roles[0]);
+        });
 
     })
 </script>

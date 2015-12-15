@@ -108,7 +108,7 @@ public class AdminBs {
     @BusinessService(requestBody = true)
     public BsRvo saveRole(AuthRole role){
         DbRvo dbRvo = ContainerFactory.getSession().store(role);
-        return new BsRvo(true,dbRvo.getMsg());
+        return new BsRvo(true,role);
     }
     @BusinessService(requestBody = true)
     public BsRvo delRole(AuthRole role){
@@ -123,7 +123,7 @@ public class AdminBs {
     @BusinessService
     public BsRvo uris(DataCvo bsCvo){
         DbCvo<AuthUri> dbCvo = RemexAdminUtil.obtainDbCvo(AuthUri.class, bsCvo);
-        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+        return new DataRvo(true ,dbCvo.ready().query());
     }
 
     //用户

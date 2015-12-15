@@ -1,7 +1,23 @@
-javax.peresist
-@Table
-@Column
-@OneToMany
+Remex2 db模块
+============
+
+
+1.依赖
+------------
+*javax.peresist
+    *@Table
+    *@Column
+    *@OneToMany
+    *@ManyToMany
+*spring
+
+2.配置及初始化
+-------------
+*配置:application-context.xml
+
+*启动:
+    *RsqlCore.reset(true); //根据上述配置重新初始化数据库
+
 
 一\数据库开发方式
 1.数据库会话的获取
