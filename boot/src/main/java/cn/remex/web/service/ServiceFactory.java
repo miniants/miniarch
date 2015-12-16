@@ -151,7 +151,7 @@ public final class ServiceFactory implements RemexRefreshable {
             return (BsRvo) ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
         } catch (Exception e) {
             RemexConstants.logger.error("调用本地Bs服务出现异常。", e);
-            return new BsRvo(false, e.toString());
+            return new BsRvo(false, e.getMessage(),"01");
         }
 
     }

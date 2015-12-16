@@ -6,6 +6,7 @@ import cn.remex.admin.appbeans.AdminBsRvo;
 import cn.remex.admin.appbeans.DataCvo;
 import cn.remex.admin.appbeans.DataRvo;
 import cn.remex.core.reflect.ReflectUtil;
+import cn.remex.core.util.Assert;
 import cn.remex.core.util.Judgment;
 import cn.remex.db.*;
 import cn.remex.db.model.SysMenu;
@@ -70,20 +71,6 @@ public class AdminBs {
 	///menu Type 对应的功能方法。
 	@BusinessService
 	public BsRvo execute(AdminBsCvo bsCvo) {
-//		//1
-//		ContainerFactory.createSession(SysMenu.class, (d, t) -> {
-//            d.putRule(t.getIcon(), WhereRuleOper.eq, "");
-//            d.putRule(t.getIcon(), WhereRuleOper.eq, "");
-//        });
-//		//2
-//        DbCvo<SysMenu> dbCvo = ContainerFactory.createDbCvo(SysMenu.class)
-//               // .where(SysMenu::getName, WhereRuleOper.eq, "根菜单")
-//                .dataColumns(SysMenu::getIcon, SysMenu::getParent);
-//        //3
-
-//        List<SysMenu> sysMenus = ContainerFactory.createDbCvo(SysMenu.class).filterBy(SysMenu::getParent,WhereRuleOper.eq,"root")
-//                .ready().query().obtainBeans();
-
         return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
 	@BusinessService
@@ -102,8 +89,8 @@ public class AdminBs {
     }
     @BusinessService
     public BsRvo roles(DataCvo bsCvo){
-        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class,bsCvo);
-        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class, bsCvo);
+        return new DataRvo(true ,dbCvo.ready().query());
     }
     @BusinessService(requestBody = true)
     public BsRvo saveRole(AuthRole role){
@@ -117,7 +104,7 @@ public class AdminBs {
     }
     @BusinessService(requestBody = true)
     public BsRvo roleUris(String pk){
-        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class,AuthRole::getAuthUris,pk));
+        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class, AuthRole::getAuthUris, pk));
     }
     //功能权限
     @BusinessService
@@ -127,18 +114,36 @@ public class AdminBs {
     }
 
     //用户
-	@BusinessService
-	public BsRvo delUser(AdminBsCvo bsCvo) {
-		String id = bsCvo.getPk();
+    @BusinessService
+    public BsRvo usersHome(AdminBsCvo bsCvo){
+        return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
+    }
+    @BusinessService
+    public BsRvo users(DataCvo bsCvo){
+        DbCvo<AuthUser> dbCvo = RemexAdminUtil.obtainDbCvo(AuthUser.class, bsCvo);
+        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+    }
+    @BusinessService
+    public BsRvo saveUser(AuthUser user){
+        if(Judgment.nullOrBlank(user.getId()))//新用户进行检查
+            Assert.isNull(ContainerFactory.getSession().queryBeanByJpk(AuthUser.class, "id","username",user.getUsername()),"该用户已经被注册!");
 
-		AuthUser au = ContainerFactory.getSession().queryBeanById(AuthUser.class, id);
+        DbRvo dbRvo = ContainerFactory.getSession().store(user);
+        return new BsRvo(true,user);
+    }
+    @BusinessService
+	public BsRvo delUser(AuthUser role) {
+		AuthUser au = ContainerFactory.getSession().queryBeanById(AuthUser.class, role.getId());
 		if("admin".equals(au.getUsername())){
-			throw new RuntimeException("系统用户不得删除！");
+            return new BsRvo(false,"系统用户不得删除！","01");
 		}
-		ContainerFactory.getSession().deleteById(AuthUser.class, id);
-
-		return listUser(bsCvo,new AdminBsRvo());
+        DbRvo dbRvo = ContainerFactory.getSession().delete(role);
+        return new BsRvo(dbRvo.getEffectRowCount()==1,dbRvo.getMsg());
 	}
+    @BusinessService
+    public BsRvo rolesOfUser(String pk){
+        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthUser.class, AuthUser::getRoles, pk));
+    }
 	@BusinessService
 	public BsRvo editUser(AdminBsCvo bsCvo,BsRvo bsRvo) {
 		String id = bsCvo.getPk();
@@ -158,28 +163,13 @@ public class AdminBs {
 	}
 	@BusinessService
 	public BsRvo listUser(BsCvo bsCvo,BsRvo bsRvo) {
-//		bsRvo = RemexAdminUtil.obtainAdminRvo(bsRvo, AdminBsRvo.class, "/admin/listUser");
-//		//TODO 查询当前用户的用户列表，id获取错误
-//		String id = CoreSvo.$SV("RMX_USERID");
-//		DbRvo dbRvo = RemexAdminUtil.obtainDbCvo(AuthUser.class, bsCvo)
-//				.putRule("id", WhereRuleOper.eq, id)
-//				.ready().query();
-//		//管理员账号可以查看所有用户
-//		AuthUser au = ContainerFactory.getSession().queryBeanById(AuthUser.class, id);
-//		if("admin".equals(au.getUsername())){
-//			dbRvo = RemexAdminUtil.obtainDbCvo(AuthUser.class, bsCvo)
-//					.ready().query();
-//		}
-//
-//		((AdminBsRvo) bsRvo.getBody()).setDatas(dbRvo.obtainObjects(AuthUser.class));
-//		RemexAdminUtil.saveDataMeta(bsRvo, dbRvo);
-		
+
 		return bsRvo;
 	}
 	@BusinessService
 	public BsRvo listLogonLogMsg(AdminBsCvo bsCvo) {
 		//String id = bsCvo.getHead().getResources();
-		BsRvo bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo, null,null);
+		BsRvo bsRvo = RemexAdminUtil.obtainAdminRvo(bsCvo, null, null);
 		
 		DbRvo dbRvo = RemexAdminUtil.obtainDbCvo(LogonLogMsg.class, bsCvo).ready().query();
 
@@ -188,22 +178,5 @@ public class AdminBs {
 		
 		return bsRvo;
 	}
-	@BusinessService
-	public BsRvo saveUser(AdminBsCvo bsCvo) {
-		String id = bsCvo.getPk();
-		AuthUser r = null;
-		if(Judgment.notEmpty(id))
-			r = ContainerFactory.getSession().queryBeanById(AuthUser.class, id);
-		if(r == null)
-			r = new AuthUser();
-		
-		AuthUser body = bsCvo.getUser();
-		
-		ReflectUtil.copyProperties(r, body);
-		r.setUsername(r.getName());
-		
-		ContainerFactory.getSession().createDbCvo(AuthUser.class).putDataType("bdod").ready().store(r);
-		
-		return new BsRvo();
-	}
+
 }

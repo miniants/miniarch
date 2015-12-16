@@ -145,7 +145,7 @@
     }).controller('menuCtrl', function($scope, $http, Data) {
         $scope.Data=Data;
     });
-    app.service('RoleService',function($http){
+    app.service('DataService',function($http){
         var ctx = this;
         //通用数据组件
         ctx.dataVos={};
@@ -184,23 +184,36 @@
                 callback(roles,rolesVo);
             },options);
         }
-        ctx.indexUri = function(role,uri){
-            return _.findIndex(role.authUris,function(i){
-                return i.id==uri.id
-            });
-        };
-        ctx.checkUri = function(role,uri,checked){
-            var idx = ctx.indexUri(role,uri);
-            if(checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
-                role.authUris.push(uri);
-                role._noSaved=true;
-            }else if(idx>-1){
-                role.authUris.splice(idx,1);
-                role._noSaved=true;
-            }
+
+    });
+
+    app.directive('rmxGrid',function($scope,DataService){
+        var beans=[1];
+//        DataService.fetch("AdminBs/uris",1,function(uris){
+//            beans=uris;
+//        });
+        return {
+            restrict: 'A',
+            transclude: true,
+            scope: {
+                beans:'='
+,                name:'111'
+            },
+            controller: function($scope) {
+                var panes = $scope.panes = [];
+                $scope.name = "controller set the name";
+
+                $scope.select = function(pane) {
+                    angular.forEach(panes, function(pane) {
+                        pane.selected = false;
+                    });
+                    pane.selected = true;
+                };
+            },
+            //templateUrl: 'my-tabs.html'
         };
     });
-    app.controller('rolesCtrl', function($scope, $http, Data,RoleService) {
+    app.controller('rolesCtrl', function($scope, $http, Data,DataService) {
         $scope.editType="uri"; //uri | baseForm
         $scope.roles={};
         $scope.uris={};
@@ -285,19 +298,213 @@
         };
 
         $scope.showUris=function(pagination){
-            RoleService.fetchUris(pagination,function(uris,urisVo){
+            DataService.fetchUris(pagination,function(uris,urisVo){
                 $scope.uris = uris;
                 $scope.urisVo = urisVo;
             });
         };
         $scope.showUris(1);
 
-        RoleService.initRoles(function(){
-            $scope.roles = RoleService.roles;
+        DataService.initRoles(function(){
+            $scope.roles = DataService.roles;
             $scope.roles && $scope.selectRole($scope.roles[0]);
         });
 
-    })
+    });
+
+    var BeanEditWithListFieldCtrlFactory = function(options){
+        return function($scope, $http, DataService){
+            var     beansUri=options.beansUri,
+                    delBeanUri=options.delBeanUri,
+                    saveBeanUri=options.saveBeanUri,
+                    propsOfBeanUri=options.propsOfBeanUri,
+                    propsUri=options.propsUri;
+
+            var beanName='',propName='roles';
+            var newBeanFac=function(){
+                var newBean={username:"unnamed"+(Math.random()*1000+10000).toFixed(0),_noSaved:true,_isNew:true};
+                newBean[propName]=[];
+                return newBean;
+            };//新建bean的模板
+            var _delBean = function(bean){
+                $scope.beans.splice($scope.beans.indexOf(bean),1);//删除
+                $scope.curBean==bean && ($scope.curBean=($scope.beans && $scope.beans[0]));//如果当前就是删除的,需要重新选中
+                $scope.newBean=undefined;
+            }
+
+            $scope.editType="props"; //props | base
+            $scope.beans={};
+            $scope.props={};
+            $scope.curBean={};
+            $scope.bckBeans={};
+            $scope.newBean=undefined;
+            $scope.propsVo=undefined;
+
+
+            $scope.indexUri = function(bean,prop){
+                return _.findIndex(bean[propName],function(i){
+                    return i.id==prop.id
+                });
+            };
+            $scope.checkUri = function(bean,prop,checked){
+                var idx = $scope.indexUri(bean,prop);
+                if(checked && idx==-1){ //勾上了而且当前角色没有,则添加进去
+                    bean[propName].push(prop);
+                    bean._noSaved=true;
+                }else if(idx>-1){
+                    bean[propName].splice(idx,1);
+                    bean._noSaved=true;
+                }
+            };
+            $scope.selectBean=function(bean){
+                $scope.bckBeans[bean.id] = angular.copy(bean);//保存副本用户reset
+                $scope.curBean = bean;
+                if(!bean[propName]){//如果没有权限,则取后台取一下
+                    $http.get(mvcRoot+propsOfBeanUri+(bean.id)+".json").success(function (response) {
+                        bean[propName]=response.datas || [];
+                    });
+                }
+            };
+            $scope.createBean=function(bean){
+                if($scope.newBean){
+                    alert("新建对象尚未保存,请保存后再新建!");
+                    return;
+                }
+                $scope.curBean = angular.extend(newBeanFac(),bean);
+                $scope.newBean = $scope.curBean;
+                $scope.beans.unshift($scope.curBean);
+                $scope.editType='base';
+            };
+            $scope.resetBeanBase=function(bean){
+                if(bean._isNew){
+                    _delBean(bean);
+                }else{
+                    angular.extend($scope.curBean,$scope.bckBeans[bean.id]);
+                    $scope.curBean._noSaved=false;
+                }
+            };
+            $scope.saveBean=function(bean){
+                $http.post(mvcRoot+saveBeanUri+(bean.id||-1)+".json",bean).success(function (response) {
+                    bean._noSaved=!response.status;
+                    if(bean._noSaved){
+                        alert(response.msg);
+                    }else{
+                        bean.id=response.body.id;
+                        bean._isNew=undefined;
+                        bean._noSaved=false;
+                        ($scope.newBean==bean) && ($scope.newBean=undefined);//如果是新建对象保存了,则清空当前新建的对象,这样就允许继续新建了.
+                    }
+                });
+            };
+            $scope.delBean=function(bean){
+                if(bean._isNew){
+                    _delBean(bean);
+                }else{
+                    $http.post(mvcRoot+delBeanUri+(bean.id)+".json",bean).success(function (response) {
+                        if(!response.status){
+                            alert(response.msg);
+                        }else{
+                            _delBean(bean);
+                        }
+                    });
+                }
+            };
+
+            $scope.showProps=function(pagination){
+                DataService.fetch(propsUri,pagination,function(props,propsVo){
+                    $scope.props = props;
+                    $scope.propsVo = propsVo;
+                });
+            };
+            $scope.showProps(1);
+
+            DataService.fetch(beansUri,1,function(beans,beansVo){
+                $scope.beans = beans;
+                beans && beans.length>0 && $scope.selectBean(beans[0]);
+            },{rowCount:100});
+        }
+    }
+    app.controller('usersCtrl', BeanEditWithListFieldCtrlFactory({
+        beansUri:'AdminBs/users',
+        delBeanUri:'AdminBs/delUser/',
+        saveBeanUri:'AdminBs/saveUser/',
+        propsOfBeanUri:'AdminBs/rolesOfUser/',
+        propsUri:'AdminBs/roles'})
+    );
+
+
+//    app.directive('myCustomer', function() {
+//        return {
+//            template: 'Name: {{customer.name}} Address: {{customer.address}}'
+//        };
+//    }).directive('tabs', function() {
+//        return {
+//            restrict: 'AE',
+//            transclude: true,
+//            scope: {},
+//            controller: [ "$scope", function($scope) {
+//                var panes = $scope.panes = [];
+//
+//                $scope.testa = function(){
+//                    alert();
+//                }
+//                $scope.select = function(pane) {
+//                    angular.forEach(panes, function(pane) {
+//                        pane.selected = false;
+//                    });
+//                    pane.selected = true;
+//                }
+//
+//                this.addPane = function(pane) {
+//                    if (panes.length == 0) $scope.select(pane);
+//                    panes.push(pane);
+//                }
+//            }],
+//            template:
+//            '<div class="tabbable">' +
+//            '<ul class="nav nav-tabs">' +
+//            '<li ng-repeat="pane in panes" ng-class="{active:pane.selected}">'+
+//            '<a href="" ng-click="select(pane)">{{pane.title}}{{test}}</a>' +
+//            '</li>' +
+//            '</ul>' +
+//            '<div class="tab-content" ng-transclude></div>' +
+//            '</div>',
+//            replace: false
+//        };
+//    }).directive('pane', function() {
+//        return {
+//            require: '^tabs',
+//            restrict: 'AE',
+//            transclude: true,
+//            scope: { title: '@' },
+//            link: function(scope, element, attrs, tabsCtrl) {
+//                tabsCtrl.addPane(scope);
+//            },
+//            template:
+//            '<div class="tab-pane" ng-class="{active: selected}" ng-transclude>' +
+//            '</div>',
+//            replace: true
+//        };
+//    }).directive('rmxgrid', function() {
+//        return {
+//            restrict: 'AE',
+//            transclude: true,
+//            scope: false,
+//            controller: [ "$scope", function($scope) {
+//                var beans = $scope.beans=Math.random();
+//                var test = $scope.test="test"
+//                $scope.testGrid = function(pane) {
+//                    $scope.test=$scope.test+1;
+//                }
+//            }],
+//            link: function(scope, element, attrs, tabsCtrl) {
+//            },
+//            template:
+//            '<div class="tab-content" ng-transclude></div>' +
+//            '</div>',
+//            replace: false
+//        };
+//    })
 </script>
 </body>
 </html>
