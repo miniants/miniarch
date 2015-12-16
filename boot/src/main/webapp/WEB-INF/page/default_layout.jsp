@@ -432,6 +432,19 @@
         propsUri:'AdminBs/roles'})
     );
 
+    app.controller('pbyCtrl',function($scope, $http, DataService){
+
+        $scope.turnoffAll=function(){
+            $http.get(mvcRoot+"AdminBs/turnoffAll.json").success(function (response) {
+                //role.authUris=response.datas || [];
+            });
+        };
+        $scope.turnonAll=function(){
+            $http.get(mvcRoot+"AdminBs/turnonAll.json").success(function (response) {
+                //role.authUris=response.datas || [];
+            });
+        };
+    });
 
 //    app.directive('myCustomer', function() {
 //        return {

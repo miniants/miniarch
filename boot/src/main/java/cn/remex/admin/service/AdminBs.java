@@ -73,7 +73,26 @@ public class AdminBs {
 	public BsRvo execute(AdminBsCvo bsCvo) {
         return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
-	@BusinessService
+    private static boolean all = false;
+    @BusinessService
+    public BsRvo turnoffAll(AdminBsCvo bsCvo) {
+        all=false;
+        return new BsRvo(true,"OK","CODE01","01","text_layout","text");
+    }
+    @BusinessService
+    public BsRvo turnonAll(AdminBsCvo bsCvo) {
+        all=true;
+        return new BsRvo(true,"OK","CODE01","01","text_layout","text");
+    }
+    @BusinessService
+    public BsRvo arduino(AdminBsCvo bsCvo) {
+        return new BsRvo(true,"OK","CODE01",all?"01":"00","text_layout","text");
+    }
+    @BusinessService
+    public BsRvo arduinoHome(AdminBsCvo bsCvo) {
+        return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
+    }
+    @BusinessService
 	public BsRvo confSysMenu(AdminBsCvo bsCvo) {
 		return RemexAdminUtil.obtainAdminRvo(bsCvo, null,null);
 	}
