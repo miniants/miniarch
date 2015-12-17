@@ -27,7 +27,7 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/plugins/font-awesome/css/font-awesome.min.css">
         <!-- Ionicons -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/plugins/ionicons/css/ionicons.min.css">
+        <%--<link rel="stylesheet" href="${pageContext.request.contextPath}/static/plugins/ionicons/css/ionicons.min.css">--%>
         <!-- Theme style -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/admin/css/AdminLTE.min.css">
         <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -59,7 +59,7 @@
 
 
     </head>
-<body class="hold-transition skin-blue sidebar-mini fixed">
+<body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
     <!-- 头部 head-->
     <%@include file="comm/admin_head.jsp" %>
@@ -432,6 +432,19 @@
         propsUri:'AdminBs/roles'})
     );
 
+    app.controller('pbyCtrl',function($scope, $http, DataService){
+
+        $scope.turnoffAll=function(){
+            $http.get(mvcRoot+"AdminBs/turnoffAll.json").success(function (response) {
+                //role.authUris=response.datas || [];
+            });
+        };
+        $scope.turnonAll=function(){
+            $http.get(mvcRoot+"AdminBs/turnonAll.json").success(function (response) {
+                //role.authUris=response.datas || [];
+            });
+        };
+    });
 
 //    app.directive('myCustomer', function() {
 //        return {

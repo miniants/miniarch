@@ -39,7 +39,7 @@ public class BsRvo implements Serializable{
      */
     public BsRvo(boolean status, Object body) {
         this.status = status;
-		this.body = body;
+		this.body=body;
     }
 
     /**

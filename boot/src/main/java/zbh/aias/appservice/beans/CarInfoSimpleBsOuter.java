@@ -10,89 +10,83 @@ import java.io.Serializable;
 
 public class CarInfoSimpleBsOuter implements Serializable{
     private static final long serialVersionUID = 8553938492045336538L;
-    private String carNo;
-    private String owner;
-    private String ownerId; //车主身份证
-    private boolean sameOwner;//是否同一人
-    private String otherOwner;// 如果不是同一人，出现，--被保险人姓名
-    private String otherOwnerId;//如果不是同一人，出现，--被保险人身份证号
-    private String brandModel;// 厂牌型号
-    private String vin;//车架号
-    private String engineNo;//发动机号
-    private String signUpDate;//注册日期
-    private boolean transfer;//是否过户车
-    private String transferDate;//过户日期
+    private String licenseNo;                //车牌号码
+    private String applicantName;           //投保人姓名
+    private String applicantId;             //投保人id
+    private String sameOwner;               //是否同一人
+    private String insuredName;             //被保人姓名
+    private String insuredId;                //被保人id
+    private String brandName;                //厂牌型号 或车型名称
+    private String frameNo;                  //车架号
+    private String engineNo;                 //发动机号
+    private String enrollDate;               //初次登记日期,注册日期
+    private String transferFlag;             //过户车标志
+    private String transferDate;             //转移登记日期- 过户日期
+    private String rBCode;                   //车型代码
+    private String newVehicleFlag;           //新车标志
 
-    public boolean isSameOwner() {
+    public String getLicenseNo() {
+        return licenseNo;
+    }
+
+    public void setLicenseNo(String licenseNo) {
+        this.licenseNo = licenseNo;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public String getApplicantId() {
+        return applicantId;
+    }
+
+    public void setApplicantId(String applicantId) {
+        this.applicantId = applicantId;
+    }
+
+    public String getSameOwner() {
         return sameOwner;
     }
 
-    public void setSameOwner(boolean sameOwner) {
+    public void setSameOwner(String sameOwner) {
         this.sameOwner = sameOwner;
     }
 
-    public String getOtherOwner() {
-        return otherOwner;
+    public String getInsuredName() {
+        return insuredName;
     }
 
-    public void setOtherOwner(String otherOwner) {
-        this.otherOwner = otherOwner;
+    public void setInsuredName(String insuredName) {
+        this.insuredName = insuredName;
     }
 
-    public String getOtherOwnerId() {
-        return otherOwnerId;
+    public String getInsuredId() {
+        return insuredId;
     }
 
-    public void setOtherOwnerId(String otherOwnerId) {
-        this.otherOwnerId = otherOwnerId;
+    public void setInsuredId(String insuredId) {
+        this.insuredId = insuredId;
     }
 
-    public String getCarNo() {
-        return carNo;
+    public String getBrandName() {
+        return brandName;
     }
 
-    public void setCarNo(String carNo) {
-        this.carNo = carNo;
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getFrameNo() {
+        return frameNo;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public String getTransferDate() {
-        return transferDate;
-    }
-
-    public void setTransferDate(String transferDate) {
-        this.transferDate = transferDate;
-    }
-
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
-    }
-
-    public String getBrandModel() {
-        return brandModel;
-    }
-
-    public void setBrandModel(String brandModel) {
-        this.brandModel = brandModel;
-    }
-
-    public String getVin() {
-        return vin;
-    }
-
-    public void setVin(String vin) {
-        this.vin = vin;
+    public void setFrameNo(String frameNo) {
+        this.frameNo = frameNo;
     }
 
     public String getEngineNo() {
@@ -103,19 +97,44 @@ public class CarInfoSimpleBsOuter implements Serializable{
         this.engineNo = engineNo;
     }
 
-    public String getSignUpDate() {
-        return signUpDate;
+    public String getEnrollDate() {
+        return enrollDate;
     }
 
-    public void setSignUpDate(String signUpDate) {
-        this.signUpDate = signUpDate;
+    public void setEnrollDate(String enrollDate) {
+        this.enrollDate = enrollDate;
     }
 
-    public boolean isTransfer() {
-        return transfer;
+    public String getTransferFlag() {
+        return transferFlag;
     }
 
-    public void setTransfer(boolean transfer) {
-        this.transfer = transfer;
+    public void setTransferFlag(String transferFlag) {
+        this.transferFlag = transferFlag;
+    }
+
+    public String getTransferDate() {
+        return transferDate;
+    }
+
+    public void setTransferDate(String transferDate) {
+        this.transferDate = transferDate;
+    }
+
+    public String getrBCode() {
+        return rBCode;
+    }
+
+    public void setrBCode(String rBCode) {
+        this.rBCode = rBCode;
+    }
+
+    public String getNewVehicleFlag() {
+        return newVehicleFlag;
+    }
+
+    public void setNewVehicleFlag(String newVehicleFlag) {
+        this.newVehicleFlag = newVehicleFlag;
     }
 }
+

@@ -26,7 +26,7 @@ public class Vehicle extends ModelableImpl {
 	@Column(length = 50)
 	private String engineNo;                 //发动机号
 	@Column(length = 20)
-	private String enrollDate;               //初次登记日期
+	private String enrollDate;               //初次登记日期,注册日期
 	@Column(length = 40)
 	private String searchSequenceNo;         //车型查询码
 	@Column(length = 10)
