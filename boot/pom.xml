@@ -186,7 +186,6 @@
         <dependency>
             <groupId>cn.remex2</groupId>
             <artifactId>ojdbc5_g_remex</artifactId>
-            <scope>system</scope>
             <systemPath>${basedir}/lib/ojdbc5_g_remex-0.1.jar</systemPath>
             <version>0.1</version>
         </dependency>
