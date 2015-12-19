@@ -12,17 +12,21 @@
 
 package cn.remex.db.rsql.connection;
 
-import cn.remex.core.reflect.ReflectUtil;
-import cn.remex.db.rsql.*;
-import cn.remex.db.rsql.connection.dialect.Dialect;
-import cn.remex.db.rsql.model.Modelable;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.remex.core.reflect.ReflectUtil;
+import cn.remex.db.rsql.RsqlAssert;
+import cn.remex.db.rsql.RsqlContainer;
+import cn.remex.db.rsql.RsqlCore;
+import cn.remex.db.rsql.RsqlConstants;
+import cn.remex.db.rsql.RsqlUtils;
+import cn.remex.db.rsql.connection.dialect.Dialect;
+import cn.remex.db.rsql.model.Modelable;
 
 /**
  * @author Hengyang Liu  yangyang8599@163.com
@@ -82,7 +86,7 @@ public class RDBSpaceConfig {
 			pool = new HashMap<Object, SoftReference<Object>>();
 			this.dbBeanPool.put(clazz, pool);
 		}
-		Object id=ReflectUtil.invokeGetter(RsqlConstants.SYS_id, bean);
+		Object id= ReflectUtil.invokeGetter(RsqlConstants.SYS_id, bean);
 		if(null!=id && !"-1".equals(id)){
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			SoftReference<Object> ref = new SoftReference(bean, queue);
@@ -111,9 +115,7 @@ public class RDBSpaceConfig {
 	 * 如果id 为空则返回一个新的bean。
 	 * @param <T>
 	 * @param clazz
-	 * @param id
 	 * @return T
-	 * @rmx.call {@link RDBSpaceConfig#getDBBean(String, Object)}
 	 */
 	@SuppressWarnings({ "unchecked"})
 	public <T>T getDBBean(final Class<?> clazz){
@@ -170,7 +172,6 @@ public class RDBSpaceConfig {
 	 * @rmx.call {@link RsqlContainer#copy(cn.remex.db.DbCvo)}
 	 * @rmx.call {@link RsqlUtils#createSelectSqlBean(cn.remex.db.DbCvo)}
 	 * @rmx.call {@link RsqlContainer#existsModel(String)}
-	 * @rmx.call {@link RDBSpaceConfig#getDBBean(String, Object)}
 	 * @rmx.call {@link RDBSpaceConfig#hasOrmBeanClass(Type)}
 	 * @rmx.call {@link RsqlAssert#isOrmBeanName(String)}
 	 * @rmx.call {@link RsqlContainer#store(Modelable, cn.remex.db.DbCvo)}

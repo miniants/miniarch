@@ -3,6 +3,20 @@
  */
 package cn.remex.db.rsql.connection;
 
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Modifier;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import cn.remex.core.CoreSvo;
 import cn.remex.core.exception.NestedException;
 import cn.remex.core.util.Assert;
@@ -15,12 +29,6 @@ import cn.remex.db.rsql.RsqlCore;
 import cn.remex.db.rsql.RsqlDao;
 import cn.remex.db.rsql.model.Modelable;
 
-import java.lang.ref.SoftReference;
-import java.lang.reflect.Modifier;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * 
@@ -74,7 +82,6 @@ public class RDBManager {
 	/**
 	 * 初始化本线程的数据库连接栈。<br>
 	 * @rmx.summary Remex的数据库管理采用同一个线程共享一个真实数据库连接({@link Connection}封装于{@link RDBConnection}
-	 * @rmx.call {@link RsqlTransactionalAspect}
 	 * @rmx.call {@link RDBManager#commitTransactional(String)}
 	 */
 	static public void beginTransactional(final String spaceName) {
@@ -107,7 +114,6 @@ public class RDBManager {
 	 * 正常完成事务。<br>
 	 * @rmx.summary 由于事务存在嵌套，但本模块在同一线程中式是同一个数据库连接，提交必须是在数据库连接栈中最后一个时操作。
 	 * @rmx.call {@link RDBManager#commitTransactional(String)}
-	 * @rmx.call {@link RsqlTransactionalAspect}
 	 */
 	static public void finishTransactional(final String spaceName) {
 		if(RsqlConstants.isDebug)
@@ -166,7 +172,7 @@ public class RDBManager {
 			// 或的本线程的数据库链接栈。此栈是可以进行数据库事务套用管理的。本模块中一个线程只用一个数据库链接。栈的深度决定了套用的次数。
 			RDBConnection localCon = pool.getLocalConnection();
 
-			Assert.notNull(localCon,"初始化事务时没有创建数据库连接，请联系系统管理员！");
+			Assert.notNull(localCon, "初始化事务时没有创建数据库连接，请联系系统管理员！");
 			
 			return localCon;
 		}else{
@@ -185,7 +191,6 @@ public class RDBManager {
 	}
 
 	/**
-	 * @rmx.call {@link RsqlCore#reset(boolean)}
 	 * @rmx.call {@link RsqlCore#RsqlCore(String, HashMap, boolean)}
 	 */
 	static public synchronized void reset(
@@ -253,7 +258,6 @@ public class RDBManager {
 	 * 数据库用户的口令(如果着顶用户) poolname.maxconn 连接的最大数目(可选)<br>
 	 * @param RDBSpaceMap 
 	 * 
-	 * @param props
 	 *            数据库连接池的属性
 	 *  @rmx.call {@link RDBManager}
 	 */
@@ -329,7 +333,6 @@ public class RDBManager {
 	}
 	/**
 	 * 装载并登记所有的JDBC驱动程序
-	 * @param props
 	 *            数据库连接池的属性
 	 */
 	private void loadDrivers(String driversStr) {

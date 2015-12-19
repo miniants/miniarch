@@ -204,7 +204,7 @@ public class OracleDialect extends Dialect {
 	}
 
 	/* (non-Javadoc)
-	 * @see cn.remex.db.rsql.connection.dialect.Dialect#obtainDecodeSQL(java.jstl.Map, java.lang.String, java.lang.String)
+	 * @see cn.remex.db.rsql.connection.dialect.Dialect#obtainDecodeSQL(java.util.Map, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public StringBuilder obtainDecodeSQL(Map<String, String> map, String decodeKey, String displayName) {
