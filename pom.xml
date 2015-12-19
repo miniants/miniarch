@@ -398,6 +398,12 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <showWarnings>true</showWarnings>
+					<compilerArguments>
+						<extdirs>lib</extdirs><!-- 本地项目路径lib下的包均需打包 -->
+					</compilerArguments>
+                    <compilerArgs>
+                        <arg>-parameters</arg><!-- 添加java8 中参数名字保留的功能 -->
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <!-- 打war包的插件配置 -->
@@ -410,6 +416,13 @@
                         <resource>
                             <filtering>true</filtering>
                             <directory>src/main/webapp/</directory>
+                        </resource>
+                        <resource>
+                            <directory>lib/</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <includes>
+                                <include>**/*.jar</include>
+                            </includes>
                         </resource>
                     </webResources>
                 </configuration>
