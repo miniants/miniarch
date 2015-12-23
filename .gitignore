@@ -1,3 +1,7 @@
+#local dev need file
+*/webapp/demo/*
+*/angular*/docs/*
+
 *.class
 
 # Mobile Tools for Java (J2ME)
