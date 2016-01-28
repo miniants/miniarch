@@ -1,0 +1,35 @@
+<div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box" style="margin-bottom: 0;padding-bottom: 0">
+                <div class="box-header">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm" ng-click="saveBean(curBean)"><i class="fa fa-plus-square-o">保存</i></button>
+                        <button type="button" class="btn btn-primary btn-sm" ng-click="createBean(curBean);"><i class="fa fa-plus-square-o">新建</i></button>
+                        <button type="button" class="btn btn-primary btn-sm" ng-click="resetBaseBase(curBean);"><i class="fa fa-plus-square-o">重置</i></button>
+                        <button type="button" class="btn btn-primary btn-sm" ng-click="editType = 'base'"><i class="fa fa-edit">基本信息</i></button>
+                        <button type="button" class="btn btn-primary btn-sm" ng-click="editType = 'props'"><i class="fa fa-edit">角色</i></button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-sm" ng-click="delBean(curBean)">删除</button>
+                            <button type="button" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret">…</span>
+                                <span class="sr-only"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">刷新</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#">帮助</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <!--class="table table-bordered table-hover"-->
+                    <table id="jqGridTable" >
+                    </table>
+                    <div id="jqGridPager"></div>
+                </div><!-- /.box-body -->
+            </div><!-- /.box -->
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+</div>

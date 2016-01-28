@@ -6,6 +6,8 @@ import org.apache.oro.text.regex.*;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.function.BiConsumer;
+
 /**
  *	String 处理工具类
  */
@@ -123,6 +125,21 @@ public class StringHelper implements RemexConstants {
 		}
 		return m.getMatch();
 	}
+
+	public static int forEachMatch(final String string, final String regex, BiConsumer<MatchResult,Boolean> matchConsumer) {
+		PatternMatcher m = new Perl5Matcher();
+		Pattern p = obtainPattern(regex);
+		PatternMatcherInput input = new PatternMatcherInput(string);
+		int len = string.length();
+		while (m.contains(input,p)){
+			matchConsumer.accept(m.getMatch(), input.endOfInput());
+		}
+
+		return input.getEndOffset();
+	}
+
+
+
 	private static synchronized Pattern obtainPattern(String regex){
 		Pattern p = patterns.get(regex);
 		if (null == p) {

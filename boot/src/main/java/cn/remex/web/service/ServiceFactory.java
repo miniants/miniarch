@@ -13,11 +13,13 @@
 package cn.remex.web.service;
 
 import cn.remex.RemexConstants;
+import cn.remex.admin.appbeans.DataRvo;
 import cn.remex.core.RemexApplication;
 import cn.remex.core.RemexRefreshable;
 import cn.remex.core.net.HttpHelper;
 import cn.remex.core.reflect.ReflectUtil;
 import cn.remex.core.util.*;
+import cn.remex.db.DbRvo;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -93,7 +95,7 @@ public final class ServiceFactory implements RemexRefreshable {
     /**
      * 根据bsName获得业务分发处理类
      */
-    static public BsRvo executeBs(String bs, String bsCmd, String pk, HttpServletRequest request, HttpServletResponse response) {
+    static public BsRvo executeBs(String bs, String bsCmd, String pk, HttpServletRequest request, HttpServletResponse response, Map params) {
         try {
 
             RemexConstants.logger.info("Executing Bs=" + bs + ";bsCmd=" + bsCmd);
@@ -105,17 +107,24 @@ public final class ServiceFactory implements RemexRefreshable {
             Object bsObj = ServiceFactory.createBs(bs);
             Method cglibBsCmdMethod = ReflectUtil.getMethod(bsObj.getClass(), bsCmd); // 此处应该用实例的类来查找对应的方法,否则会越过代理直接调用原始方法
 
-            ArrayList<Object> paramArra = new ArrayList();
+            ArrayList paramArra = new ArrayList();
             //处理文件上传
             if (null != bsan && bsan.withMultiPart()) {
 
             }
 
 
-            Map params = new HashMap();
+            params = params == null ? new HashMap() : params;
             params.putAll(request.getParameterMap());
-            params.put("pk",pk);
+            params.put("pk", pk);
             Parameter[] parameters = cglibBsCmdMethod.getParameters();
+            String requestBody = null;
+            if (null != bsan && (isJson || bsan.requestBody())) {
+                requestBody = HttpHelper.obtainHttpPack(request.getInputStream());
+                if (!Judgment.nullOrBlank(requestBody)) {
+                    params.putAll(JsonHelper.toJavaObject(requestBody, HashMap.class));
+                }
+            }
             for (Parameter param : parameters) {
                 Class paramType = param.getType();
                 String paramName = param.getName();
@@ -126,12 +135,15 @@ public final class ServiceFactory implements RemexRefreshable {
                     }
                     paramObj = ReflectUtil.caseObject(paramType, params.get(paramName));
                 } else {
-                    if (null != bsan && (isJson || bsan.requestBody())) {
-                        String requestBody = HttpHelper.obtainHttpPack(request.getInputStream());
-                        paramObj = JsonHelper.toJavaObject(requestBody, param.getType());
+                    if(null != (paramObj = params.get(paramName))){
+                        paramObj = ReflectUtil.caseObject(paramType, paramObj);
                     }else {
-                        paramObj = ReflectUtil.invokeNewInstance(param.getType());
-                        MapHelper.objectFromFlat(paramObj, params);
+                        if (null != bsan && (isJson || bsan.requestBody())) {
+                            paramObj = JsonHelper.toJavaObject(requestBody, param.getType());
+                        } else {
+                            paramObj = ReflectUtil.invokeNewInstance(param.getType());
+                            MapHelper.objectFromFlat(paramObj, params);
+                        }
                     }
                 }
 
@@ -148,10 +160,27 @@ public final class ServiceFactory implements RemexRefreshable {
                 paramArra.add(paramObj);
             }
 
-            return (BsRvo) ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
+            //执行bs
+            Object result = ReflectUtil.applyMethod(cglibBsCmdMethod, bsObj, paramArra.toArray());
+            BsRvo bsRvo = null;
+
+            //对不同类型的结果予以适配
+            if (result instanceof String) {
+                bsRvo = new BsRvo(true, result);
+            } else if (result instanceof BsRvo) {
+                bsRvo = (BsRvo) result;
+            } else if (result instanceof DbRvo) {
+                bsRvo = new DataRvo(true, (DbRvo) result);
+            } else if (null == result) {
+                bsRvo = new BsRvo(true, "NO_RESPONSE_BODY");
+            } else {
+                bsRvo = new BsRvo(true, result);
+            }
+
+            return bsRvo;
         } catch (Exception e) {
             RemexConstants.logger.error("调用本地Bs服务出现异常。", e);
-            return new BsRvo(false, e.getMessage(),"01");
+            return new BsRvo(false, e.getMessage(), "01");
         }
 
     }

@@ -2,6 +2,7 @@ package cn.remex.web;
 
 import cn.remex.RemexConstants;
 import cn.remex.admin.auth.AuthenticateBtx;
+import cn.remex.core.CoreSvo;
 import cn.remex.core.RemexApplication;
 import cn.remex.core.exception.FilterException;
 import cn.remex.core.exception.NestedException;
@@ -21,10 +22,6 @@ public class RemexFilter implements Filter, RemexConstants {
      * 配置是否需要验证身份
      */
     private boolean needAuthenticate = false;
-    /**
-     * 配置
-     */
-    private AuthenticateBtx authenticateBtx = new AuthenticateBtx();
     /**
      * 允许直接访问的资源,可以是目录\文件,以;隔离
      */
@@ -60,28 +57,29 @@ public class RemexFilter implements Filter, RemexConstants {
         String uri = request.getRequestURI();
         String svlPath = request.getServletPath();
         String uriParams = request.getQueryString();
-
+        String context = request.getContextPath();
+        CoreSvo.initHttp(request, response);
         try {
-            if (needAuthenticate && !isPermit(request) && // 如果需要验证, // 如果没有在不需要验证的目录中或不是公共文件
-                    !authenticateBtx.authenticate()) {
+            if (/*needAuthenticate &&*/ !isPermit(request) && // 如果需要验证, // 如果没有在不需要验证的目录中或不是公共文件
+                    !AuthenticateBtx.checkToken()) {
                 // //如果验证没有通过
                 request.setAttribute("redirectURI", urlRoot + request.getServletPath() /*+ (Judgment.nullOrBlank(uriParams)?"":"?" + uriParams)*/);
-                request.getRequestDispatcher(loginUri).forward(request, response);
+                response.sendRedirect(context+"/static/framework/login.html");
             } else {
 //                //短链接/加密连接rewrite 此功能暂时用不上
 //                if (RemexRewritUrl.isRemexWebEncodeUrl(svlPath))
 //                    request.getRequestDispatcher(RemexRewritUrl.decodeUrl(svlPath)).forward(request, response);
 //                else
-                    chain.doFilter(sRequest, sResponse);
+                chain.doFilter(sRequest, sResponse);
 
             }
         } catch (Exception e) {
             // 这里能捕捉尚未转入struts2 中的异常。@l
             logger.error("服务进入应用框架之前发生异常:", e);
             request.setAttribute("exception", e);
-            request.getRequestDispatcher(errorUri).forward(request, response);
+             request.getRequestDispatcher(errorUri).forward(request, response);
         }
-
+        CoreSvo.destoryHttp();
         timeLogger.info(new StringBuilder("Handle request [").append(uri).append("?").append(uriParams).append("] took ").append(System.currentTimeMillis() - startTime).append(" ms.")
                 .append("\r\n==============================================================\r\n"));
     }
@@ -117,7 +115,10 @@ public class RemexFilter implements Filter, RemexConstants {
     }
 
     private boolean isPermit(final HttpServletRequest request) {
-        String uri = request.getServletPath();
+        String uri = request.getRequestURI();
+        if(uri.contains("/static")||uri.contains("/AdminBs/login"))
+            return true;
+
         for (String dir : permitUriPres)
             if (uri.startsWith(dir))
                 return true;

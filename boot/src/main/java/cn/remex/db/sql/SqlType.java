@@ -13,12 +13,6 @@ import java.util.Date;
 import java.util.Map;
 
 public class SqlType {
-	public enum FieldType{
-		TAll,TBase,TObject,TCollection,TMap
-	}
-	public enum MethodType{
-		MTGet,MTSet
-	}
 	final static private ReadOnlyMap<Class<?>, ReadOnlyMap<String,Type>> TAllFields = new ReadOnlyMap<Class<?>, ReadOnlyMap<String,Type>>();
 	final static private ReadOnlyMap<Class<?>, ReadOnlyMap<String,Type>> TBaseFields = new ReadOnlyMap<Class<?>, ReadOnlyMap<String,Type>>();
 	final static private ReadOnlyMap<Class<?>, ReadOnlyMap<String,Method>> TBaseGetter = new ReadOnlyMap<Class<?>, ReadOnlyMap<String,Method>>();

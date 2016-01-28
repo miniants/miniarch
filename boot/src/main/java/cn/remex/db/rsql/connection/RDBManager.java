@@ -76,7 +76,7 @@ public class RDBManager {
 			if(null!=con)
 				con.free();
 			pool.removeLocalConnection();
-			CoreSvo.$SL(isRsqlTransactionFlag, false);
+			CoreSvo.putLocal(isRsqlTransactionFlag, false);
 		}
 	}
 	/**
@@ -103,7 +103,7 @@ public class RDBManager {
 
 		//因为第一层事务已经处理，此两行可忽略
 		localCon.setAutoCommit(false);
-		CoreSvo.$SL(isRsqlTransactionFlag, true);
+		CoreSvo.putLocal(isRsqlTransactionFlag, true);
 	}
 
 	static public void commitTransactional(String spaceName){
@@ -138,7 +138,7 @@ public class RDBManager {
 		}finally{
 			if(level==1){
 				TransactionalLevel.set(1);
-				CoreSvo.$SL(isRsqlTransactionFlag, false);
+				CoreSvo.putLocal(isRsqlTransactionFlag, false);
 			}else{
 				TransactionalLevel.set(level>1?--level:1);
 			}
@@ -223,7 +223,7 @@ public class RDBManager {
 	}
 	
 	private static boolean isRsqlTransaction(){
-		return null == CoreSvo.$VL(isRsqlTransactionFlag) ? false:((Boolean)CoreSvo.$VL(isRsqlTransactionFlag));
+		return null == CoreSvo.valLocal(isRsqlTransactionFlag) ? false:((Boolean)CoreSvo.valLocal(isRsqlTransactionFlag));
 	}
 
 	protected static RDBConnectionPool getPool(final String poolName) {

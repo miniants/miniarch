@@ -26,7 +26,7 @@ public class JsonHelper {
 	
 	private final static String LocalObjectMapper = "JsonHelper";
 	private static ObjectMapper obtainLocalObjectMapper(){
-		ObjectMapper mapper = (ObjectMapper) CoreSvo.$VL(LocalObjectMapper);
+		ObjectMapper mapper = (ObjectMapper) CoreSvo.valLocal(LocalObjectMapper);
 		if(null == mapper){
 			mapper = new ObjectMapper();
 			//允许不用双引号将fieldName括起来。
@@ -47,7 +47,7 @@ public class JsonHelper {
 		//反序列化时：将空字符串标示为空对象。
 			mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 			
-			CoreSvo.$SL(LocalObjectMapper, mapper);
+			CoreSvo.putLocal(LocalObjectMapper, mapper);
 		}
 		return mapper;
 	}

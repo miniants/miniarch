@@ -1,11 +1,10 @@
 package cn.remex.db.model.cert;
 
 import cn.remex.db.cert.DataAccessScope;
-import cn.remex.db.model.tree.MenuTreeNode;
+import cn.remex.db.model.SysUri;
+import cn.remex.db.model.SysMenu;
 import cn.remex.db.rsql.model.ModelableImpl;
-import cn.remex.db.view.Element;
 
-import javax.persistence.CascadeType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -21,10 +20,10 @@ public class AuthRole  extends ModelableImpl{
 	 * 
 	 */
 	private static final long serialVersionUID = -4219376074850276724L;
-	@ManyToMany(mappedBy="roles",targetEntity=AuthUri.class)
-	private List<AuthUri> authUris;
-	@ManyToMany(mappedBy="roles",targetEntity=MenuTreeNode.class)
-	private List<MenuTreeNode> menus;
+	@ManyToMany(mappedBy="roles",targetEntity=SysUri.class)
+	private List<SysUri> sysUris;
+	@ManyToMany(mappedBy="roles",targetEntity=SysMenu.class)
+	private List<SysMenu> menus;
 	@ManyToMany(mappedBy="roles")
 	private List<AuthUser> users;
 	/**
@@ -35,16 +34,16 @@ public class AuthRole  extends ModelableImpl{
 		super(name);
 	}
 	public AuthRole() {}
-	public List<AuthUri> getAuthUris() {
-		return authUris;
+	public List<SysUri> getSysUris() {
+		return sysUris;
 	}
-	public void setAuthUris(List<AuthUri> authUris) {
-		this.authUris = authUris;
+	public void setSysUris(List<SysUri> sysUris) {
+		this.sysUris = sysUris;
 	}
-	public List<MenuTreeNode> getMenus() {
+	public List<SysMenu> getMenus() {
 		return menus;
 	}
-	public void setMenus(List<MenuTreeNode> menus) {
+	public void setMenus(List<SysMenu> menus) {
 		this.menus = menus;
 	}
 	public List<AuthUser> getUsers() {

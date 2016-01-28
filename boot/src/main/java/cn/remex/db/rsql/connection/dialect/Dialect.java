@@ -118,12 +118,13 @@ public abstract class Dialect{
 	}
 	public abstract String obtainPagingSQL(String sqlString,long start,long end, long rowCount);
 
+	public abstract String aliasAggrFun(String fieldName, String aliasName);
+
 	public abstract String obtainSelectRegex() ;
 	
 	public abstract String obtainSQLSelectIndexs(String beanName) ;
 	/**
 	 * 获取 当前方言中标示index的名字
-	 * @param beanName
 	 * @return
 	 */
 	public abstract String obtainSQLIndexNameField() ;
@@ -142,14 +143,14 @@ public abstract class Dialect{
 	 * @return String
 	 */
 	public abstract String obtainSQLTypeString(int integer);
+	public abstract char openQuote();
 	/**
-	 * 
-	 * @param integer  {@link Types} 
+	 *
+	 * @param integer  {@link Types}
 	 * @param length
 	 * @return String
 	 */
 	public abstract String obtainSQLTypeString(int integer,int length);
-	public abstract char openQuote();
 	public abstract char openStringQuote();
 	public abstract String quoteAsString(Object value);
 	/**

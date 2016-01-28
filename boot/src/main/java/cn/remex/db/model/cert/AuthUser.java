@@ -1,5 +1,6 @@
 package cn.remex.db.model.cert;
 
+import cn.remex.db.model.SysUri;
 import cn.remex.db.rsql.model.ModelableImpl;
 import cn.remex.db.view.Element;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -25,15 +26,15 @@ public class AuthUser extends ModelableImpl{
 	private static final long serialVersionUID = -3851128250538182731L;
 	/**登陆名*/
 	@Column(length = 20)
-	private String username="anonymous";
+	private String username;
 	/** 登陆密码*/
 	@JSONField(serialize=false)
 	@Column(length = 30)
-	private String password="anonymous";
+	private String password;
 	/** 所属角色*/
 	@ManyToMany(mappedBy="users",targetEntity=AuthRole.class)
 	private List<AuthRole> roles;
-	private Map<String, AuthUri> uriAuthMap = new HashMap<String, AuthUri>();
+	private Map<String, SysUri> uriAuthMap = new HashMap<String, SysUri>();
 	private String effectFlag;		//用户是否有效
 	private String effectPeriod;			//用户有效期
 	public AuthUser() {
@@ -66,10 +67,10 @@ public class AuthUser extends ModelableImpl{
 		this.username = username;
 		super.setName(username);
 	}
-	public Map<String, AuthUri> obtainUriAuthMap() {
+	public Map<String, SysUri> obtainUriAuthMap() {
 		return uriAuthMap;
 	}
-	public void putUriAuthMap(Map<String, AuthUri> uriAuthMap) {
+	public void putUriAuthMap(Map<String, SysUri> uriAuthMap) {
 		this.uriAuthMap = uriAuthMap;
 	}
 	public String getEffectFlag() {

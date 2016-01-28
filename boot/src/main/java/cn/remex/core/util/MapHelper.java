@@ -196,7 +196,8 @@ public class MapHelper {
 				}
 			}
 			List _l = (List)_v;
-			int n = Integer.parseInt(nextPath.substring(li+1, (li_r=nextPath.indexOf("]"))));
+			String arrayIndex = nextPath.substring(li+1, (li_r=nextPath.indexOf("]")));
+			int n = Judgment.nullOrBlank(arrayIndex)?-1:Integer.parseInt(arrayIndex); //LHY 2015-1-16 新增对没有下表[] 的支持
 			
 			//右中括号后面只会出现三种情况，1)结束，2).引用，3)[新数组引用
 			if(li==nextPath.length()){
@@ -206,17 +207,19 @@ public class MapHelper {
 			}
 			String l_nextFlag = nextPath.substring(li_r+1, li_r+2); // . or [
 			if(".".equals(l_nextFlag)){
-				if(n>_l.size()||0==_l.size()){//没有值
+				Object _l_v;
+				if(n>_l.size()||0==_l.size() ||n<0){//没有值 //当中括号为[]时n<0
 					for(int i=_l.size();i<=n;i++){
 						_l.add(null);
 					}
-					Method getter = ReflectUtil.getGetter(clazz, fieldName);
+					Method getter = ReflectUtil.getGetter(clazz.getName().contains("$$EnhancerByCGLIB$$")?clazz.getSuperclass():clazz, fieldName);
 					Class<?> _fc = ReflectUtil.getListActualType(getter.getGenericReturnType());
-					Object _l_v = instanceMethod.invoke(instanceFactory,_fc); 
-					_l.set(n, _l_v);
+					_l_v = instanceMethod.invoke(instanceFactory,_fc);
+					if(n==-1) _l.add(_l_v); else _l.set(n, _l_v); //当中括号为[]时直接添加
+				}else {
+					_l_v = _l.get(n);
 				}
-				Object _l_v = _l.get(n);
-				_flat2Object(_l_v, nextPath.substring(li_r+2), value, instanceFactory, instanceMethod);
+				_flat2Object(_l_v, nextPath.substring(li_r+(n>0?2:1)), value, instanceFactory, instanceMethod);
 			}else if("[".equals(l_nextFlag)){ // 数组嵌套
 				throw new InvalidCharacterException("暂不支持数组嵌套！");
 			}else{

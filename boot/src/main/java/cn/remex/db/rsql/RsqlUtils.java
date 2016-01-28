@@ -12,8 +12,10 @@ import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.connection.RDBSpaceConfig;
 import cn.remex.db.rsql.connection.dialect.Dialect;
 import cn.remex.db.rsql.model.Modelable;
+import cn.remex.db.rsql.sqlutil.Index;
+import cn.remex.db.rsql.sqlutil.Select;
 import cn.remex.db.sql.*;
-import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.FieldType;
 import cn.remex.db.view.EditType;
 import cn.remex.db.view.Element;
 import org.apache.oro.text.regex.MatchResult;
@@ -46,32 +48,27 @@ public final class RsqlUtils implements RsqlConstants {
 	static Map<String, ColumnType> SysCreateColumns;
 	static Map<String, ColumnType> SysModifyColumns;
 	static {
-		SysCreateColumns = new ReadOnlyMap<String, ColumnType>();
+		SysCreateColumns = new ReadOnlyMap<>();
 		SysCreateColumns.put(SYS_createOperator, new ColumnType(Types.CHAR, 50));
-		SysCreateColumns.put(SYS_createOperator_name, new ColumnType(Types.CHAR, 20));
 		SysCreateColumns.put(SYS_createTime, new ColumnType(Types.CHAR, 50));
 		SysCreateColumns.put(SYS_ownership, new ColumnType(Types.CHAR, 50));
-		SysCreateColumns.put(SYS_ownership_name, new ColumnType(Types.CHAR, 20));
 
-		SysModifyColumns = new ReadOnlyMap<String, ColumnType>();
+		SysModifyColumns = new ReadOnlyMap<>();
 		SysModifyColumns.put(SYS_modifyOperator, new ColumnType(Types.CHAR, 50));
-		SysModifyColumns.put(SYS_modifyOperator_name, new ColumnType(Types.CHAR, 20));
 		SysModifyColumns.put(SYS_modifyTime, new ColumnType(Types.CHAR, 50));
 
-		SysColumns = new ReadOnlyMap<String, ColumnType>();
+		SysColumns = new ReadOnlyMap<>();
 		SysColumns.put(SYS_id, new ColumnType(Types.CHAR, 50));
-		SysColumns.put(SYS_dataStatus, new ColumnType(Types.CHAR, 10));
-		SysColumns.put(SYS_version, new ColumnType(Types.INTEGER, 22));
 		SysColumns.putAll(SysCreateColumns);
 		SysColumns.putAll(SysModifyColumns);
 
-		SqlTypes = new ReadOnlyMap<Class<?>, ColumnType>();
+		SqlTypes = new ReadOnlyMap<>();
 		SqlTypes.put(short.class, new ColumnType(Types.INTEGER,22));
 		SqlTypes.put(int.class, new ColumnType(Types.INTEGER, 22));
 		SqlTypes.put(long.class, new ColumnType(Types.INTEGER, 22));
 		SqlTypes.put(double.class, new ColumnType(Types.DOUBLE, 22));
 		SqlTypes.put(float.class, new ColumnType(Types.FLOAT, 22));
-		SqlTypes.put(boolean.class, new ColumnType(Types.BOOLEAN, 0));
+		SqlTypes.put(boolean.class, new ColumnType(Types.BOOLEAN, 5));
 		SqlTypes.put(byte.class, new ColumnType(Types.BIT, 0));
 		SqlTypes.put(char.class, new ColumnType(Types.CHAR, 0));
 
@@ -80,88 +77,17 @@ public final class RsqlUtils implements RsqlConstants {
 		SqlTypes.put(Long.class, new ColumnType(Types.INTEGER, 22));
 		SqlTypes.put(Double.class, new ColumnType(Types.DOUBLE, 22));
 		SqlTypes.put(Float.class, new ColumnType(Types.FLOAT, 22));
-		SqlTypes.put(Boolean.class, new ColumnType(Types.BOOLEAN, 0));
+		SqlTypes.put(Boolean.class, new ColumnType(Types.BOOLEAN, 5));
 		SqlTypes.put(Byte.class, new ColumnType(Types.BIT, 0));
 		SqlTypes.put(Character.class, new ColumnType(Types.CHAR, 0));
 
 		SqlTypes.put(String.class, new ColumnType(Types.CHAR, 100));
 		SqlTypes.put(Date.class, new ColumnType(Types.CHAR, 100));
 
-		GettersWithOutSysColumnForList = new ReadOnlyMap<Class<?>, Map<String,Method>>();
+		GettersWithOutSysColumnForList = new ReadOnlyMap<>();
 
 	}
 
-//	/**
-//	 * 此函数建立系统配置表
-//	 */
-//	static public void createSystemTable(final Dialect dialect) {
-//		QueryResult tableNames = RsqlDao.executeQuery(dialect.obtainSQLSelectTableNames()).getQueryResult();
-//		if(tableNames.getCells(0, SYS_tableName, 0).size()==1){
-//			return;
-//		}
-//
-//
-//		String prefix = "CREATE TABLE "+ dialect.openQuote()+SYS_tableName +dialect.closeQuote();
-//		String suffix = "\r\n)\r\n";
-//		StringBuilder content = new StringBuilder("(\n");
-//
-//		content.append("		").append(dialect.openQuote() + SYS_id + dialect.closeQuote()+" "
-//				+ dialect.obtainSQLTypeString(Types.CHAR)
-//				+ " NOT NULL PRIMARY KEY,\r\n");
-//		content.append("		").append(dialect.openQuote() + SYS_key + dialect.closeQuote()+" "
-//				+ dialect.obtainSQLTypeString(Types.CHAR) + " NULL,\r\n");
-//		content.append("		").append(dialect.openQuote() + SYS_value + dialect.closeQuote()+" "
-//				+ dialect.obtainSQLTypeString(Types.CHAR) + " NULL,\r\n");
-//		String mid = content.toString();
-//		mid = mid.substring(0, mid.length() - 3);
-//		RsqlDao.executeUpdate(prefix + mid +suffix);
-//	}
-	//	/**
-	//	 * 此函数建立bean中Map关联的表
-	//	 *
-	//	 * @return @
-	//	 */
-	//	static public String obtainSQLCreateMapTable(String beanName,
-	//			String fieldName, Type fieldType) {
-	//				return fieldName;
-	//
-	////		// 因为获取的就是List、Set、Vector类型，所以一定是ParameterizedTypeImpl，且ActualTypeArguments是一个参数
-	////		ParameterizedTypeImpl typeImpl = (ParameterizedTypeImpl) fieldType;
-	////		Type[] types = typeImpl.getActualTypeArguments();
-	////
-	////		// 获取本表的必须列，共三列，是确定的
-	////		Map<String, Integer> columns = obtainSKeyCollectionTableColumns(
-	////				beanName, fieldName, fieldType);
-	////
-	////		String prefix = "CREATE TABLE ";
-	////		StringBuilder content = new StringBuilder("(\n");
-	////		for (Type type1 : types) {
-	////			if (SqlType.isTMap(type1) || SqlType.isTCollection(type1))
-	////				throw new (
-	////						new RsqlInitException("不支持深层Map映射，数据库ORM映射创建失败！"));
-	////			else if (type1 == Object.class)
-	////				throw new RsqlInitException(
-	////						"不支持Object 原始类型直接Map映射，数据库ORM映射创建失败！");
-	////		}
-	////
-	////		content.append("		").append(dialect.openQuote() + SYS_id + dialect.closeQuote()+" "
-	////				+ obtainSQLTypeString(Types.INTEGER) + " " + SQL_IDENTITY
-	////				+ " NOT NULL PRIMARY KEY,\r\n");
-	////		content.append("		").append(dialect.openQuote()+ SYS_dataStatus + dialect.closeQuote()+" "
-	////				+ obtainSQLTypeString(Types.CHAR) + " NULL,\r\n");
-	////		for (String column : columns.keySet()) {
-	////			content.append("		").append(dialect.openQuote());
-	////			content.append(column);
-	////			content.append(dialect.closeQuote()+"");
-	////			content.append(obtainSQLTypeString(columns.get(column))).append(
-	////					",\r\n");
-	////		}
-	////
-	////		String mid = content.toString();
-	////		mid = mid.substring(0, mid.length() - 3);
-	////		return prefix + obtainSKeyMapTableName(beanName, fieldName) + mid
-	////				+ "\r\n)";
-	//	}
 	private static String doManyToMany_delete_cacheKey = "RsqlUtils.doManyToMany_delete";
 
 	/**
@@ -310,93 +236,6 @@ public final class RsqlUtils implements RsqlConstants {
 		return ContainerFactory.getSession().executeUpdate(sqlOpts.get(0),params);
 	}
 
-	// public static RsqlRvo updateForManyToMany(String beanName,
-	// String fieldName, Type fieldType, Object PK_id,
-	// Object FK_id) {
-	// RsqlRvo rvo = selectForManyToMany(beanName, fieldName, fieldType, PK_id,
-	// FK_id);
-	// if(rvo.getRecords()==0){
-	// insertForManyToMany(beanName, fieldName, fieldType, PK_id, FK_id);
-	// }else if(rvo.getRecords()>1){
-	// throw new (
-	// new
-	// RsqlExecuteException("数据库中的多对多映射数据有异常冗余，请联系数据管理员检查！"+beanName+"_"+fieldName+"_"+fieldType+"_"+PK_id+"_"+FK_id));
-	// }
-	// return rvo;
-	//
-	// // StringBuilder sqlString = new StringBuilder();
-	// // // 获得外键表的列，此为一对多的collectionTable
-	// // Map<String, Integer> ctColumns = obtainSKeyCollectionTableColumns(
-	// // beanName, fieldName, fieldType);
-	// // Iterator<String> kitr = ctColumns.keySet().iterator();
-	// // String pkey = kitr.next();
-	// // String fkey = kitr.next();
-	// //
-	// //
-	// //
-	// // sqlString.append("UPDATE ").append(
-	// // obtainSKeyCollectionTableName(beanName, fieldName)).append(
-	// // " \r\n\tSET ");
-	// // sqlString.append(pkey).append("=").append(PK_id);
-	// // sqlString.append(" , ");
-	// // sqlString.append(fkey).append("=").append(FK_id);
-	// //
-	// // sqlString.append(" \r\n\tWHERE ");
-	// //
-	// // RsqlCvo cvo = new RsqlCvo(sqlString.toString());
-	//
-	// }
-
-//	/**
-//	 * 查询多对多表中的列表
-//	 * 
-//	 * @param beanName
-//	 * @param fieldName
-//	 * @param fieldType
-//	 * @param PK_id
-//	 * @param FK_id
-//	 *            如果为空，则查询全部。
-//	 * @return 返回的结果集中，列顺序：id,PK_id,FK_id
-//	 */
-//	public static RsqlRvo doManyToMany_select(final String beanName, final String fieldName, final Type fieldType,
-//			final Object PK_id) {
-//		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
-//		StringBuilder sqlString = new StringBuilder();
-//		HashMap<String, Object> params = new HashMap<String, Object>();
-//		// 获得外键表的列，此为一对多的collectionTable
-//		Map<String, ColumnType> ctColumns = obtainSKeyCollectionTableColumns(beanName, fieldName, fieldType);
-//		Iterator<String> kitr = ctColumns.keySet().iterator();
-//		String fkey = kitr.next();
-//		String pkey = kitr.next();
-//
-//		sqlString.append("SELECT ");
-//		sqlString.append(dialect.quoteKey(SYS_id)).append(",").append(dialect.quoteKey(pkey)).append(",")
-//				.append(dialect.quoteKey(fkey));
-//		sqlString.append(" FROM ")
-//				.append(dialect.quoteKey(obtainSKeyCollectionTableName(dialect, beanName, fieldName)))
-//				.append(" \r\n\t WHERE ");
-//		sqlString.append(dialect.quoteKey(pkey)).append("= :").append(pkey);
-//		params.put(pkey, PK_id);
-//
-//		return ContainerFactory.getSession().executeQuery(sqlString.toString(),params);
-//	}
-
-	public static void handleSQLException(final Exception ex) {
-		if (ex instanceof NoSuchMethodException) {
-			throw new IllegalStateException("未找到此方法: " + ex.getMessage());
-		}
-		if (ex instanceof IllegalAccessException) {
-			throw new IllegalStateException("无权访问此方法: " + ex.getMessage());
-		}
-		// if (ex instanceof InvocationTargetException) {
-		// handleInvocationTargetException((InvocationTargetException) ex);
-		// }
-		// if (ex instanceof RuntimeException) {
-		// throw (RuntimeException) ex;
-		// }
-		// handleUnexpectedException(ex);
-	}
-
 	/**
 	 * 把带有:[参数名字]的sql字符串格式化成 一种是【:名字】 一种是【名字=:】 注意不要出现变量名交叉，如word=:word
 	 * @rmx.summary 不管是哪一种，都会自动将包含下划线"_"的分割字符串变成首字母小写,分割单词首字母大写的变量指代字母 如:prsn_name变成prsnName
@@ -501,14 +340,14 @@ public final class RsqlUtils implements RsqlConstants {
 	 * 获取一对多关系表的名称。<br>
 	 * @rmx.summary 如AuthUser表中有roles(指向AuthRole)，则表名为AuthUser_roles
 	 * @param dialect
-	 * @param beanName
-	 * @param fieldName
+	 * @param primaryBeanName
+	 * @param primaryFieldName
 	 * @return String
 	 */
-	public static String obtainSKeyCollectionTableName(final Dialect dialect, final String beanName,
-			final String fieldName) {
+	public static String obtainSKeyCollectionTableName(final Dialect dialect, final String primaryBeanName,
+			final String primaryFieldName) {
 		StringBuilder tableName = new StringBuilder();
-		tableName.append(beanName).append("_").append(fieldName);
+		tableName.append(primaryBeanName).append("_").append(primaryFieldName);
 		return tableName.toString();
 	}
 
@@ -540,7 +379,6 @@ public final class RsqlUtils implements RsqlConstants {
 	 * 获取非系统的基础数据列。主要用于序列化对象。
 	 * @param beanClass
 	 * @return Map
-	 * @rmx.call {@link RsqlContainer#list(Modelable)}
 	 */
 	public static Map<String, Method> obtainListGetters(final Class<?> beanClass) {
 		Map<String, Method> map = GettersWithOutSysColumnForList.get(beanClass);
@@ -598,29 +436,6 @@ public final class RsqlUtils implements RsqlConstants {
 		return SysColumns;
 	}
 
-	//	static public Map<String, Integer> obtainSKeyMapTableColumns(
-	//			final String beanName, final String fieldName, final Type fieldType) {
-	//		ParameterizedTypeImpl typeImpl = (ParameterizedTypeImpl) fieldType;
-	//		Type[] types = typeImpl.getActualTypeArguments();
-	//
-	//		// 因为获取的就是Map类型，所以一定是ParameterizedTypeImpl，且ActualTypeArguments是两个参数
-	//		Map<String, Integer> neededColumns = new HashMap<String, Integer>();
-	//
-	//		neededColumns.put(beanName, Types.CHAR);
-	//
-	//		neededColumns.put("key", obtainSQLType(types[0], null, null));
-	//		neededColumns.put("value", obtainSQLType(types[1], null, null));
-	//
-	//		return neededColumns;
-	//	}
-
-	//	static public String obtainSKeyMapTableName(final String beanName,
-	//			final String fieldName) {
-	//		StringBuilder tableName = new StringBuilder();
-	//		tableName.append(beanName).append("_").append(fieldName);
-	//		return tableName.toString();
-	//	}
-
 	/**
 	 * 获取sql查询时的排序order by条件
 	 * @param cvo
@@ -644,8 +459,15 @@ public final class RsqlUtils implements RsqlConstants {
 			}
 			
 		}
-		result.append(dialect.quoteKey(SYS_id)).append(" DESC");
-		
+
+		if(!cvo._isHasGroupBy())
+			result.append(dialect.quoteKey(SYS_id)).append(" DESC, ");
+
+		if(result.length() ==(" ORDER BY ").length())
+			return "";
+        else
+            result.deleteCharAt(result.length() - 2);
+
 		return result.toString();
 	}
 
@@ -659,7 +481,7 @@ public final class RsqlUtils implements RsqlConstants {
 	 * @rmx.call {@link RsqlUtils#obtainSKeyColumnsBase(Class, Map)}
 	 */
 	public static ColumnType obtainSQLType(final Type type, final String fieldName, final Class<?> beanClass) {
-		// 如果是通过RemexSqlTypeAnnotation声明
+		// 如果是通过RemexColumn声明
 		if (null != beanClass) {
 			try {
 				Column at = ReflectUtil.getAnnotation(beanClass, fieldName, Column.class);
@@ -745,7 +567,7 @@ public final class RsqlUtils implements RsqlConstants {
 				// 注意，如果将来需要添加双方维护的多对多，本类的本属性必须指定为主维护方，否则将重建中间表。
 				meIsManyToManyPrimary = true;
 			}
-			
+
 			//如果不是主表，则修改对应的表名和字段。
 			if(!meIsManyToManyPrimary){
 				primaryBeanName = subBeanClass.getSimpleName();
@@ -803,25 +625,6 @@ public final class RsqlUtils implements RsqlConstants {
 	}
 
 	
-//	public static Object queryCurMaxId(final Class<?> beanClass){
-//		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
-//		String sql = "SELECT MAX("+dialect.quoteKey(SYS_id)+") "+dialect.quoteKey("MAXID")+" FROM "+dialect.quoteKey(StringHelper.getClassSimpleName(beanClass));
-//		return RsqlDao.executeQuery(sql).getQueryResult().getCell(0, 0);
-//	}
-
-//	/**
-//	 * 查询系统表中的值
-//	 * @param key
-//	 * @return
-//	 */
-//	public static Object querySystemKey(final String key) {
-//		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
-//		String sql = "SELECT " + dialect.quoteKey(SYS_key) + "," + dialect.quoteKey(SYS_value) + " FROM "
-//				+ dialect.quoteKey(SYS_tableName) + " WHERE " + dialect.quoteKey(SYS_key) + "="
-//				+ dialect.quoteAsString(key);
-//		return RsqlDao.executeQuery(sql).getQueryResult().getCell(0, 1);
-//	}
-	
 	/**
 	 * 
 	 * @param dtCols
@@ -852,7 +655,7 @@ public final class RsqlUtils implements RsqlConstants {
 	// TODO 补充文字解释
 	private static void extendColumn(final Class<?> fieldClass,
 			final StringBuilder part_jion_sb, final StringBuilder part_column_sb,
-			final String tb_alias, final TableAliasIndex taidx, final String objectColumn,
+			final String tb_alias, final Index taidx, final String objectColumn,
 			final String pathHead, final ArrayList<String> ecList, final String tableName,
 			final WherePart part_where, final ArrayList<SqlBeanNamedParam> namedParams) {
 		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
@@ -1028,185 +831,58 @@ public final class RsqlUtils implements RsqlConstants {
 		String dtCols = cvo.getDataColumns();
 		boolean hasDcs=!Judgment.nullOrBlank(dtCols);//dcs已经在Store(T,DbCvo)处理了。
 		if(hasDcs){dtCols=cvo.getDataColumns()+";";};
-		String fb = cvo.getForeignBean();
+//		String fb = cvo.getForeignBean(); // 2016-1-12 LHY 废弃，需要添加外键列使用withModelColumn
 
 		String beanName = cvo.getBeanName();
 		Class<?> beanClass=sqlBean.getBeanClass();
 //		String tableName = beanName;
 		String tableAliasName = "T";
 //		sqlBean.setTableName(tableAliasName);
+        Index tableIndex = new Index();// 用于控制数据库虚拟表明的序号。
+        Index paramIndex = new Index();// 用于控制数据库参数的序号。
 
-		ArrayList<SqlBeanNamedParam> namedParams = new ArrayList<SqlBeanNamedParam>();
+        Select select = new Select<>(dialect, cvo, tableIndex, paramIndex);
 
-		// 定义对象类型数据的查询sql
-		String prefix = "SELECT \r\n\t";
-		String part_column;
-		String part_from = "\r\nFROM "+dialect.quoteKey(beanName)+" "+tableAliasName;
-		String part_jion;
-		String part_where = "\r\n  " + cvo.getSqlBeanWhere().toSQL(tableAliasName, namedParams, 0);
-		// 动态排序必须放到dao
-		// String part_order = "\r\n"+obtainSQLOrder(Option.getOrder());
-		StringBuilder part_column_sb = new StringBuilder();
-		StringBuilder part_jion_sb = new StringBuilder();
-		StringBuilder sqlString = new StringBuilder();
-
-		Map<String, ColumnType> sysColumns = RsqlUtils.obtainSKeyColumnsSys();
-		for (String sysColumn : sysColumns.keySet()) {
-			part_column_sb.append(dialect.aliasFullName(tableAliasName, sysColumn, sysColumn)).append(",\r\n\t");
+		if(!cvo._isHasGroupBy()){
+			select.appendBaseColumn(SYS_id, SYS_id);
+			select.appendBaseColumn(SYS_name, SYS_name);
 		}
 
-		if (dataOption.contains(DT_base)) {
+		//当前表的基本列是否显示添加，如果没有则默认添加当前表的所有base字段
+		Param<Boolean> addAllBase = new Param<>(true);
+		//Object处理 List属性处理
+		cvo.getRootColumn().getSubColumns().stream()
+                .forEach(c -> c.forEvery(cc -> {
+					if (FieldType.TBase.equals(cc.getType())){
+						select.appendColumn(cc);
+						if(addAllBase.param)
+							addAllBase.param = !FieldType.TROOT.equals(cc.getSupColumn().getType()); // 如果Tbase且父为根node，则说明手动添加了当前表的字段。
+					}else if (FieldType.TObject.equals(cc.getType()))
+						select.leftJoinModel(cc, tableIndex, paramIndex);//连接外键对象
+					else if (FieldType.TCollection.equals(cc.getType()))
+						select.leftJoinList(cc, tableIndex, paramIndex);//连接一对多，多对多等。
+
+					//处理groupby
+					if(cc.isGroup())
+						select.groupBy(cc);
+
+				}));
+		if(addAllBase.param){
 			Map<String, ColumnType> baseColumns = RsqlUtils.obtainSKeyColumnsBase(beanClass, SqlType.getFields(beanClass,FieldType.TBase));
 			Map<String, ColumnType> cols = RsqlUtils.restrictSKeyColumns(dtCols,baseColumns);
-			for (String baseColumn : cols.keySet()) {
-				part_column_sb.append(dialect.aliasFullName(tableAliasName, baseColumn, baseColumn)).append(",\r\n\t");
-			}
+			//TODO 将使用column来指定需要查询的列，dtCols(dataColumns)的方式将废弃
+			cols.forEach((fieldName, ct) -> select.appendBaseColumn(fieldName, fieldName));
 		}
+		//end for Base Object List属性处理
 
 
-		//保存外键表信息
-		//FbTableMap fbTableMap = new FbTableMap();
-		// 读取属性列及属性列的扩展列
-		// 读取扩展数据
-		// 该数据必须是一对一外键引用的
-		// 该数据必须通过[.]类似于java的属性那样应用,目前仅支持一级引用
-		boolean ext = dataOption.contains(DT_objectExt);
-		// HashMap<String,String[]> extColumnNames = new HashMap<String,
-		// String[]>(5);
-		HashMap<String, ArrayList<String>> extColumnPaths = new HashMap<String, ArrayList<String>>(5);
-		if (ext) {
-			ext = false;// 进一步检查
-			String extColumnString = cvo.getExtColumn();
-			if (null != extColumnString) {
-				String[] extColumns = extColumnString.split(";");
-				ext = true;// 所有条件合格
-				// TODO 该数据必须通过[.]类似于java的属性那样应用,目前仅支持一级引用 ，故就数组就两个值
-				for (String extColumn : extColumns) {
-					// String[] refPath = extColumn.split("\\.");
-					// if(refPath.length==2){
-					// extColumnNames.put(refPath[0], refPath);
-					//
-					// }
-					int idx = extColumn.indexOf('.');
-					String extColumnName = extColumn.substring(0, idx);
-					ArrayList<String> ecList = extColumnPaths
-							.get(extColumnName);
-					if (null == ecList) {
-						ecList = new ArrayList<String>();
-						extColumnPaths.put(extColumnName, ecList);
-					}
-					ecList.add(extColumn.substring(idx + 1));
-				}
-			}
-		}
-		// 读取对象列id name
-		if (dataOption.contains(DT_object)) {
-			Map<String, Type> objectFields = SqlType.getFields(beanClass,FieldType.TObject);
-			List<String> objectColumns = new ArrayList<String>();
-			objectColumns.addAll(RsqlUtils.obtainSKeyColumnsObject(objectFields).keySet());
-			Map<String, FbColumn> fbColumns = new HashMap<String, FbColumn>();
-			// 如果开启了外联
-			// 如Staff中fb=”CatrOncdCertificate,oncdCertificate,CatrStaff.laborer= CatrOncdCertificate.wife;”
-			// 格式为：外联表名，映射过来的虚拟属性,外联连接条件(需要使用的外联表属性|需要使用的外联表属性|需要使用的外联表属性)
-			if (null != fb) {
-				String[] fbs = fb.split(";");
-				for (String fbCur : fbs) {
-					String[] fbCurParts = fbCur.split(",");
-					objectColumns.add(fbCurParts[1]);// 第二个才是虚拟列名。
-					fbColumns.put(fbCurParts[1], new FbColumn(fbCurParts[0],	fbCurParts[1], fbCurParts[2]));
-				}
-			}
 
-			TableAliasIndex taidx = new TableAliasIndex();// 用于控制数据库虚拟表明的序号。
-			for (String objectColumn : objectColumns) {
-				Class<?> fieldClass;
-				String jioned_Tb, jioned_Tb_alias;
-				if (fbColumns.containsKey(objectColumn)) {// 手动外联表
-					FbColumn fbColumn = fbColumns.get(objectColumn);
-					fieldClass = spaceConfig.getOrmBeanClass(fbColumn.fBeanName);
-					jioned_Tb = StringHelper.getClassSimpleName(fieldClass);
-					jioned_Tb_alias = StringHelper.getAbbreviation(fieldClass) + taidx.index++;
-					part_jion_sb.append("\r\nLEFT JOIN ").append(dialect.aliasTableName(jioned_Tb, jioned_Tb_alias));
-					part_jion_sb.append("\r\n\tON 1=1 ");
-					for (FbColumnOn on : fbColumn.ons) {
-						part_jion_sb.append(on.joinOper).append(" ")
-						.append(dialect.quoteFullName(jioned_Tb_alias, on.outerTableField))
-						.append("=")
-						.append(dialect.quoteFullName(tableAliasName, on.innerTableField))
-						.append(" ");
-					}
-
-				} else {// 自动外联表
-					// LHY 2015-2-17 如果已经指定了需要查询的列，则进行相关约束
-					if(hasDcs && dtCols.indexOf(objectColumn+";")<0){
-						continue;
-					}
-					
-					fieldClass = (Class<?>) objectFields.get(objectColumn);
-					jioned_Tb = StringHelper.getClassSimpleName(fieldClass);
-					jioned_Tb_alias = StringHelper.getAbbreviation(fieldClass) + taidx.index++;
-					part_jion_sb.append("\r\nLEFT JOIN ").append(dialect.aliasTableName(jioned_Tb, jioned_Tb_alias));
-					part_jion_sb.append("\r\n\tON ");
-					part_jion_sb.append(dialect.quoteFullName(jioned_Tb_alias, SYS_id))
-					.append("=")
-					.append(dialect.quoteFullName(tableAliasName, objectColumn))
-					.append(" ");
-				}
-
-				// 外联的基本列 id name
-				part_column_sb.append(dialect.aliasFullName(jioned_Tb_alias, SYS_id, objectColumn+"."+SYS_id)).append(",\r\n\t");
-				part_column_sb.append(dialect.aliasFullName(jioned_Tb_alias, SYS_name, objectColumn+"."+SYS_name)).append(",\r\n\t");
-
-				// 如果需要添加扩展列则再次添加
-				if (ext && extColumnPaths.containsKey(objectColumn)) {
-					WherePart wp = new WherePart(part_where);
-					extendColumn(fieldClass, part_jion_sb, part_column_sb,
-							jioned_Tb_alias, taidx, objectColumn, objectColumn,
-							extColumnPaths.get(objectColumn), tableAliasName, wp,
-							namedParams);
-					part_where = wp.wherePart;
-				}
-
-				// 修正扩展列的where查询条件比如job.name job.department中的job需要对应表的alias名字
-				for (SqlBeanNamedParam sqlBeanNamedParam : namedParams) {
-					//LHY 14-5-1  发现的bug，此处应该用表的别名。
-					// dialect.quoteKey(beanName) -》dialect.quoteKey(tableAliasName)
-					String wh_tag = dialect.quoteKey(tableAliasName) + "\\." + dialect.openQuote()+objectColumn + "\\.";
-					if (sqlBeanNamedParam.getName().startsWith(
-							objectColumn + ".")) {
-						part_where = part_where.replaceAll(wh_tag,
-								dialect.quoteKey(jioned_Tb_alias) + "."+dialect.closeQuote());
-					}
-				}
-			}
-
-		}
-		
-		// 代码与代码名称映射功能添加。 
-		dealWithCodeRef(beanClass, tableAliasName, part_column_sb);
-		
-		//		if (dataOption.contains(DT_collection)) {
-		//		}
-		//		if (dataOption.contains(DT_map)) {
-		//		}
-
-		part_column = part_column_sb.delete(part_column_sb.length() - 4,part_column_sb.length()).toString();
-		part_jion = part_jion_sb.toString();
-
-		sqlString.append(prefix).append(part_column).append(part_from).append(
-				part_jion).append(part_where)
-				// .append(part_order)
-				;
-
-		// 删除多余空间
-		namedParams.trimToSize();
-
-		sqlBean.init(cvo, sqlString.toString(), namedParams);
+		sqlBean.init(cvo, select.sqlString(), select.namedParams);
 		return sqlBean;
 	}
-	
+
 	@SuppressWarnings("unused")
-	private static boolean dealWithCodeRef(Class<?> beanClass, String tableAliasName, StringBuilder part_column_sb){
+    public static boolean dealWithCodeRef(Class<?> beanClass, String tableAliasName, StringBuilder part_column_sb){
 		// 代码与代码名称映射功能添加。 
 		// 此处是【值映射】
 		// 支持三种方式:
@@ -1407,7 +1083,7 @@ public final class RsqlUtils implements RsqlConstants {
 		final String codeType = ct.codeRefCodeType;
 		final String codeColumn = ct.codeRefCodeColumn;
 		final String descColumn = ct.codeRefDescColumn;
-		final String filters = ct.codeRefFilters;
+		final String codeRefFilters = ct.codeRefFilters;
 		
 		RDBSpaceConfig spaceConfig = RDBManager.getLocalSpaceConfig();
 		Dialect dialect = spaceConfig.getDialect();
@@ -1418,8 +1094,8 @@ public final class RsqlUtils implements RsqlConstants {
 			@Override
 			public void initRules(Modelable t) {
 				//如果通过filters约束要搜索的数据字典的字段，则filters有限
-				if(!Judgment.nullOrBlank(filters)){
-					SqlBeanWhere sbw = JsonHelper.toJavaObject(filters, SqlBeanWhere.class);
+				if(!Judgment.nullOrBlank(codeRefFilters)){
+					SqlBeanWhere sbw = JsonHelper.toJavaObject(codeRefFilters, SqlBeanWhere.class);
 					addGroup(sbw);
 				}else{//默认通过dataType=来匹配搜索
 					addRule(typeColumn, WhereRuleOper.eq, codeType);
@@ -1444,79 +1120,7 @@ public final class RsqlUtils implements RsqlConstants {
 		
 	}
 	
-	/*
-	删除测试代码。 LHY 2015-7-24
-	private static StringBuilder obtainDecodeSqlPart(
-			final String fieldTable,
-			final String fieldName,
-			final String displayName,
-			final String codeTableName,
-			final String refTypeColumn,
-			final String refCodeType,
-			final String codeColumn,
-			final String descColumn
-			){
-//		final EditType editType = ct.editType;
-//		final String DataDicTb = StringHelper.getClassSimpleName(ct.codeRefBean);
-//		final String typeColumn = ct.codeRefTypeColumn;
-//		final String codeType = ct.codeRefCodeType;
-//		final String codeColumn = ct.codeRefCodeColumn;
-//		final String descColumn = ct.codeRefDescColumn;
-		
-		RDBSpaceConfig spaceConfig = RDBManager.getLocalSpaceConfig();
-		Dialect dialect = spaceConfig.getDialect();
-		@SuppressWarnings("unchecked")
-		Class<Modelable> clazz = (Class<Modelable>) spaceConfig.getOrmBeanClass(codeTableName);
-		DbRvo rvo = ContainerFactory.getSession().query(new DbCvo<Modelable>(clazz){
-			private static final long serialVersionUID = -1322957928866739488L;
-			@Override
-			public void initRules(Modelable t) {
-				addRule(refTypeColumn, WhereRuleOper.eq, refCodeType);
-			}
-		});
-		Map<String, String> map = rvo.obtainMap(codeColumn, descColumn);
-		
-		Assert.isTrue(map!=null && map.size()>0, "配置的值参照中没有相应的参数！请配置人员查阅数据表:"+codeTableName);
-		
-		StringBuilder sb = new StringBuilder("DECODE(").append(dialect.quoteFullName(fieldTable, fieldName));
-		for(String code:map.keySet()){
-			sb.append(",").append(dialect.quoteAsString(code)).append(",").append(dialect.quoteAsString(map.get(code)));
-		}
-		sb.append(") \"").append(displayName).append("\"");
-		return sb;
-		
-	}*/
-	/*
-	删除测试代码。 LHY 2015-7-24
-	private final static String RefCodeRegx = "RefCode\\((\\w+)\\.(\\w+),(\\w+),(\\w+),(\\w+),(\\w+),(\\w+),(\\w+)\\)";
-	
-	private static String replaceRefCode(String orgnSql){
-	 MatchResult rs;
-	while(null!=(rs = StringHelper.match(orgnSql, RefCodeRegx, null))){
-		String fieldTable = rs.group(1);
-		String fieldName = rs.group(2);
-		String displayName = rs.group(3);
-		String codeTbName = rs.group(4);
-		String refTypeColumn = rs.group(5);
-		String refCodeType = rs.group(6);
-		String codeColumn = rs.group(7);
-		String descColumn = rs.group(8);
-		
-		StringBuilder decodeSqlPart = obtainDecodeSqlPart(fieldTable,fieldName,displayName,codeTbName,refTypeColumn,refCodeType,codeColumn,descColumn);
-		
-		orgnSql = StringHelper.substitute(orgnSql, RefCodeRegx, decodeSqlPart.toString(), -1);
-	}
 
-	return orgnSql;
-	
-}
-	public static void main(String[] args) {
-		String sql = " SAFSADFASDFAS   RefCode(AtinPolicy.bbb,aaa,SysCode,codeType,vehicleCoverage,code,codeName) ";
-		RemexApplication.getContext();
-		String sql1 = replaceRefCode(sql);
-		System.out.println(sql1);
-	}*/
-	
 	
 	/**
 	 * 生成直接执行sql语句的bean，sql语句支持:开头的命名参数
@@ -1577,11 +1181,14 @@ public final class RsqlUtils implements RsqlConstants {
 
 		List<SqlBeanNamedParam> namedParams = new ArrayList<SqlBeanNamedParam>();
 
+//		Index tableIndex = new Index();// 用于控制数据库虚拟表明的序号。
+		Index paramIndex = new Index();// 用于控制数据库参数的序号。
+
 		// 定义对象类型数据的查询sql
 		String prefix = "UPDATE "+dialect.quoteKey(beanName)+" "+tableAliasName+ " SET ";
 		String part_colsetval;
 		String part_where = Judgment.nullOrBlank(cvo.getId())?
-				"\r\n  " + cvo.getSqlBeanWhere().toSQL(tableAliasName, namedParams, 0)
+				"\r\n  " + cvo.getFilter().toSQL(true, tableAliasName, namedParams, paramIndex)
 				:"\r\nWHERE " + dialect.quoteKey(SYS_id) + "= :"+SYS_id;
 
 
@@ -1626,122 +1233,6 @@ public final class RsqlUtils implements RsqlConstants {
 		sqlBean.init(cvo, sqlString.toString(), namedParams);
 		return sqlBean;
 	}
-
-	//	/**
-	//	 * 不管是哪一种，都会自动将包含下划线"_"的分割字符串变成首字母小写,分割单词首字母大写的变量指代字母 如:prsn_name变成prsnName
-	//	 *
-	//	 * @param word
-	//	 * @return
-	//	 */
-	//	@Deprecated
-	//	static protected String parseWord(final String word) {
-	//		String[] words = word.split("_");
-	//		StringBuilder sb = new StringBuilder();
-	//		sb.append(words[0]);
-	//		for (int i = 1; i < words.length; i++) {
-	//			sb.append(words[i].substring(0, 1).toUpperCase());
-	//			sb.append(words[i].substring(1));
-	//		}
-	//		return sb.toString();
-	//	}
-
-	//	public static String obtainSQLWhere(String beanName,
-	//			SqlBeanWhere where, List<SqlBeanNamedParam> namedParams) {
-	//		StringBuilder result = new StringBuilder("");
-	//		if (where.is_search() && where.getGroupOp() != null
-	//				&& where.getRules() != null
-	//				&& where.getRules().size() != 0) {
-	//			// 多字段的组合查询
-	//			String groupOp = where.getGroupOp();
-	//			result.append("WHERE ");
-	//			int i = 0;
-	//			for (SqlBeanWhereRule wDetail : where.getRules()) { // 循环处理所有的查询条件
-	//				i++;
-	//				result.append(obtainSQLWhereOperation(beanName, wDetail
-	//						.getField(), wDetail.getField() + i, wDetail.getOp()));
-	//
-	//				namedParams.add(new SqlBeanNamedParam(-1, wDetail.getField()
-	//						+ i, Types.CHAR, null));
-	//
-	//				if (i < where.getRules().size())
-	//					result.append(" " + groupOp + " ");
-	//			}
-	//		} else if (where.is_search()
-	//				&& where.getSearchField() != null
-	//				&& where.getSearchOper() != null
-	//				&& where.getSearchString() != null) {
-	//			// 单字段组合
-	//			result.append("WHERE ").append(
-	//					obtainSQLWhereOperation(beanName, where
-	//							.getSearchField(), where.getSearchField(),
-	//							where.getSearchOper()));
-	//			namedParams.add(new SqlBeanNamedParam(-1, where
-	//					.getSearchField(), Types.CHAR, null));
-	//		}
-	//		return result.toString();
-	//	}
-
-	//	/**
-	//	 *
-	//	 * @param sField
-	//	 *            字段名称
-	//	 * @param sOper
-	//	 *            操作名称
-	//	 * @param sParamName
-	//	 *            参数名称，采用i递增，避免冲突
-	//	 * @return
-	//	 */
-	//	public static String obtainSQLWhereOperation(String beanName,
-	//			String sField, String sParamName, String sOper) {
-	//		Dialect dialect = RDBManager.getLocalSpaceConfig().getDialect();
-	//		if (sField == null || sField.trim().length() == 0 || sOper == null
-	//				|| sOper.trim().length() == 0)
-	//			return "";
-	//		StringBuilder cont = new StringBuilder();
-	//		// 添加beanName避免数据库表的字段名冲突
-	//		cont.append(dialect.openQuote()).append(beanName).append(dialect.closeQuote()).append(".").append(dialect.openQuote());
-	//
-	//		if (sOper.trim().equals("eq")) // 等于
-	//			cont.append(sField).append(dialect.closeQuote()).append("= :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("ne")) // 不等于
-	//			cont.append(sField).append(dialect.closeQuote()).append(" !=  :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("lt")) // 小于
-	//			cont.append(sField).append(dialect.closeQuote()).append(" <  :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("le")) // 小于等于
-	//			cont.append(sField).append(dialect.closeQuote()).append(" <=  :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("gt")) // 大于
-	//			cont.append(sField).append(dialect.closeQuote()).append(" >  :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("ge")) // 大于等于
-	//			cont.append(sField).append(dialect.closeQuote()).append(" >=  :").append(sParamName).append(" ");
-	//		else if (sOper.trim().equals("bw")) // 以...开始
-	//			cont.append(sField).append(dialect.closeQuote()).append(" LIKE  :").append(sParamName).append(
-	//					"+'%' ");
-	//		else if (sOper.trim().equals("bn")) // 不以...开始
-	//			cont.append(sField).append(dialect.closeQuote()).append(" NOT LIKE  :").append(sParamName)
-	//					.append("+'%' ");
-	//		else if (sOper.trim().equals("ew")) // 以...结束
-	//			cont.append(sField).append(dialect.closeQuote()).append(" LIKE '%'+ :").append(sParamName)
-	//					.append(" ");
-	//		else if (sOper.trim().equals("en")) // 不以...结束
-	//			cont.append(sField).append(dialect.closeQuote()).append(" NOT LIKE '%'+ :").append(sParamName)
-	//					.append(" ");
-	//		else if (sOper.trim().equals("cn")) // 包含
-	//			cont.append(sField).append(dialect.closeQuote()).append(" LIKE '%'+ :").append(sParamName)
-	//					.append(" +'%' ");
-	//		else if (sOper.trim().equals("nc")) // 不包含
-	//			cont.append(sField).append(dialect.closeQuote()).append(" NOT LIKE '%'+ :").append(sParamName)
-	//					.append(" +'%' ");
-	//		else
-	//			// 默认是包含
-	//			cont.append(sField).append(dialect.closeQuote()).append(" LIKE '%'+ :").append(sParamName)
-	//					.append(" +'%' ");
-	//		// else if(sOper.trim().equals("in")) //'ew','en','cn','nc'。
-	//		// result.append(sField).append(" NOT LIKE '").append(
-	//		// sValue).append("%' ");
-	//		// 包括'in','ni',不知道什么意思，没写
-	//
-	//		return cont.toString();
-	//	}
 
 }
 
@@ -1797,10 +1288,6 @@ class FbColumnOn {
 	}
 }
 
-class TableAliasIndex {
-	protected int index = 0;
-}
-
 class WherePart {
 	protected String wherePart = "";
 
@@ -1809,35 +1296,3 @@ class WherePart {
 	}
 }
 
-class ColumnType {
-	//以下属性为Column参数属性
-	int length = 50;
-	int type = Types.CHAR;
-
-	//以下属性为试图参数
-	EditType editType;
-	Class<?> codeRefBean;
-	String codeRefTypeColumn;
-	String codeRefCodeColumn;
-	String codeRefDescColumn;
-	String codeRefCodeType;
-	String codeRefFilters;
-
-	/**
-	 * @param type @see {@link Types}
-	 */
-	public ColumnType(int type, int length) {
-		this.type = type;
-		this.length = length;
-	}
-
-
-	public ColumnType(int type, Column sta) {
-		this.length = sta.length();//长度
-		if("CLOB".equals(sta.columnDefinition()))
-			this.type = Types.CLOB;
-		else
-			this.type = type;//Types下的变量，java定义的数据字段类型
-	}
-	
-}

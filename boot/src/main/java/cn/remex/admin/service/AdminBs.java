@@ -5,16 +5,19 @@ import cn.remex.admin.appbeans.AdminBsCvo;
 import cn.remex.admin.appbeans.AdminBsRvo;
 import cn.remex.admin.appbeans.DataCvo;
 import cn.remex.admin.appbeans.DataRvo;
-import cn.remex.core.reflect.ReflectUtil;
+import cn.remex.admin.auth.AuthenticateBtx;
+import cn.remex.core.CoreSvo;
 import cn.remex.core.util.Assert;
 import cn.remex.core.util.Judgment;
 import cn.remex.db.*;
 import cn.remex.db.model.SysMenu;
+import cn.remex.db.model.SysUri;
 import cn.remex.db.model.cert.AuthRole;
-import cn.remex.db.model.cert.AuthUri;
 import cn.remex.db.model.cert.AuthUser;
 import cn.remex.db.model.log.LogonLogMsg;
-import cn.remex.db.rsql.RsqlUtils;
+import cn.remex.db.rsql.RsqlConstants;
+import cn.remex.db.rsql.RsqlCore;
+import cn.remex.db.sql.Sort;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.BusinessService;
@@ -22,6 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static cn.remex.db.sql.WhereRuleOper.eq;
 
 /** 
  * @author liuhengyang 
@@ -70,6 +76,11 @@ public class AdminBs {
 
 	///menu Type 对应的功能方法。
 	@BusinessService
+	public BsRvo resetDb(boolean resetDb) {
+        RsqlCore.reset(resetDb);
+        return new BsRvo(true,"OK","CODE01",resetDb?"重构数据库成功":"清理数据库缓存成功","text_layout","text");
+	}
+	@BusinessService
 	public BsRvo execute(AdminBsCvo bsCvo) {
         return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
 	}
@@ -108,8 +119,11 @@ public class AdminBs {
     }
     @BusinessService
     public BsRvo roles(DataCvo bsCvo){
-        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class, bsCvo);
-        return new DataRvo(true ,dbCvo.ready().query());
+        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class, bsCvo).withColumns(RsqlConstants.SYS_modifyTime)
+           //.withList(AuthRole::getMenus).withList(AuthRole::getSysUris)
+            ;
+        DbRvo dbRvo = dbCvo.ready().query();
+        return new DataRvo(true ,dbRvo);
     }
     @BusinessService(requestBody = true)
     public BsRvo saveRole(AuthRole role){
@@ -123,12 +137,16 @@ public class AdminBs {
     }
     @BusinessService(requestBody = true)
     public BsRvo roleUris(String pk){
-        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class, AuthRole::getAuthUris, pk));
+        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class, AuthRole::getSysUris, pk));
+    }
+    @BusinessService(requestBody = true)
+    public BsRvo roleMenus(String pk){
+        return new DataRvo(true ,ContainerFactory.getSession().queryByCollectionField(AuthRole.class, AuthRole::getMenus, pk));
     }
     //功能权限
     @BusinessService
     public BsRvo uris(DataCvo bsCvo){
-        DbCvo<AuthUri> dbCvo = RemexAdminUtil.obtainDbCvo(AuthUri.class, bsCvo);
+        DbCvo<SysUri> dbCvo = RemexAdminUtil.obtainDbCvo(SysUri.class, bsCvo);
         return new DataRvo(true ,dbCvo.ready().query());
     }
 
@@ -140,7 +158,7 @@ public class AdminBs {
     @BusinessService
     public BsRvo users(DataCvo bsCvo){
         DbCvo<AuthUser> dbCvo = RemexAdminUtil.obtainDbCvo(AuthUser.class, bsCvo);
-        return new DataRvo(true ,dbCvo.putRowCount(1000).ready().query());
+        return new DataRvo(true ,dbCvo/*.rowCount(1000)*/.ready().query());
     }
     @BusinessService
     public BsRvo saveUser(AuthUser user){
@@ -180,6 +198,38 @@ public class AdminBs {
 		
 		return bsRvo;
 	}
+
+
+    @BusinessService
+    public BsRvo saveMenu(SysMenu menu){
+//        if(Judgment.nullOrBlank(menu.getId()))//新用户进行检查
+//            Assert.isNull(ContainerFactory.getSession().queryBeanByJpk(AuthUser.class, "id","username",menu.getUsername()),"该用户已经被注册!");
+
+        DbRvo dbRvo = ContainerFactory.getSession().storeBase(menu);
+        return new BsRvo(true,menu);
+    }
+    @BusinessService
+    public BsRvo delMenu(SysMenu menu) {
+        DbRvo dbRvo = ContainerFactory.getSession().delete(menu);
+        return new BsRvo(dbRvo.getEffectRowCount()==1,dbRvo.getMsg());
+    }
+
+    @BusinessService
+    public BsRvo menus(DataCvo bsCvo){
+        DbCvo<SysMenu> dbCvo = RemexAdminUtil.obtainDbCvo(SysMenu.class, bsCvo).withColumns();
+        return new DataRvo(true ,dbCvo.ready().query());
+    }
+    @BusinessService
+    public BsRvo homeMenus(DataCvo bsCvo) {
+        DbCvo<SysMenu> dbCvo = RemexAdminUtil.obtainDbCvo(SysMenu.class, bsCvo)
+                .orderBy(SysMenu::getNodeOrder, Sort.ASC)
+                .withModel(SysMenu::getParent, c -> c.filterBy(SysMenu::getNodeName, eq, "ROOTMENU"))
+                .withColumns().withList(SysMenu::getSubMenus, c -> c.withColumns());
+        DbRvo dbRvo = dbCvo.ready().query();
+        return new DataRvo(true, dbRvo);
+    }
+
+
 	@BusinessService
 	public BsRvo listUser(BsCvo bsCvo,BsRvo bsRvo) {
 
@@ -198,4 +248,53 @@ public class AdminBs {
 		return bsRvo;
 	}
 
+    @BusinessService
+    public BsRvo userProfile() {
+        AuthUser curUser = (AuthUser) ContainerFactory.createDbCvo(AuthUser.class)
+                .filterBy(AuthUser::getUsername, eq, CoreSvo.valCookieValue("UID"))
+                .withList(AuthUser::getRoles, l -> l.withList(AuthRole::getMenus)).rowCount(1000)
+                .ready().query().obtainObjects().get(0);
+
+        Map<String, SysMenu> menus = new HashMap<>();
+        curUser.getRoles().forEach(
+                r-> {
+                    if(r.getMenus()!=null)
+                    r.getMenus().forEach(
+                            m -> menus.put(m.getId(), m));
+                });
+
+        Map profile = new HashMap<>();
+        profile.put("menus", menus);
+
+        return new BsRvo(true, profile);
+    }
+    @BusinessService
+    public BsRvo logout(String username, String password,String redirect) {
+        AuthenticateBtx.clearToken();
+        return new BsRvo(true, "退出登录", "0000",null,"/static/framework/login.html","redirect");
+    }
+
+    @BusinessService
+    public BsRvo login(String username, String password,String redirect) {
+
+        if(Judgment.nullOrBlank(username) || Judgment.nullOrBlank(password))
+            return new BsRvo(false,"用户名/密码不能为空!","10000");
+
+        DbRvo dbRvo = ContainerFactory.createDbCvo(AuthUser.class)
+                .filterBy(AuthUser::getUsername, eq, username)
+                .filterBy(AuthUser::getPassword, eq, password)
+                .ready().query()
+        ;
+
+        if(dbRvo.getRecordCount()==1) {
+            AuthenticateBtx.placeToken(username);
+            return new BsRvo(true,"登录成功","00000",redirect);
+        }else if (dbRvo.getRecordCount() > 1) {
+            AuthenticateBtx.clearToken();
+            return new BsRvo(false,"账号异常","10000");
+        }else {
+            AuthenticateBtx.clearToken();
+            return new BsRvo(false,"用户名/密码错误","10000");
+        }
+    }
 }

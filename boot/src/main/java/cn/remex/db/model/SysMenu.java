@@ -3,8 +3,12 @@
  */
 package cn.remex.db.model;
 
+import cn.remex.db.model.cert.AuthRole;
 import cn.remex.db.rsql.model.ModelableImpl;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.persistence.CascadeType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import java.util.List;
 
@@ -16,6 +20,7 @@ import java.util.List;
  * 本模型为系统菜单的模型
  * 
  */
+@JsonIgnoreProperties(value = {"parent"})
 public class SysMenu extends ModelableImpl {
 
 	/**
@@ -25,8 +30,10 @@ public class SysMenu extends ModelableImpl {
 	
 	//关系结构
 	private SysMenu parent; // 菜单
-	@OneToMany(mappedBy="parent")
+	@OneToMany(mappedBy="parent",cascade = {CascadeType.PERSIST})
 	private List<SysMenu> subMenus;
+	@ManyToMany(mappedBy="menus")
+	private List<AuthRole> roles;
 	
 	//基本信息
 	private String nodeType;		//节点类型，默认为点击触发url事件
@@ -151,7 +158,12 @@ public class SysMenu extends ModelableImpl {
 	public void setChkDisabled(boolean chkDisabled) {
 		this.chkDisabled = chkDisabled;
 	}
-	
-	
-	
+
+	public List<AuthRole> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<AuthRole> roles) {
+		this.roles = roles;
+	}
 }

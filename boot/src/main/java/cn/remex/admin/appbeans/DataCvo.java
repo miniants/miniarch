@@ -7,6 +7,21 @@ public class DataCvo extends BsCvo {
 	private int pagination=1;
 	private int pageCount=0;
 	private int recordCount=0;
+	private String sidx ="id" ;
+	private String sord = "desc";
+
+	public String getSidx() {
+		return sidx;
+	}
+	public void setSidx(String sidx) {
+		this.sidx = sidx;
+	}
+	public String getSord() {
+		return sord;
+	}
+	public void setSord(String sord) {
+		this.sord = sord;
+	}
 	public int getRowCount() {
 		return rowCount;
 	}

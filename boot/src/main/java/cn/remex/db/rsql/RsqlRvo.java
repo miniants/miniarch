@@ -6,7 +6,6 @@ package cn.remex.db.rsql;
 import cn.remex.core.exception.InvalidCharacterException;
 import cn.remex.core.reflect.ReflectFeatureStatus;
 import cn.remex.core.reflect.ReflectUtil;
-import cn.remex.core.util.MapHelper;
 import cn.remex.db.DbCvo;
 import cn.remex.db.DbRvo;
 import cn.remex.db.appbeans.BeanVo;
@@ -16,8 +15,9 @@ import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.connection.RDBSpaceConfig;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.rsql.model.ModelableImpl;
+import cn.remex.db.rsql.sqlutil.Node;
 import cn.remex.db.sql.SqlType;
-import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.FieldType;
 
 import java.io.Reader;
 import java.lang.reflect.Method;
@@ -93,13 +93,6 @@ public class RsqlRvo  extends DbRvo  {
 	/**
 	 * 本构造函数用于非数据库操作对象{@link RsqlDao}的相关操作返回的结果集<br>
 	 *@rmx.summary  用到本构造函数的情况是没有数据操作，但需要返回一个结果的时候用的。 如
-	 *   initType
-	 *            <li>if initType equals {@link RsqlRvo#INIT_RVO_QUERY} 则初始化
-	 *            {@link #queryResult}<br> <li>else if it equals
-	 *            {@link RsqlRvo#INIT_RVO_UPDATE} 则初始化 {@link #updateResult}<br>
-	 * 
-	 *            注意{@link UpdateResult#id}初始为null
-	 *            {@link UpdateResult#effectRowCount}初始为0
 	 * {@link RsqlContainer#store(Modelable, DbCvo)}中的部分过程
 	 * 
 	 * @see cn.remex.db.rsql.RsqlContainer
@@ -143,8 +136,6 @@ public class RsqlRvo  extends DbRvo  {
 	 * @param rowIndex >0
 	 * @param needColumnName
 	 * @return list
-	 * @rmx.call {@link RsqlContainer#getPK(Modelable)}
-	 * @rmx.call {@link RsqlRvo#setValue(String poolName, Class<?> clazz,String expr, Object targetbean, Object value,  int rowIndex, ReflectFeatureStatus status}
 	 */
 	@Override
 	public Object getCell(final int rowIndex, final String needColumnName) {
@@ -235,7 +226,7 @@ public class RsqlRvo  extends DbRvo  {
 	@Override
 	public List<Object> getColumn(final int index) {
 		ArrayList<Object> column = new ArrayList<Object>();
-		int curCount = getRowCount();
+		int curCount = getEffectRowCount();
 		for (int i = 0; i < curCount; i++) {
 			column.add(getCell(i, index));
 		}
@@ -257,7 +248,7 @@ public class RsqlRvo  extends DbRvo  {
 	@Override
 	public <T> List<T> getColumn(final int index, final Class<T> clazz) {
 		ArrayList<T> column = new ArrayList<T>();
-		int curCount = getRowCount();
+		int curCount = getEffectRowCount();
 		for (int i = 0; i < curCount; i++) {
 			column.add((T) ReflectUtil.caseObject(clazz, getCell(i, index)));
 		}
@@ -374,14 +365,15 @@ public class RsqlRvo  extends DbRvo  {
 		}
 
 		ArrayList<Map<String, Object>> alist = new ArrayList<Map<String, Object>>();
-		Map<String, Type> fields = SqlType.getFields(beanClass, FieldType.TObject);
+		boolean hasBeanClass = null!=beanClass;
+		Map<String, Type> fields = hasBeanClass?SqlType.getFields(beanClass, FieldType.TObject):null;//LHY 2016-1-10 添加对无beanClass的支持
 		Map<String, Integer> objectFields = new HashMap<String,Integer>(4);
 		Map<Integer,String> objectIDFields = new HashMap<Integer, String>(4);
 		for (int tIdx=0,size=this.titles.size();tIdx<size;tIdx++) {
 			String title = this.titles.get(tIdx);
 			if(title.endsWith(".id"))objectIDFields.put(Integer.valueOf(tIdx),title.substring(0, title.length()-3));
 			//LHY 2014-9-24 识别出Object列,在下面赋值时将其转化为一个子Map
-			if(fields.containsKey(title))objectFields.put(title,Integer.valueOf(tIdx));
+			if(hasBeanClass && fields.containsKey(title))objectFields.put(title,Integer.valueOf(tIdx));
 		}
 			
 		for (List<Object> row : this.rows) {
@@ -538,7 +530,14 @@ public class RsqlRvo  extends DbRvo  {
 		Class<T> clazz = (Class<T>) bean.getClass();
 		obtainBeans(clazz ,true,bean);
 	}
-	
+
+	@Override
+	public <T extends Modelable> T obtainBean() {
+		List<T> beans = (List<T>)obtainBeans();
+
+		return beans.size()>0?beans.get(0):null;
+	}
+
 	/**
 	 * @return list
 	 * @throws Exception
@@ -717,9 +716,10 @@ public class RsqlRvo  extends DbRvo  {
 		}
 
 		// 保存一些必要的辅助数据;
-		setRowCount(this.rows.size());
+		setRowCount(dbCvo.getRowCount());
+		setEffectRowCount(this.rows.size());
 		if (getRecordCount() == 0)// 总数据条数为0时需要将本次查询的所有行数设置为总查询数量
-			setRecordCount(getRowCount());
+			setRecordCount(getEffectRowCount());
 		// pageId由页面指定给bean，bean给cvo，cvo保存至rvo
 		setPagination(dbCvo.getPagination());
 
@@ -737,6 +737,21 @@ public class RsqlRvo  extends DbRvo  {
 		this.id = id;
 	}
 
+	public <T extends Modelable> List<T> obtainBeansNew(Class<T> clazz) {
+		List<T> list = new ArrayList<>();
+		if (this.rows == null) {
+			return list;
+		}
+
+		Node<T> rootNode= new Node<>(clazz);
+		//分析索引
+		this.titles.forEach(t->rootNode.addIndex(t));
+
+
+
+		return list;
+	}
+	
 	/**
 	 * @param clazz
 	 * @param returnModel 是否返回代理的bean
@@ -757,6 +772,67 @@ public class RsqlRvo  extends DbRvo  {
 		//ReflectFeatureStatus status = new ReflectFeatureStatus(null);
 		boolean isModel = Modelable.class.isAssignableFrom(clazz); //LHY 2015-9-24 
 		boolean _returnModel = returnModel && isModel ;//LHY 2015-2-17 
+
+		//*/
+		// 检查并初始化节点配置
+		Node<T> rootNode = new Node<T>(clazz);
+		this.titles.forEach(title -> rootNode.addIndex(title));
+
+		Map<String, T> map = new HashMap<>();
+		boolean needAdd = true;
+		for (int i = 0; i < rowCount; i++) {
+			List<Object> row = this.rows.get(i);
+			//Object id = row.get(idIdx);// id
+			T bean;
+			if(null!=targetBean){
+				bean = targetBean;
+			}else{
+				bean = map.get(getCell(i,"id"));//
+				if((needAdd = null==bean)){
+					if(_returnModel){
+						@SuppressWarnings("unchecked")
+						T bean1 = (T)spaceConfig.getDBBean(clazz);
+						bean = bean1;
+					}else{
+						bean = ReflectUtil.invokeNewInstance(clazz);
+					}
+					map.put(String.valueOf(getCell(i, "id")), bean);
+				}
+			}
+
+			//关联必要的DBRVO
+			if(isModel){
+				((ModelableImpl)bean)._setDbRvo(this);
+				((ModelableImpl)bean)._setRowNo(i);
+			}
+			if(returnModel)
+				rootNode.start(bean, this, i, spaceConfig, method);
+			else
+				rootNode.start(bean, this, i, null, null);
+
+			for (int j = 0; j < columnCount; j++) {
+				String expr = this.titles.get(j);
+				Object value = row.get(j);
+				//setValue(this.rsqlCvo.getSpaceName(), clazz, t, bean, value, i, status);
+
+				if(null==value || "RN".equals(expr) || expr.startsWith("RMX_")) {
+					continue;
+				}
+				rootNode.eval(expr, value);
+			}
+			rootNode.evalEnd();
+
+			if(_returnModel)
+				((Modelable) bean)._setDataStatus(rsqlCvo._isHasDataColums() ? RsqlConstants.DS_part : RsqlConstants.DS_managed);//LHY 2015-2-17
+
+			if(null!=targetBean)//目前仅支持将第一行复制给一个特定的对象。
+				return list;
+
+			if(needAdd)list.add(bean);
+		}
+
+
+		/*/
 		for (int i = 0; i < rowCount; i++) {
 			List<Object> row = this.rows.get(i);
 			//Object id = row.get(idIdx);// id
@@ -791,13 +867,14 @@ public class RsqlRvo  extends DbRvo  {
 					MapHelper.evalFlatValueToObjectField(bean, expr, value);
 			}
 			if(_returnModel)
-				((Modelable) bean).setDataStatus(rsqlCvo._isHasDataColums()?RsqlConstants.DS_part:RsqlConstants.DS_managed);//LHY 2015-2-17 
+				((Modelable) bean)._setDataStatus(rsqlCvo._isHasDataColums()?RsqlConstants.DS_part:RsqlConstants.DS_managed);//LHY 2015-2-17
 			
 			if(null!=targetBean)//目前仅支持将第一行复制给一个特定的对象。
 				return list;
 			
 			list.add(bean);
 		}
+		//*/
 
 		// 删除多余空间
 		list.trimToSize();
@@ -874,7 +951,7 @@ public class RsqlRvo  extends DbRvo  {
 			if (null == objectValue && !"-1".equals(pk)) {
 				// .如果此时bean中的属性expr没有值，也没有主键， 则创建一个新的
 				objectValue = RsqlCore.createDBBean(fieldType);
-				((Modelable) objectValue).setDataStatus(RsqlConstants.DS_part);
+				((Modelable) objectValue)._setDataStatus(RsqlConstants.DS_part);
 				((Modelable) objectValue).setId(pk.toString());
 			}
 			// LHY 完成了Object自动获取的功能

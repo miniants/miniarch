@@ -37,12 +37,12 @@ public class RemexAdminUtil {
 		AdminBsRvo rvoBody;
 		Container s = ContainerFactory.getSession();
 
-		if(null==sysMenu){
+		//if(null==sysMenu){
 			SysMenu l0 = new SysMenu();
 			SysMenu sysMenu1 = ContainerFactory.createDbCvo(SysMenu.class)
 					.orderBy(SysMenu::getNodeOrder, Sort.ASC)
 					.filterBy(SysMenu::getNodeName, WhereRuleOper.eq, "root")
-					.ready().queryBean();
+					.ready().query().obtainBean();
 			ReflectUtil.copyProperties(l0, sysMenu1);
 			
 			l0.setSubMenus(new ArrayList<SysMenu>());
@@ -72,7 +72,7 @@ public class RemexAdminUtil {
 			}
 			
 			sysMenu = l0;
-		}
+		//}
 
 		AdminBsRvo bsRvo = new AdminBsRvo();
 		bsRvo.setStatus(true);
@@ -89,7 +89,7 @@ public class RemexAdminUtil {
 	 */
 	public static <T extends ModelableImpl> DbCvo<T> obtainDbCvo(Class<T> clazz,DataCvo bsCvo){
 		DbCvo<T> ret = (DbCvo<T>)ContainerFactory.getSession().createDbCvo(clazz)//.orderBy(t->t.getId(),Sort.ASC)
-				.putRowCount(bsCvo.getRowCount()).putPagination(bsCvo.getPagination()).putDoCount(true).putDoPaging(true);
+				.rowCount(bsCvo.getRowCount()).page(bsCvo.getPagination());
 		return ret;
 	}
 //	public static <T extends ModelableImpl> void saveDataMeta(BsRvo bsRvo,DbRvo dbRvo){

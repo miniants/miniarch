@@ -10,7 +10,7 @@ import cn.remex.db.rsql.RsqlAssert;
 import cn.remex.db.rsql.RsqlRvo;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.sql.SqlType;
-import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.FieldType;
 import cn.remex.db.sql.WhereRuleOper;
 
 import java.lang.reflect.Type;

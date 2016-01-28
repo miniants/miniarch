@@ -4,6 +4,7 @@ import cn.remex.core.cache.DataCacheCloneable;
 import cn.remex.core.cache.DataCachePool;
 import cn.remex.core.reflect.ReflectUtil;
 import cn.remex.core.util.Assert;
+import cn.remex.core.util.Judgment;
 import cn.remex.db.DbCvo;
 import cn.remex.db.cert.DataAccessConfiguration;
 import cn.remex.db.exception.IllegalSqlBeanArgumentException;
@@ -52,7 +53,7 @@ public class SqlBean<T extends Modelable> implements DataCacheCloneable {
 		@SuppressWarnings("unchecked")
 		DataCachePool<SqlBean<T>> remexSqlBeanPool = remexSqlBeanPools
 				.get(defName);
-		if (remexSqlBeanPool == null) {
+		if (/*remexSqlBeanPool == null*/true) {
 			SqlOper oper = dbCvo.getOper();
 			if (SqlOper.list.equals(oper) || SqlOper.view.equals(oper)) {
 				sqlBean = RsqlUtils.createSelectSqlBean(dbCvo);
@@ -97,10 +98,10 @@ public class SqlBean<T extends Modelable> implements DataCacheCloneable {
 		defName.append(dbCvo.getBeanName()).append(dbCvo.getBeanName())
 				.append("_oper[").append(dbCvo.getOper()).append("]_dt[")
 				.append(dbCvo.getDataType()).append("]_fb[")
-				.append(dbCvo.getForeignBean()).append("]_dc[")
+				//.append(dbCvo.getForeignBean()).append("]_dc[")
 				.append(dbCvo.getDataColumns()).append("]_ec[")
 				.append(dbCvo.getExtColumn()).append("]_")
-				.append(dbCvo.getSqlBeanWhere().obtainKey());
+				.append(dbCvo.getFilter().obtainKey());
 		return defName.toString();
 	}
 
@@ -232,20 +233,20 @@ public class SqlBean<T extends Modelable> implements DataCacheCloneable {
 	}
 
 	public void initParam(final DbCvo<T> dbCvo) {
-//		// 配置param的值
-		// 处理where约束条件
-		if (dbCvo.isSearch()) {
-			SqlBeanWhere curWhere = dbCvo.getSqlBeanWhere();
-			// curWhere.toSQL(dbCvo.getBeanName(),
-			// new ArrayList<SqlBeanNamedParam>(), 0);
-			if (curWhere.isFilter()) {
-				for (SqlBeanWhereRule rule : curWhere.getAllRules()) {
-					dbCvo.$S(rule.getParamName(), rule.getData());
-				}
-			} else {
-				dbCvo.$S(curWhere.getSearchField(), curWhere.getSearchString());
+
+		SqlBeanWhere<T, T> curWhere = dbCvo.getFilter();
+		if (curWhere.isFilter()) {
+			for (SqlBeanWhereRule rule : curWhere.getAllRules()) {
+				dbCvo.$S(rule.getParamName(), rule.getData());
 			}
+		} else if (!Judgment.nullOrBlank(curWhere.getSearchField())) {
+			dbCvo.$S(curWhere.getSearchField(), curWhere.getSearchString());
 		}
+
+		if(null!=dbCvo.getRootColumn())dbCvo.getRootColumn().forEvery(c1 -> {
+			if (null != c1.getFilters())
+				((List<SqlBeanWhereRule>) c1.getFilters().getAllRules()).forEach(rule -> dbCvo.$S(rule.getParamName(), rule.getData()));
+		});
 
 		// 配置参数
 
@@ -270,6 +271,7 @@ public class SqlBean<T extends Modelable> implements DataCacheCloneable {
 			this.namedParamMap.get(RsqlConstants.SYS_id).setValue(id);
 		}
 	}
+
 
 	public void setBeanClass(Class<?> beanClass) {
 		this.beanClass = beanClass;

@@ -16,7 +16,7 @@ public class BsRvo implements Serializable{
 	private String code;
 	private Object body;
 
-	private String rt;
+	private String rt; //jsp json redirect
 	private String rv;
 	private String rp;
 
