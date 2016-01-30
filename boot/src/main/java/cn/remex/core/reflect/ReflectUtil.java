@@ -1,8 +1,13 @@
 package cn.remex.core.reflect;
 
 import cn.remex.RemexConstants;
+import cn.remex.core.CoreSvo;
+import cn.remex.core.aop.AOPCaller;
+import cn.remex.core.aop.AOPFactory;
 import cn.remex.core.reflect.CodeMapper.CodeMapItem;
 import cn.remex.core.util.*;
+import net.sf.cglib.proxy.MethodProxy;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -10,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Consumer;
 
 //import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -266,7 +272,7 @@ public class ReflectUtil implements RemexConstants {
 			if(Judgment.nullOrBlank(o))
 				return null;
 			Object t;
-			if(instanceArgs==null || instanceArgs.length==0){
+			if(instanceArgs==null || instanceArgs.length==0 || instanceArgs[0]==null){
 				t=invokeNewInstance((Class) type);
 			}else{
 				t=invokeMethod((Method) instanceArgs[1], instanceArgs[0], Arrays.copyOfRange(instanceArgs,2,instanceArgs.length));
@@ -627,8 +633,13 @@ public class ReflectUtil implements RemexConstants {
 //			final Type[] types = typeImpl.getActualTypeArguments();
 			
 			final Type[] types = (Type[]) ReflectUtil.getActualTypeArguments( type);
-			
-			return (Class<?>) types[0];
+
+			if(types[0].getClass().getName().contains("ParameterizedTypeImpl")){
+				ParameterizedTypeImpl impl = (ParameterizedTypeImpl) types[0];
+				return impl.getRawType();
+			}else{
+				return (Class<?>) types[0];
+			}
 		} catch (final Exception e) {
 			handleUnexpectedException(e);
 		}
@@ -666,6 +677,44 @@ public class ReflectUtil implements RemexConstants {
 			}
 		}
 		return retSetters;
+	}
+
+
+	protected static AOPFactory AopBeanFactory = new AOPFactory(
+			new AOPCaller(null) {
+				@Override
+				public Object intercept(final Object obj, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {
+					// 查找
+					String name = method.getName();
+					if (name.startsWith("get")
+							&& method.getParameterTypes().length == 0) {// predicate
+						// 中用get的方法来获得sql中需要操作的field
+						Consumer c = (Consumer) CoreSvo.valLocal(String.valueOf(obj.hashCode()));
+						c.accept(StringHelper.lowerFirstLetter(name.substring(3)));
+						return null;
+					}
+					// 只是为了截获属性名称,不用真实的调用
+					return proxy.invokeSuper(obj, args);
+				}
+			});
+	public static <T> T createAopBean(Class<T> beanClass){
+		return AopBeanFactory.getBean(beanClass);
+	}
+	public static void eachFieldWhenGet(Object o, Consumer predicatConsumer, Consumer c) {
+		Object aopBean;
+		if(o instanceof Class){
+			aopBean = AopBeanFactory.getBean((Class)o);
+		}else if(o.getClass().toString().indexOf("$$EnhancerByCGLIB$$")>0){
+			aopBean = o;
+		}else{
+			aopBean = AopBeanFactory.getBean(o.getClass());
+		}
+		CoreSvo.putLocal(String.valueOf(aopBean.hashCode()), c);
+
+		predicatConsumer.accept(aopBean);
+
+		CoreSvo.putLocal(String.valueOf(aopBean.hashCode()), null);
+
 	}
 
 	/**
@@ -1106,8 +1155,8 @@ public class ReflectUtil implements RemexConstants {
 //			}
 			
 			clazz = (Class<?>) ReflectUtil.getListActualType( type);
-			
-			
+
+
 			return clazz;
 	}
 	/**

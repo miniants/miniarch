@@ -364,6 +364,17 @@ public abstract class Assert implements RemexConstants {
 		}
 	}
 	/**
+	 * 断言对象为空
+	 * @param object
+	 * @param message
+	 * @param exceptionClass
+	 */
+	public static void isNull(final Object object, final String message,final Class<? extends RuntimeException> exceptionClass) {
+		if (object != null) {
+			throw createRuntimeException(message, exceptionClass);
+		}
+	}
+	/**
 	 * 断言对象为一个简单Object对象
 	 * @param object 对象
 	 */

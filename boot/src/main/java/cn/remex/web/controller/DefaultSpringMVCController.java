@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -33,7 +34,7 @@ public class DefaultSpringMVCController implements RemexConstants {
     public ModelAndView execute1(@PathVariable String bs,
                                  @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
                                  HttpServletRequest request, HttpServletResponse response) {
-        return execute(bs, "execute", null, request, response, files);
+        return execute(bs, "execute", null, request, response, files,null);
     }
 
     @RequestMapping(value = {"{bs:[a-zA-Z0-9]+}/{bsCmd:[a-zA-Z0-9]+}"})
@@ -41,16 +42,34 @@ public class DefaultSpringMVCController implements RemexConstants {
                                  @PathVariable String bsCmd,
                                  @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
                                  HttpServletRequest request, HttpServletResponse response) {
-        return execute(bs, bsCmd, null, request, response, files);
+        return execute(bs, bsCmd, null, request, response, files,null);
     }
-
+    @RequestMapping(value = {"DataTableService/{modelName:\\S+}/{bsCmd:[a-zA-Z0-9]+}"})
+    public ModelAndView execute_DataTableService(
+            @PathVariable String bsCmd,
+            @PathVariable String modelName,
+            @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
+            HttpServletRequest request, HttpServletResponse response) {
+            Map<String,Object> params = new HashMap<>();
+            params.put("modelName",modelName);
+        return execute("DataTableService", bsCmd,null, request, response, files,params);
+    }
+    @RequestMapping(value = {"ViewService/{viewName:\\S+}/{bsCmd:[a-zA-Z0-9]+}"})
+    public ModelAndView execute_ViewService(
+            @PathVariable String bsCmd,
+            @PathVariable String modelName,
+            HttpServletRequest request, HttpServletResponse response) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("viewName",modelName);
+        return execute("ViewService", bsCmd,null, request, response, null,params);
+    }
     @RequestMapping(value = {"{bs:[a-zA-Z0-9]+}/{bsCmd:[a-zA-Z0-9]+}/{id:\\S+}"})
     public ModelAndView execute3(
             @PathVariable String bs, @PathVariable String bsCmd,
             @PathVariable String id,
             @RequestParam(value = "files", required = false) CommonsMultipartFile[] files,
             HttpServletRequest request, HttpServletResponse response) {
-        return execute(bs, bsCmd, id, request, response, files);
+        return execute(bs, bsCmd, id, request, response, files,null);
     }
 
 
@@ -58,9 +77,9 @@ public class DefaultSpringMVCController implements RemexConstants {
     private ModelAndView execute(
             @PathVariable String bs, @PathVariable String bsCmd,
             @PathVariable String pk,
-            HttpServletRequest request, HttpServletResponse response, CommonsMultipartFile[] files) {
+            HttpServletRequest request, HttpServletResponse response, CommonsMultipartFile[] files,Map params) {
 
-        BsRvo bsRvo = ServiceFactory.executeBs(bs, bsCmd, pk, request, response);//调用service
+        BsRvo bsRvo = ServiceFactory.executeBs(bs, bsCmd, pk, request, response,params);//调用service
 
         Map<String,Object> map = MapHelper.toMap(bsRvo);
 
@@ -84,10 +103,15 @@ public class DefaultSpringMVCController implements RemexConstants {
             map.put("status",true);
         }
 
-        ModelAndView mv = new ModelAndView(rv.toString());
-        map.forEach((k,v)->mv.addObject(k,v));
-        mv.addObject("pk", pk);
-        return mv;//不能重定向web-info里面的文件,而且需要写上绝对路径
+        if("redirect".equals(rt)){
+            return new ModelAndView("redirect:"+rv);
+        }else{
+            ModelAndView mv = new ModelAndView(rv.toString());
+            map.forEach((k,v)->mv.addObject(k,v));
+            mv.addObject("pk", pk);
+            return mv;//不能重定向web-info里面的文件,而且需要写上绝对路径
+        }
+
 
     }
 }

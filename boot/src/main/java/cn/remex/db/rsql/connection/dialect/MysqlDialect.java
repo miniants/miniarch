@@ -30,7 +30,12 @@ public class MysqlDialect extends Dialect {
 				.append(" ").append(openQuote()).append(aliasName).append(closeQuote()).toString();
 
 	}
+	@Override
+	public String aliasAggrFun(final String fieldName, final String aliasName){
+		return new StringBuilder().append(fieldName)
+				.append(" ").append(openQuote()).append(aliasName).append(closeQuote()).toString();
 
+	}
 	@Override
 	public String obtainSelectRegex() {
 		return "FROM\\s+\\"+openQuote()+"([\\w_0-9]+)\\"+closeQuote()+"\\s+[\\"+openQuote()+"]?([\\w_0-9]+)[\\"+closeQuote()+"]?";

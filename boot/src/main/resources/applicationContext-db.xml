@@ -9,8 +9,8 @@ http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 	
 	<!-- 切面配置 -->
 	<aop:aspectj-autoproxy proxy-target-class="true" />
-	<bean class="cn.remex.db.rsql.aspect.RsqlMonitorAspect"></bean>
-	<bean class="cn.remex.db.rsql.aspect.RsqlTransactionalAspect"></bean>
+	<bean class="cn.remex.db.rsql.aspect.RsqlMonitorAspect"/>
+	<bean class="cn.remex.db.rsql.aspect.RsqlTransactionalAspect"/>
 
 	<!--此部分共享的containerFactory -->
 	<!--数据库空间初始化 id不能修改 -->
@@ -18,7 +18,7 @@ http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 		<property name="factory"><bean class="cn.remex.db.rsql.RsqlCore">
 			<constructor-arg index="0" value="oracle.jdbc.OracleDriver com.mysql.jdbc.Driver"/>
 			<constructor-arg index="1"><map>
-				<entry key="default" value-ref="default_space"></entry>
+                <entry key="default" value-ref="default_space"/>
 				</map></constructor-arg>
 			<constructor-arg index="2" value="false"/>
 			</bean></property>

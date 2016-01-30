@@ -10,5 +10,5 @@ package cn.remex.db.view;
  */
 public enum EditType {
 	button,checkbox,custom,file,image,password,select,text,textarea
-	,CodeRef,EnumRef
+	,CodeRef, editType, EnumRef
 }

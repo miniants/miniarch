@@ -51,7 +51,7 @@ public @interface Element {
 	/**默认数据字典表中 dataType=的值*/
 	public String CodeRefCodeType() default "";
 	/**搜索的filter字符串，有filters是，dataType约束失效
-	 * filters="{rules:[{field:'col1',op:'eq',data:'val1'},{field:'col2',op:'eq',data:'val2'}]}"
+	 * filter="{rules:[{field:'col1',op:'eq',data:'val1'},{field:'col2',op:'eq',data:'val2'}]}"
 	 * */
 	public String CodeRefFilters() default "";
 	public RefType refType() default RefType.dbList;

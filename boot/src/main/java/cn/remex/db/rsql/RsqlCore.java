@@ -10,6 +10,7 @@ import cn.remex.core.RemexRefreshable;
 import cn.remex.core.aop.AOPCaller;
 import cn.remex.core.aop.AOPFactory;
 import cn.remex.core.reflect.ReflectUtil;
+import cn.remex.core.util.Assert;
 import cn.remex.core.util.Judgment;
 import cn.remex.core.util.StringHelper;
 import cn.remex.db.Container;
@@ -22,8 +23,9 @@ import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.connection.RDBSpaceConfig;
 import cn.remex.db.rsql.connection.dialect.Dialect;
 import cn.remex.db.rsql.model.Modelable;
+import cn.remex.db.sql.ColumnType;
 import cn.remex.db.sql.SqlType;
-import cn.remex.db.sql.SqlType.FieldType;
+import cn.remex.db.sql.FieldType;
 import net.sf.cglib.proxy.MethodProxy;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -101,7 +103,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 						ReflectUtil.invokeSetter(fieldName, obj, result);
 //LHY 2015-2-17 将自动获取对象的触发事件后置到obj的某个属性为空或为0时，dataStatus状态为DS_part+DS_beanNew时去数据库中查询，提供效率。这样通过oed查询的数据列进行操作时不会读取数据库，效率有明显的提高。
 				} else if (fetchAndStoreAutoFlag && null != result && (isRetObject=Modelable.class.isAssignableFrom(returnType))
-						&& (DS_part+DS_beanNew).contains(((Modelable) result).getDataStatus()) // 新建的bean 或者 是再数据部分读取数据的bean
+						&& (DS_part+DS_beanNew).contains(((Modelable) result)._getDataStatus()) // 新建的bean 或者 是再数据部分读取数据的bean
 						//&& (null==((Modelable) result)._getModifyFileds() || ((Modelable) result)._getModifyFileds().contains()) 当时部分获取的时候值为空的时候，是不是每次都要读取一次数据库？
 						) {
 					
@@ -116,7 +118,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 			}
 //代码可用，但是否合适尚未考虑清楚，还用上面老的
 //				} else if(fetchAndStoreAutoFlag && (null == result || result.equals(0)) && (!isRetCollection && !isRetObject)//基本数据列为null或等于0
-//						&& (DS_part+DS_beanNew).contains(((Modelable) obj).getDataStatus())
+//						&& (DS_part+DS_beanNew).contains(((Modelable) obj)._getDataStatus())
 //						){ //普通base字段，没有指名读取的，且datastatus为part的，需要去数据库中读取。
 //					
 //					Object id = ((Modelable) obj).getId();
@@ -125,7 +127,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 //						Modelable _obj = (Modelable) obj;
 //						ContainerFactory.getSession().queryByFields(beanClass,null,SYS_id,id).assignRow(_obj ); // 用数据中的bean替换掉
 //						if(null!=_obj){
-//							_obj.setDataStatus(DS_managed);
+//							_obj._setDataStatus(DS_managed);
 //							result=ReflectUtil.invokeMethod(methodName, _obj);
 //						}
 //					}
@@ -136,7 +138,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 				if ((SYS_Method_setDataStatus+SYS_Method_setId).contains(methodName)){
 				}else{
 					Modelable m = (Modelable)obj;
-					m.setDataStatus(DS_needSave);
+					m._setDataStatus(DS_needSave);
 					//将调用了set方法的属性保存起来，在store的时候使用，节约资源
 					if(!Collection.class.isAssignableFrom(returnType)
 							&& !Modelable.class.isAssignableFrom(returnType))
@@ -195,8 +197,6 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 
 		// 系统数据列
 		content.append("		").append(dialect.quoteKey(SYS_id) + " " + dialect.obtainSQLTypeString(Types.CHAR,50) + " NOT NULL PRIMARY KEY,\r\n");
-		content.append("		").append(dialect.quoteKey(SYS_dataStatus) + " " + dialect.obtainSQLTypeString(Types.CHAR,10) + " NULL,\r\n");
-		content.append("		").append(dialect.quoteKey(SYS_version) + " " + dialect.obtainSQLTypeString(Types.INTEGER,22) + " NULL,\r\n");
 		partSysColumns.putAll(RsqlUtils.SysCreateColumns);
 		partSysColumns.putAll(RsqlUtils.SysModifyColumns);
 		for (String column : partSysColumns.keySet()) {
@@ -253,7 +253,6 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 		}
 
 		content.append("		").append(dialect.quoteKey(SYS_id) + " " + dialect.obtainSQLTypeString(Types.CHAR,50) + " NOT NULL PRIMARY KEY,\r\n");
-		content.append("		").append(dialect.quoteKey(SYS_dataStatus) + " " + dialect.obtainSQLTypeString(Types.CHAR,10) + ",\r\n");
 		// *****************添加bean中的表连接属性，定义为int，并随后建立表外键连接
 		for (String objectColumn : columns.keySet()) {
 			ColumnType ct =columns.get(objectColumn);
@@ -283,7 +282,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 			throw new FatalOrmBeanException(clazz.getName() + "无法创建！", e.getCause());
 		}
 		Modelable m = (Modelable) t;
-		m.setDataStatus(DS_beanNew);
+		m._setDataStatus(DS_beanNew);
 		return t;
 	}
 
@@ -301,11 +300,11 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 //	}
 
 	public static boolean isLocalAutoFetchObjectFiled(){
-		Object b = CoreSvo.$VL(FecthObjectFlied);
+		Object b = CoreSvo.valLocal(FecthObjectFlied);
 		return (null==b?true:(Boolean)b);
 	}
 	public static boolean isLocalAutoStoreObjectFiled(){
-		Object b = CoreSvo.$VL(StoreObjectFlied);
+		Object b = CoreSvo.valLocal(StoreObjectFlied);
 		return (null==b?true:(Boolean)b);
 	}
 	private static void modifyColumn(String tableName,DbRvo columnNames, ColumnType ct,String columnName,   Dialect dialect){
@@ -320,8 +319,13 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 			String sqlTypeStr = dialect.obtainSQLTypeString(ct.type, ct.length).trim();
 			
 			if(ct.type == Types.CLOB) return;
-			
-			if(!sqlTypeStr.split("[ \t(]")[0].equalsIgnoreCase(type) || !String.valueOf(ct.length).equalsIgnoreCase(String.valueOf(length)) ){ // 长度和类型不同时需修改
+
+			if((type.equalsIgnoreCase("int") && sqlTypeStr.equalsIgnoreCase("INTEGER"))){
+				logger.info("Mysql中int 对应为 INTERGER，无需重构类型!");
+			}else if(ct.type == Types.BOOLEAN && String.valueOf(length).equals("5") && type.equalsIgnoreCase("varchar")) {
+				logger.info("Boolean 对应为 VarCHAR(5)，无需重构类型!");
+			}else if(!sqlTypeStr.split("[ \t(]")[0].equalsIgnoreCase(type)
+					|| !String.valueOf(ct.length).equalsIgnoreCase(String.valueOf(length)) ) { // 长度和类型不同时需修改
 				AlterModifyColumn(dialect, tableName, columnName, ct);
 				logger.info("现已完成为名为" + tableName + "的表修改列" + columnName+":"+type+" "+length+" ->" +dialect.obtainSQLTypeString(ct.type, ct.length));
 			}
@@ -405,19 +409,54 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 				tableName = dialect.needLowCaseTableName()? tableName.toLowerCase():tableName;
 				Type field = fields.get(fieldName);
 				if (!(tableNames.getCells(0, tableName.toString(), 0).size() == 1)) {
+					Class<?> targetClass = ReflectUtil.getListActualType(field);
+
 					OneToMany otm = ReflectUtil.getAnnotation(beanClass, fieldName, OneToMany.class);
 					if (otm != null) {// 此为一对多，没有注明一对多则新建中间表,表示多对多
-						String mappedField = otm.mappedBy();// 指明了OneToMany关系中，外键由多方保管更新，则需要核对多方是否有这个外键
-						Class<?> targetClass = ReflectUtil.getListActualType(field);
 						Map<String, Type> fbFields = SqlType.getFields(targetClass, FieldType.TObject);
+						String mappedField = otm.mappedBy();// 指明了OneToMany关系中，外键由多方保管更新，则需要核对多方是否有这个外键
 						if (!fbFields.containsKey(mappedField)) {
 							throw new RsqlDBInitException("OneToMany映射错误，在多方[ " + targetClass.toString() + " ]未设置外键[ "
 									+ mappedField + " ]维护关系。可能是getter/setter的名称设置有误！");
+						} else if (!fbFields.get(mappedField).equals(beanClass)) {
+							throw new RsqlDBInitException("OneToMany映射错误，在多方设置的属性[ "+mappedField+" ]类型有误，应该为："+beanClass);
 						}
 					} else {
-						ManyToMany mtm = ReflectUtil.getAnnotation(beanClass, fieldName, ManyToMany.class);
+						Map<String, Type> fbFields = SqlType.getFields(beanClass, FieldType.TCollection);
 						//不配置ManyToMany、或者显式配置ManyToMany时，本类为多对多方的主方，负责维护中间表
-						if(null == mtm || !"void".equals(mtm.targetEntity()) ){
+						ManyToMany mtm = ReflectUtil.getAnnotation(beanClass, fieldName, ManyToMany.class);
+						Class<?> fbBeanClass = null;
+						boolean isweihufang = true;
+
+						if(null!=mtm){
+							String mappedField = mtm.mappedBy();// 必须成对出现,不指定时则只有List属性的一方维护此多对多关系
+							fbBeanClass = ReflectUtil.getListActualType(fbFields.get(fieldName));
+							Class te = mtm.targetEntity();//只能在主方指定，且类型不能错误
+							isweihufang = fbBeanClass.equals(te);//如果有注解则TargetEntity有指定
+
+
+							ManyToMany fk_mtm = ReflectUtil.getAnnotation(targetClass, mappedField, ManyToMany.class);
+							if(fk_mtm !=null){
+								Assert.isTrue(fieldName.equals(fk_mtm.mappedBy()),"多对多外键对象的属性的ManyToMany注解的mappedBy"+fk_mtm.mappedBy()+"必须与当前模型的list属性名"+fieldName+"一致");
+								Assert.isTrue((void.class.equals(te) && fk_mtm.targetEntity().equals(beanClass))
+												|| (void.class.equals(fk_mtm.targetEntity()) && te.equals(fbBeanClass)),
+										"在多对多关系中，targetEntity只能由维护方指定，指定的值为外键对象的类型:targetEntity="+te+";beanClass="+beanClass+";fbBeanClass="+fbBeanClass
+								);
+							}
+						}else{
+							// TODO 后面多对多需要显示声明
+							isweihufang =true;
+//							for(Annotation fban: fbBeanClass.getAnnotations()){
+//								Class<? extends Annotation> fbanc = fban.annotationType();
+//								if(fbanc.isAssignableFrom(ManyToMany.class)){
+//									isweihufang = !fieldName.equals(((ManyToMany) fban).mappedBy()); //当前注解为null，且对方任何mappedBy指向本属性则不是维护方
+//								}
+//							}
+						}
+
+
+						//只有当前属性注解为空且未被外键对象mappedBy引用 或者 注解不为null且指定了targetEntity时本属性为维护方
+						if(isweihufang){
 							createCollectionTable(dialect, beanName, fieldName, field);
 							logger.info("创建名为" + tableName + "的表完成！ ");
 						}
@@ -542,7 +581,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 	 * @rmx.call {@link RsqlContainer#storeFKBean}
 	 */
 	public static void setLocalAutoFecthObjectFiled(boolean b){
-		CoreSvo.$SL(FecthObjectFlied, b);
+		CoreSvo.putLocal(FecthObjectFlied, b);
 	}
 	
 	/**
@@ -551,7 +590,7 @@ public final class RsqlCore extends ContainerFactory  implements RsqlConstants,R
 	 * @rmx.call {@link RsqlRvo#obtainBeans()}
 	 */
 	public static void setLocalAutoStoreObjectFlied(boolean b){
-		CoreSvo.$SL(StoreObjectFlied, b);
+		CoreSvo.putLocal(StoreObjectFlied, b);
 	}
 	
 	/**

@@ -113,6 +113,7 @@ public abstract class DbRvo implements Rvo {
 	 * 将查询结果的第一条记录复制给bean
 	 */
 	public abstract <T extends Modelable> void assignRow(T bean);
+	public abstract <T extends Modelable> T obtainBean();
 	public abstract <T extends Modelable> List<T> obtainBeans();
 	public abstract <T extends Modelable> List<T> obtainBeans(Class<? extends Modelable> modelClass);
 
@@ -125,4 +126,6 @@ public abstract class DbRvo implements Rvo {
 	public abstract <T> Map<String, T> obtainObjectsMap(final String columnName, final Class<T> clazz);
 	public abstract <T> BeanVo<T> obtainBeanVo(Class<T> clazz);
 	public abstract MapVo obtainMapVo();
+
+	public abstract <T> Class<T> getBeanClass();
 }

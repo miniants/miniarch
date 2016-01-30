@@ -23,14 +23,6 @@ public interface RsqlConstants {
 		}
 	}
 
-	/**
-	 * 分组多条件查询的组合逻辑关系
-	 */
-	public enum WhereGroupOp{
-		AND,
-		OR
-	}
-
 	public enum SqlOper{
 		/**增加*/
 		add,
@@ -133,7 +125,7 @@ public interface RsqlConstants {
 	public static final String PN_ec = "ec";
 	/** foreignBean的缩写。及外联的一对一关系表*/
 	public static final String PN_fb = "fb";
-	public static final String PN_filter = "filters";
+	public static final String PN_filter = "filter";
 	public static final String PN_filterBean = "filterBean";
 	public static final String PN_id = "id";
 
@@ -190,15 +182,15 @@ public interface RsqlConstants {
 	public static final String SYS_createOperator = "createOperator";
 	public static final String SYS_createOperator_name = "createOperator_name";
 	public static final String SYS_createTime = "createTime";
-	public static final String SYS_dataStatus = "dataStatus";
+	public static final String SYS_dataStatus = "_dataStatus";
 	public static final String SYS_version = "version";
 	public static final String SYS_id = "id";
 	public static final String SYS_ids = "ids";
 	public static final String SYS_key = "SYSKEY";
 	public static final String SYS_key_idPreffix = "ID_";
-	public static final String SYS_Method_getDataStatus="getDataStatus";
+	public static final String SYS_Method_getDataStatus="_getDataStatus";
 	public static final String SYS_Method_getId="getId";
-	public static final String SYS_Method_setDataStatus="setDataStatus";
+	public static final String SYS_Method_setDataStatus="_setDataStatus";
 	public static final String SYS_Method_setId="setId";
 	public static final String SYS_modifyOperator = "modifyOperator";
 	public static final String SYS_modifyOperator_name = "modifyOperator_name";

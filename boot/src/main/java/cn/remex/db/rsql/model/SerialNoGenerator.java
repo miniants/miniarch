@@ -12,6 +12,8 @@
 
 package cn.remex.db.rsql.model;
 
+import cn.remex.core.reflect.ReflectUtil;
+
 import java.util.HashMap;
 
 /**
@@ -51,4 +53,7 @@ public interface SerialNoGenerator {
 	 * @return String
 	 */
 	public String obtainSerialNoFormat();
+
+	public Object get(String key);
+
 }

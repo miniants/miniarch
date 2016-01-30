@@ -9,11 +9,9 @@ import cn.remex.core.reflect.ReflectUtil.SPFeature;
 import cn.remex.core.util.Assert;
 import cn.remex.core.util.StringHelper;
 import cn.remex.db.exception.RsqlException;
-import cn.remex.db.exception.RsqlInitException;
 import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlConstants.SqlOper;
-import cn.remex.db.rsql.RsqlConstants.WhereGroupOp;
-import cn.remex.db.rsql.connection.RDBManager;
+import cn.remex.db.sql.WhereGroupOp;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.sql.*;
 import net.sf.cglib.proxy.MethodProxy;
@@ -44,9 +42,9 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 					if (name.startsWith("get")
 							&& method.getParameterTypes().length == 0) {// predicate
 																		// 中用get的方法来获得sql中需要操作的field
-						Assert.isNull(CoreSvo.$VL(PredicateBean_Invoked_Field),
+						Assert.isNull(CoreSvo.valLocal(PredicateBean_Invoked_Field),
 								"请在addrule方法的参数中直接使用变量或值，或者至少保证其参数不能是自动查询数据库的，否则将在rule的生成逻辑中出现嵌套错误！");
-						CoreSvo.$SL(PredicateBean_Invoked_Field,StringHelper.lowerFirstLetter(name.substring(3)));
+						CoreSvo.putLocal(PredicateBean_Invoked_Field, StringHelper.lowerFirstLetter(name.substring(3)));
 
 					}
 					// 返回真实的调用
@@ -62,11 +60,11 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 					if (name.startsWith("get")
 							&& method.getParameterTypes().length == 0) {// predicate
 						// 中用get的方法来获得sql中需要操作的field
-						if(null !=CoreSvo.$VL(PredicateBean_Invoked_Field)){
-							CoreSvo.$SL(PredicateBean_Invoked_Field,null);
+						if(null !=CoreSvo.valLocal(PredicateBean_Invoked_Field)){
+							CoreSvo.putLocal(PredicateBean_Invoked_Field, null);
 							throw new RsqlException("请在addrule方法的参数中直接使用变量或值，或者至少保证其参数不能是自动查询数据库的，否则将在rule的生成逻辑中出现嵌套错误！");
 						}else{
-							CoreSvo.$SL(PredicateBean_Invoked_Field,StringHelper.lowerFirstLetter(name.substring(3)));
+							CoreSvo.putLocal(PredicateBean_Invoked_Field, StringHelper.lowerFirstLetter(name.substring(3)));
 						}
 
 					}
@@ -82,12 +80,12 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	 * @return String
 	 */
 	public static String obtainPredicateBeanField(final Object field) {
-		String fieldName = (String) CoreSvo.$VL(PredicateBean_Invoked_Field);
+		String fieldName = (String) CoreSvo.valLocal(PredicateBean_Invoked_Field);
 		if (fieldName == null && field instanceof String) {
 			Assert.notNull(field, "SqlPredicate没有查询可必要的属性！");
 			fieldName = (String) field;
 		}
-		CoreSvo.$SL(PredicateBean_Invoked_Field,null);
+		CoreSvo.putLocal(PredicateBean_Invoked_Field, null);
 		return fieldName;
 	}
 	public static <T> T createAOPBean(Class<T> beanClass){
@@ -107,6 +105,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 
 
 	protected static String stringParamRegxForReplace = "$3$4$5$7";
+
 	/**
 	 * 官方的写法：%[argument_<font color=green>index</font>$][flags][width][.precision]conversion
 	 *
@@ -123,6 +122,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 标志	常规	字符	整数	浮点	日期/时间	说明
 '-'	y	y	y	y	y	结果将是左对齐的。
 '#'	y1	-	y3	y	-	结果应该使用依赖于转换类型的替换形式
+
 '+'	-	-	y4	y	-	结果总是包括一个符号
 '  '	-	-	y4	y	-	对于正值，结果中将包括一个前导空格
 '0'	-	-	y	y	-	结果将用零来填充
@@ -170,7 +170,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 
 	protected boolean doPaging = false;
 	protected String extColumn;
-	protected String foreignBean;
+	//protected String foreignBean;
 	protected String id;
 	protected boolean isInit = false;
 	/**
@@ -180,11 +180,11 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	protected SqlOper oper = SqlOper.list;
 	protected List<SqlBeanOrder> orders = new ArrayList<SqlBeanOrder>();
 
-	protected int pagination;
+	protected int pagination = 1;
 	protected String poolName;
 	protected int recordCount;
 	protected String returnType;//返回的数据类型
-	protected int rowCount;
+	protected int rowCount = 100;
 	protected boolean search = false;
 	protected boolean sortable = false;
 	protected String spaceName;
@@ -192,12 +192,13 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	protected SqlBean<T> sqlBean;
 	protected Container container;
 
-	protected SqlBeanWhere sqlBeanWhere = new SqlBeanWhere();
+	protected SqlBeanWhere<T,T> filter = new SqlBeanWhere();
 
 	protected String sqlString;
 	protected String subList;
 
 	protected boolean updateByWhere;
+
 
     public boolean _isHasDataColums() {
 		return _hasDataColums;
@@ -208,7 +209,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	 */
 	public void addGroup(SqlBeanWhere sqlBeanWhere) {
 		this.search = true;
-		this.sqlBeanWhere.addGroup(sqlBeanWhere);
+		this.filter.addGroup(sqlBeanWhere);
 	}
 
 	public void addOrder(final boolean sortable, final Object sidx,
@@ -228,7 +229,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	public void addRule(final String field, final WhereRuleOper ruleOper,
 			final String value) {
 		this.search = true;
-		this.sqlBeanWhere.addRule(field, ruleOper, value);
+		this.filter.addRule(field, ruleOper, value);
 	}
 
 	public Container ready(){
@@ -265,6 +266,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	}
 	public void setContainer(Container container) {
 		this.container = container;
+		this.spaceName = this.container.getSpaceName();
 	}
 	public String get_searchById() {
 		return _searchById;
@@ -291,9 +293,9 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 		return this.extColumn;
 	}
 
-	public String getForeignBean() {
-		return this.foreignBean;
-	}
+//	public String getForeignBean() {
+//		return this.foreignBean;
+//	}
 	public String getId() {
 		return this.id;
 	}
@@ -329,8 +331,8 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	public SqlBean<T> getSqlBean() {
 		return this.sqlBean;
 	}
-	public SqlBeanWhere getSqlBeanWhere() {
-		return this.sqlBeanWhere;
+	public SqlBeanWhere getFilter() {
+		return this.filter;
 	}
 	
 	public String getSqlString() {
@@ -338,31 +340,6 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	}
 	public String getSubList() {
 		return subList;
-	}
-
-    /**
-     * init方法仅且必须被所有DbCvo的构造函数调用.
-     * @param clazz
-     */
-	@SuppressWarnings("unchecked")
-	public void init(final Class<T> clazz) {
-		Class<T> clazz1=clazz;
-		if(null != clazz1){
-			try {
-				clazz1 = (Class<T>) Class.forName(StringHelper.getClassName(clazz1));
-			} catch (ClassNotFoundException e) {
-				throw new RsqlInitException("初始化DbCvo时,beanClass异常！",e);
-			}
-			T t = InnerDbCvoArgBeanFactory.getBean(clazz1);
-			initRules(t);
-			this.beanName = StringHelper.getClassSimpleName(clazz1);
-		}else{
-			this.beanName = "sqlString_" + sqlString.hashCode();
-		}
-
-		this.beanClass = clazz1;
-
-		this.spaceName = null == this.spaceName ? RDBManager.getLocalSpaceConfig().getSpace() : this.spaceName;
 	}
 
     /**
@@ -416,7 +393,7 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 		}
 		if (this.search) {
 			params.put(RsqlConstants.PN_search, "true");
-			params.put(RsqlConstants.PN_filterBean, this.sqlBeanWhere);
+			params.put(RsqlConstants.PN_filterBean, this.filter);
 		}
 		if (this.sortable) {// 此处新增多列排序功能 TODO
 			params.put(RsqlConstants.PN_sidx, this.orders.get(0).getSidx());
@@ -470,12 +447,12 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 		this.extColumn = extColumn;
 	}
 
-	public void setForeignBean(String foreignBean) {
-		this.foreignBean = foreignBean;
-	}
+//	public void setForeignBean(String foreignBean) {
+//		this.foreignBean = foreignBean;
+//	}
 
 	public void setGroupOp(WhereGroupOp groupOp) {
-		this.sqlBeanWhere.setGroupOp(groupOp);
+		this.filter.setGroupOp(groupOp);
 	}
 
 	public void setId(final String id) {
@@ -497,7 +474,9 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	}
 
 	public void setPagination(final int pagination) {
-		this.pagination = pagination;
+        this.setDoPaging(true);
+        this.setDoCount(true);
+        this.pagination = pagination;
 	}
 
 	public void setPoolName(String poolName) {
@@ -528,11 +507,11 @@ public class DbCvoBase<T extends Modelable> extends CoreCvo {
 	}
 	/**
 	 * 通过ReflectUtils替换默认的SqlBeanWhere中的值。
-	 * @param sqlBeanWhere
+	 * @param filter
 	 */
-	public void setSqlBeanWhere(SqlBeanWhere sqlBeanWhere) {
-		ReflectUtil.copyProperties(this.sqlBeanWhere, sqlBeanWhere,SPFeature.DeeplyCopy);
-		this.search = this.sqlBeanWhere.isSearch();
+	public void setFilter(SqlBeanWhere filter) {
+		ReflectUtil.copyProperties(this.filter, filter,SPFeature.DeeplyCopy);
+		this.search = this.filter.isSearch();
 	}
 	public void setSqlString(String sqlString) {
 		this.sqlString = sqlString;

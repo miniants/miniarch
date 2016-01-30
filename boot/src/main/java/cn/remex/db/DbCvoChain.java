@@ -1,28 +1,15 @@
 package cn.remex.db;
 
-import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlConstants.SqlOper;
-import cn.remex.db.rsql.RsqlConstants.WhereGroupOp;
+import cn.remex.db.sql.WhereGroupOp;
 import cn.remex.db.rsql.model.Modelable;
 import cn.remex.db.sql.SqlBeanOrder;
 import cn.remex.db.sql.SqlBeanWhere;
 import cn.remex.db.sql.WhereRuleOper;
 
 import java.util.List;
-import java.util.Map;
 
 public abstract class DbCvoChain<T extends Modelable> extends DbCvoBase<T> {
-
-
-    @Override
-    public void putParameters(Map<String, Object> map) {
-        if($V("oper")!=null)this.oper = $V("oper");
-        if($V("id")!=null)this.id = $V("id");
-        map.put(RsqlConstants.SYS_dataStatus,RsqlConstants.DS_managed);//datastatus列必须处理。
-
-        super.putParameters(map);
-    }
-
 
     /************************************************************/
     //链式访问方法
@@ -55,16 +42,6 @@ public abstract class DbCvoChain<T extends Modelable> extends DbCvoBase<T> {
 
     public DbCvoChain<T> putDoPaging(boolean doPaging) {
         setDoPaging(doPaging);
-        return this;
-    }
-
-    public DbCvoChain<T> putExtColumn(final String extColumn) {
-        setExtColumn(extColumn);
-        return this;
-    }
-
-    public DbCvoChain<T> putForeignBean(String foreignBean) {
-        setForeignBean(foreignBean);
         return this;
     }
 
@@ -115,6 +92,8 @@ public abstract class DbCvoChain<T extends Modelable> extends DbCvoBase<T> {
     }
 
     public DbCvoChain<T> putRowCount(final int rowCount) {
+        this.setDoPaging(true);
+        this.setDoCount(true);
         setRowCount(rowCount);
         return this;
     }
@@ -133,7 +112,7 @@ public abstract class DbCvoChain<T extends Modelable> extends DbCvoBase<T> {
         return this;
     }
     public DbCvoChain<T> putSqlBeanWhere(SqlBeanWhere sqlBeanWhere) {
-        setSqlBeanWhere(sqlBeanWhere);
+        setFilter(sqlBeanWhere);
         return this;
     }
     public DbCvoChain<T> putSqlString(String sqlString) {
