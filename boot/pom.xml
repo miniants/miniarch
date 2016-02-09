@@ -11,12 +11,10 @@
     <packaging>war</packaging>
     <version>0.1.0-SNAPSHOT</version>
 
-
-		<scm>
-			<connection>?</connection>
-			<developerConnection>?</developerConnection>
-		</scm>
-
+    <scm>
+        <connection>?</connection>
+        <developerConnection>?</developerConnection>
+    </scm>
 
     <dependencies>
         <!-- 		<dependency>
