@@ -1,0 +1,279 @@
+<!--
+<jqgrid datavo="menusVo" name="tableName"
+                  settings="
+            url: '/DataTableService/AuthUser/list.json'
+            ,width:450
+            ,postData: {}
+            ,colNames: ['id', '用户名']
+            ,colModel:
+                [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'username', index: 'username', width: 60}
+                ]
+          "
+        ></jqgrid>-->
+
+
+
+<div rmx-table="beansUri: '/AdminBs/menus',
+                    beanSaveUri: '/AdminBs/saveMenu/',
+                    beanDelUri: '/AdminBs/delMenu/',
+                    lists:{
+                     }">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="btn-group input-group-sm pull-left">
+                <button type="button" class="btn btn-primary btn-sm" ng-click="dao.saveBean()"><i class="fa fa-save"></i>&nbsp;保存</button>
+                <button type="button" class="btn btn-primary btn-sm" ng-click="dao.createBean();"><i class="fa fa-edit"></i>&nbsp;新建</button>
+                <button type="button" class="btn btn-primary btn-sm" ng-click="dao.resetBeanBase();"><i class="fa fa-repeat"></i>&nbsp;重置</button>
+                <button type="button" class="btn btn-primary btn-sm" ng-click="dao.editType = 'base'"><i class="fa fa-eye"></i>&nbsp;基本信息</button>
+                <button type="button" class="btn btn-primary btn-sm" ng-click="dao.editType = 'props'"><i class="fa fa-users"></i>&nbsp;相关属性</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm" ng-click="dao.delBean()">删除</button>
+                    <button type="button" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret">…</span>
+                        <span class="sr-only"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="test()">刷新</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">帮助{{height}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="input-group input-group-sm pull-right" style="width: 150px;">
+                <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
+
+                <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-info" style="margin-bottom: 0;padding-bottom: 0">
+                    <div class="box-body no-padding" style="overflow-y: auto;">
+                        <div class="">
+                            <div class="col-xs-4 border-right">
+                                <div class="mailbox-controls">
+                                    <!-- Check all button -->
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
+                                    </div>
+                                    <!-- /.btn-group -->
+                                    <div class="pull-right">
+                                        {{dao.beansVo.rowCount*(dao.beansVo.pagination-1)+1}}-{{dao.beansVo.rowCount*(dao.beansVo.pagination)}}/{{dao.beansVo.recordCount}}
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-default btn-sm" ng-click="dao.fetchBeans(dao.beansVo.pagination-1)"><i class="fa fa-chevron-left"></i></button>
+                                            <button type="button" class="btn btn-default btn-sm" ng-click="dao.fetchBeans(dao.beansVo.pagination+1)"><i class="fa fa-chevron-right"></i></button>
+                                        </div>
+                                        <!-- /.btn-group -->
+                                    </div>
+                                    <!-- /.pull-right -->
+                                </div>
+                                <div rmx-autosize="offset:{w:false,h:-110}" style="overflow-y: auto;">
+                                    <table class="table table-hover">
+                                        <tr ng-repeat="bean in dao.beans" ng-click="dao.selectBean(bean)"
+                                            ng-style="{'background-color':bean._noSaved? '#dd4b39':bean==dao.curBean?'#f4f4f4':''}">
+                                            <td>{{$index+1}}.</td>
+                                            <td>{{bean.nodeOrder}}</td>
+                                            <td>{{bean.nodeName}}</td>
+                                            <td>{{bean.nodeDesc}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-8">
+                                <div ng-show="dao.editType == 'base'">
+                                    <!-- form start -->
+                                    <form class="form-horizontal">
+                                        <div class="box-header with-border">
+                                            <li class="fa fa-user-secret"></li>
+                                            <h3 class="box-title">{{dao.curBean.nodeName}}</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="form-group">
+                                                <label for="inputRoleName" class="col-sm-2 control-label">名称</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="inputRoleName" placeholder="菜单名称" ng-model="dao.curBean.nodeName" ng-change="dao.curBean._noSaved=true">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="c2" class="col-sm-2 control-label">顺序</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="c2" placeholder="顺序" ng-model="dao.curBean.nodeOrder" ng-change="dao.curBean._noSaved=true">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">图标</label>
+                                                <div class="col-sm-10">
+                                                    <rmx-icons ng-model="dao.curBean.icon" ng-change="dao.curBean._noSaved=true"></rmx-icons>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="c3" class="col-sm-2 control-label">父菜单</label>
+                                                <div class="col-sm-10">
+                                                    <select id="c3" rmx-bean-dic="dicName:'allMenus',beanName:'SysMenu',rowCount:1000" ng-model="dao.curBean.supMenu.id" ng-change="dao.curBean._noSaved=true">
+                                                        <option value=""></option>
+                                                        <option ng-repeat="supMenu in allMenus" value="{{supMenu.id}}">{{supMenu.nodeName}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputtype" class="col-sm-2 control-label">类型</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="inputtype" placeholder="菜单类型" ng-model="dao.curBean.nodeType" ng-change="dao.curBean._noSaved=true">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="menuuri" class="col-sm-2 control-label">URI</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="menuuri" placeholder="URI" ng-model="dao.curBean.nodeUri" ng-change="dao.curBean._noSaved=true">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputRoleDesc" class="col-sm-2 control-label">描述</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="inputRoleDesc" placeholder="描述" ng-model="dao.curBean.nodeDesc" ng-change="dao.curBean._noSaved=true">
+                                                </div>
+                                            </div>
+                                        </div><!-- /.box-body -->
+                                        <div class="box-footer">
+                                            <button type="button" class="btn btn-default" ng-click="dao.resetBeanBase()">取消</button>
+                                            <button type="button" class="btn btn-default" ng-click="dao.delBean()">删除</button>
+                                            <button type="button" class="btn btn-info pull-right" ng-click="dao.saveBean()">保存</button>
+                                        </div><!-- /.box-footer -->
+                                    </form>
+                                </div>
+                                <div ng-show="dao.editType == 'props'">
+                                    <!-- Custom Tabs (Pulled to the right) -->
+                                    <div class="nav-tabs-custom">
+                                        <ul class="nav nav-tabs pull-right">
+                                            <li class="active"><a href="#tab_1-1" data-toggle="tab" aria-expanded="true">拥有权限</a></li>
+                                            <li class=""><a href="#tab_1-2" data-toggle="tab" aria-expanded="true">拥有菜单</a></li>
+                                            <li class="dropdown">
+                                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                                                    相关功能 <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
+                                                    <li role="presentation" class="divider"></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
+                                                </ul>
+                                            </li>
+                                            <li class="pull-left header"><i class="fa fa-th"></i> {{dao.curBean.name}}</li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="tab_1-1">
+                                                <div class="box-body no-padding">
+                                                    <div class="mailbox-controls">
+                                                        <!-- Check all button -->
+                                                        <div class="btn-group">
+                                                            <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-check-square"></i> 全部添加</button>
+                                                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-circle"></i> 查看拥有</button>
+                                                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-circle-o"></i> 查看排除</button>
+                                                        </div>
+                                                        <!-- /.btn-group -->
+                                                        <div class="pull-right">
+                                                            {{dao.lists.sysUris.allDatasVo.rowCount*(dao.lists.sysUris.allDatasVo.pagination-1)+1}}-{{dao.lists.sysUris.allDatasVo.rowCount*(dao.lists.sysUris.allDatasVo.pagination)}}/{{dao.lists.sysUris.allDatasVo.recordCount}}
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
+                                                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                                            </div>
+                                                            <!-- /.btn-group -->
+                                                        </div>
+                                                        <!-- /.pull-right -->
+                                                    </div>
+                                                    <div class="table-responsive mailbox-messages">
+                                                        <table class="table table-hover table-striped">
+                                                            <tbody>
+                                                            <tr ng-repeat="role in dao.lists.sysUris.allDatas">
+                                                                <td width="30"><div class="icheckbox_flat-blue"
+                                                                                    ng-click="dao.toggleSubListItem('sysUris',role)"
+                                                                                    ng-class="{checked:dao.containsSubListItem('sysUris',role)>-1}"
+                                                                                    style="position: relative;">
+                                                                    <input type="checkbox" style="position: absolute; opacity: 0;">
+                                                                </div></td>
+                                                                <td width="50" class="mailbox-star"><a href="#"><i class="fa fa-star-o text-yellow"></i></a></td>
+                                                                <td width="80" class="mailbox-name"><a href="read-mail.html">{{role.name}}</a></td>
+                                                                <td width="200" class="mailbox-subject">{{role.note}}</td>
+                                                                <td class="mailbox-attachment"></td>
+                                                                <td class="mailbox-date">{{role.modifyTime}}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <!-- /.table -->
+                                                    </div>
+                                                    <!-- /.mail-box-messages -->
+                                                </div>
+                                            </div>
+                                            <!-- /.tab-pane -->
+                                            <div class="tab-pane" id="tab_1-2">
+                                                <div class="box-body no-padding">
+                                                    <div class="mailbox-controls">
+                                                        <!-- Check all button -->
+                                                        <div class="btn-group">
+                                                            <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-check-square"></i> 全部添加</button>
+                                                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-circle"></i> 查看拥有</button>
+                                                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-circle-o"></i> 查看排除</button>
+                                                        </div>
+                                                        <!-- /.btn-group -->
+                                                        <div class="pull-right">
+                                                            {{dao.lists.menus.allDatasVo.rowCount*(dao.lists.menus.allDatasVo.pagination-1)+1}}-{{dao.lists.menus.allDatasVo.rowCount*(dao.lists.menus.allDatasVo.pagination)}}/{{dao.lists.menus.allDatasVo.recordCount}}
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
+                                                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                                            </div>
+                                                            <!-- /.btn-group -->
+                                                        </div>
+                                                        <!-- /.pull-right -->
+                                                    </div>
+                                                    <div class="table-responsive mailbox-messages">
+                                                        <table class="table table-hover table-striped">
+                                                            <tbody>
+                                                            <tr ng-repeat="data in dao.lists.menus.allDatas">
+                                                                <td width="30"><div class="icheckbox_flat-blue"
+                                                                                    ng-click="dao.toggleSubListItem('menus',role)"
+                                                                                    ng-class="{checked:dao.containsSubListItem('menus',role)>-1}"
+                                                                                    style="position: relative;">
+                                                                    <input type="checkbox" style="position: absolute; opacity: 0;">
+                                                                </div></td>
+                                                                <td width="50" class="mailbox-star"><a href="#"><i class="fa fa-star-o text-yellow"></i></a></td>
+                                                                <td width="80" class="mailbox-name"><a href="read-mail.html">{{data.nodeName}}</a></td>
+                                                                <td width="200" class="mailbox-subject">{{data.nodeUri}}</td>
+                                                                <td class="mailbox-attachment">{{data.nodeOrder}}</td>
+                                                                <td class="mailbox-date">{{data.modifyTime}}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <!-- /.table -->
+                                                    </div>
+                                                    <!-- /.mail-box-messages -->
+                                                </div>
+                                            </div>
+                                            <!-- /.tab-pane -->
+                                        </div>
+                                        <!-- /.tab-content -->
+                                    </div>
+                                    <!-- nav-tabs-custom -->
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div><!-- /.box-body -->
+
+                </div><!-- /.box -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div>
+</div>
+
+
