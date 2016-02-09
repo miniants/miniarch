@@ -1,10 +1,101 @@
-angular.module('commDirectives',['CommServices'])
-.directive('hello',function() {
-    return {
-        template:'../framework/partials/sbtable.html'
-    }
+angular.module('CommDirectives',['CommServices'])
+.directive('rmxBeanDic',function() {
+        return {
+            scope: false,//直接使用父作用域
+            controller: function ($scope, $element, $http, Data) {
+                $scope.initBeanDic = function(opt) {
+                    if(opt.beanName){
+                        Data.beanDics || (Data.beanDics = {});
+                        opt.filters && (_.isObject(opt.filters) && (opt.filters = angular.toJson(opt.filters)));
+                        $http.post(mvcRoot + "/DataTableService/"+opt.beanName+"/list.json",opt)
+                            .success(function (response) {
+                                Data.beanDics[opt.dicName || opt.beanName] = $scope[opt.dicName || opt.beanName] = response.datas;
+                            });
+                    }
+                };
+            },
+            link: function (scope, elem, attrs) {
+                var opt = RMX.evalWholeJson(attrs.rmxBeanDic);
+                scope.initBeanDic(opt);
+            }
+        };
+    })
+.directive('rmxIcons',function() {
+        return {
+            scope: {
+                ngModel:'=',
+                ngChange:'&'
+            },//直接使用父作用域
+            templateUrl: '../framework/partials/icons.html',
+            link: function (scope, elem, attrs) {
+                $(elem).on('click',".tgtIcon",function() {
+                    $(".srcIcons",elem).toggle();
+                });
+                $(elem).on('click',".srcIcons .fontawesome-icon-list div, .srcIcons .bs-glyphicons li",function() {
+                    scope.ngModel = $(".fa, .glyphicon",this).attr("class").replaceAll("fa-fw",'');
+                    scope.ngChange();
+                    scope.$apply();
+                    $(".srcIcons",elem).toggle();
+                });
+            }
+        };
+    })
+.directive('rmxSysMenu',function() {
+        return {
+            scope: true,//直接使用父作用域
+            replace: true,
+            templateUrl: '../framework/partials/sysmenus.html',
+            controller: function ($scope, $element, $http, Data) {
+                $scope.initMenu = function(rootMenu) {
+                    $http.post(mvcRoot + "/AdminBs/homeMenus.json?rootMenu=" + rootMenu + "&rowCount=" + 100)
+                        .success(function (response) {
+                            Data.sysMenus = $scope.sysMenus = response.datas;
+                        });
+                    $http.post(mvcRoot+"/AdminBs/userProfile.json?rowCount="+100)
+                        .success(function (response) {
+                            Data.userProfile = $scope.userProfile = response.body;
+                        });
+
+                    $scope.constrainsMenus = function(input,param1) {
+                        if(Data.userProfile.menus && Data.userProfile.menus[input.id])
+                            return input;
+                    };
+                };
+            },
+            link: function (scope, elem, attrs) {
+                var rootMenu = attrs.rmxSysMenu || "ROOTMENU";
+                scope.initMenu(rootMenu);
+            }
+        };
 })
 .directive('resize', function ($window) {
+    return function (scope, element) {
+        var w = element;//angular.element($window);
+        scope.getDimensions = function () {
+            return {
+                'h': w.height(),
+                'w': w.width()
+            };
+        };
+        scope.$watch(scope.getDimensions, function (newValue, oldValue) {
+            scope.height = newValue.h;
+            scope.width = newValue.w;
+
+            scope.style = function () {
+                return {
+                    'height': (newValue.h - 100) + 'px',
+                    'width': (newValue.w - 100) + 'px'
+                };
+            };
+
+        }, true);
+
+        angular.element($window).bind('resize',function () {
+            scope.$apply();
+        });
+    }
+})
+.directive('rmxResize', function ($window) {
     return function (scope, element) {
         var w = element;//angular.element($window);
         scope.getDimensions = function () {
@@ -238,7 +329,26 @@ angular.module('commDirectives',['CommServices'])
                 $scope.BeansService = BeansService;
             }
         }
-})
+    })
+.directive('rmxSelect',function() {
+        return {
+            scope:{},//继承父且创建自己的作用于
+            link: function(scope, elem, attrs, controllerInstance) {
+                //参数定义
+                //opt={
+                //    beanName:'',
+                //    itemsName:''
+                //}
+                var opt = RMX.evalWholeJson(attrs.rmxSelect);
+                scope[opt.itemsName || 'items'] = scope.getItems(opt);
+            },
+            controller:function($scope, $element, $http) {
+                $scope.getItems = function(opt) {
+                    $scope.post(mvcRoot+"/DataTableService/"+opt.beanName+"/list")
+                };
+            }
+        }
+    })
 .directive('rmxZtree',function() {
         return {
             scope:true,//继承父且创建自己的作用于

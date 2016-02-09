@@ -63,21 +63,21 @@
 <body class="hold-transition login-page">
 <div class="row">
 
-    <div class="login-box2 col-xs-6 col-xs-offset-3 smallMedia" style="margin-top: 7%;">
+    <div class="login-box2  col-sm-10 col-sm-offset-1  col-md-8 col-md-offset-2  col-lg-6 col-lg-offset-3 smallMedia" style="margin-top: 7%;">
         <div class="<!--login-logo-->">
             <!--
                     <a href="#"><b>超级教室®</b> - 教务管理平台</a>
             -->
         </div>
         <!-- /.login-logo -->
-        <div class="login-box-body col-xs-6 part" style="height: 400px;">
-            <a href="#"><b>超级教室®</b> - 教务管理平台</a>
+        <div class="login-box-body col-sm-6 part" style="height: 400px;">
+            <a href="#"><b>超级教室<sup>®</sup></b> - 教务管理平台</a>
             <img src="img/login.png" style="width: 100%;height: 100%"></div>
-        <div class="login-box-body col-xs-6 part" style="height: 400px;">
+        <div class="login-box-body col-sm-6 part" style="height: 400px;">
             <p class="login-box-msg">欢迎使用北京科技大学 <strong>考试屏蔽管理平台</strong> </p>
 
             <form action="" method="post">
-                <input type="hidden" name="redirect" value="/static/teep/">
+                <input type="hidden" name="redirect" value="/">
                 <div class="form-group has-feedback">
                     <input type="text" class="form-control" placeholder="用户名" name="username" value="admin">
                     <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -137,7 +137,7 @@
             $.getJSON("../../smvc/AdminBs/login.json",{
                 username:$("[name='username']").val(),
                 password:$("[name='password']").val(),
-                redirect:RMX.obtainUrlContext(location.href,"static")+$("[name='redirect']").val()
+                redirect:RMX.obtainUrlContext(location.href,"static")+RMX.getUrlParam("redirect")+$("[name='redirect']").val()
             }).success(function(resp) {
                 if(resp.status){
                     location.href = resp.body;

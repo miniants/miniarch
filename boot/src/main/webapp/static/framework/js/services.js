@@ -1,4 +1,46 @@
-angular.module('CommServices', [])
+angular.module('CommServices', ["ui.router"])
+//.config(function ($stateProvider, $urlRouterProvider) {
+//    $urlRouterProvider.when("", "/main");
+//    $stateProvider
+//        .state('users', {
+//            url: "/users",
+//            templateUrl: "tpls/users.html",
+//            controller: "usersCtrl"
+//        })
+//        .state('menus', {
+//            url: "/menus",
+//            templateUrl: "tpls/menus.html",
+//            controller: "menusCtrl"
+//        })
+//        .state('roles', {
+//            url: "/roles",
+//            templateUrl: "tpls/roles.html",
+//            controller: 'rolesCtrl'
+//        })
+//})
+.factory('Data', function () {
+    return {
+        name: "IndexData",
+        userProfile:{},
+        sysMenuRouters:{
+            'users': {
+                url: "/users",
+                templateUrl: "tpls/users.html",
+                controller: "usersCtrl"
+            },
+            'menus':{
+                url: "/menus",
+                templateUrl: "tpls/menus.html",
+                controller: "menusCtrl"
+            },
+            'roles':{
+                url: "/roles",
+                templateUrl: "tpls/roles.html",
+                controller: 'rolesCtrl'
+            }
+        }
+    }
+})
 .service('UserService',function($http) {
         var userService = {};
 
@@ -13,9 +55,6 @@ angular.module('CommServices', [])
 })
 .service('BeansService', function ($http) {
     var ctx = this;
-    ctx.test = function(){
-        alert(111);
-    };
     //通用数据组件
     ctx.dataVos = {};
     ctx.fetch = function (serviceUri, pagination, callback, options) {
@@ -84,7 +123,7 @@ angular.module('CommServices', [])
                 alert("新建对象尚未保存,请保存后再新建!");
                 return;
             }
-            beanDao.curBean = angular.extend({}, beanDao.defBean, bean, {id: -1});
+            beanDao.curBean = angular.extend({}, beanDao.defBean, bean, {id: -1,_noSaved:true});
             beanDao.newBean = beanDao.curBean;
             beanDao.beans.unshift(beanDao.curBean);
             beanDao.editType = 'base';
