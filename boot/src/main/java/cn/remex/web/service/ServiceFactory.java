@@ -99,6 +99,7 @@ public final class ServiceFactory implements RemexRefreshable {
         try {
 
             RemexConstants.logger.info("Executing Bs=" + bs + ";bsCmd=" + bsCmd);
+            Assert.notNull(bsMap.get(bs),"业务服务不存在!",BsException.class);
             BusinessService bsan = ReflectUtil.getMethodAnnotation(bsMap.get(bs), bsCmd, BusinessService.class);
             Assert.notNull(bsan, "业务服务不存在!", BsException.class);
             String contentType = request.getContentType();

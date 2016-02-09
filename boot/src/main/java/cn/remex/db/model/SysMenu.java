@@ -20,7 +20,7 @@ import java.util.List;
  * 本模型为系统菜单的模型
  * 
  */
-@JsonIgnoreProperties(value = {"parent"})
+//@JsonIgnoreProperties(value = {"parent"})
 public class SysMenu extends ModelableImpl {
 
 	/**
@@ -29,8 +29,8 @@ public class SysMenu extends ModelableImpl {
 	private static final long serialVersionUID = 2851287093826738709L;
 	
 	//关系结构
-	private SysMenu parent; // 菜单
-	@OneToMany(mappedBy="parent",cascade = {CascadeType.PERSIST})
+	private SysMenu supMenu; // 菜单
+	@OneToMany(mappedBy="supMenu")
 	private List<SysMenu> subMenus;
 	@ManyToMany(mappedBy="menus")
 	private List<AuthRole> roles;
@@ -52,16 +52,16 @@ public class SysMenu extends ModelableImpl {
 	private String iconOpen;		//展开图标
 	private boolean opened;		//默认是否展开
 	private boolean chkDisabled;//默认是否禁止选中状态
-	
-	
-	
-	public SysMenu getParent() {
-		return parent;
+
+
+	public SysMenu getSupMenu() {
+		return supMenu;
 	}
-	public void setParent(SysMenu parent) {
-		this.parent = parent;
+
+	public void setSupMenu(SysMenu supMenu) {
+		this.supMenu = supMenu;
 	}
-	
+
 	public List<SysMenu> getSubMenus() {
 		return subMenus;
 	}

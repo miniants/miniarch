@@ -11,14 +11,11 @@
     <packaging>war</packaging>
     <version>0.1.0-SNAPSHOT</version>
 
-    <scm>
-        <connection>
-            scm:svn:svn://202.204.59.91:7001/RZManager/trunk
-        </connection>
-        <developerConnection>
-            scm:svn:svn://202.204.59.91:7001/RZManager/trunk
-        </developerConnection>
-    </scm>
+
+		<scm>
+			<connection>?</connection>
+			<developerConnection>?</developerConnection>
+		</scm>
 
 
     <dependencies>
@@ -99,10 +96,6 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
         </dependency>
 
         <dependency>
@@ -194,6 +187,5 @@
             <systemPath>${basedir}/lib/ojdbc5_g_remex-0.1.jar</systemPath>
             <version>0.1</version>
         </dependency>
-    </dependencies>
-
+	</dependencies>
 </project>

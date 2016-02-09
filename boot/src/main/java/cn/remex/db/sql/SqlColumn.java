@@ -190,19 +190,19 @@ public class SqlColumn<T extends Modelable, CT extends Modelable, ST extends Mod
         SqlType.getGetters(this.nodeClass,TBase).forEach((k,v)->obtainFieldColumn(this, k, null));
         return this;
     }
-    public <S2T extends Modelable>  SqlColumn<T, CT, ST> withModelColumn(ModelColumnPredicate<T, ST, S2T> mcp, Consumer<SqlColumn<T, ST, S2T>> sqlColumnConsumer) {
+    public <S2T extends Modelable>  SqlColumn<T, CT, ST> withModel(ModelColumnPredicate<T, ST, S2T> mcp, Consumer<SqlColumn<T, ST, S2T>> sqlColumnConsumer) {
         obtainModelColumn(this, mcp, sqlColumnConsumer);
         return this;
     }
-    public <S2T extends Modelable>  SqlColumn<T, CT, ST> withModelColumn(ModelColumnPredicate<T, ST, S2T> mcp) {
+    public <S2T extends Modelable>  SqlColumn<T, CT, ST> withModel(ModelColumnPredicate<T, ST, S2T> mcp) {
         obtainModelColumn(this, mcp, null);
         return this;
     }
-    public <S2T extends Modelable> SqlColumn<T, CT, ST> withModelColumn(String fieldName, Consumer<SqlColumn<T, ST, S2T>> sqlColumnConsumer) {
+    public <S2T extends Modelable> SqlColumn<T, CT, ST> withModel(String fieldName, Consumer<SqlColumn<T, ST, S2T>> sqlColumnConsumer) {
         obtainModelColumn(this, fieldName, sqlColumnConsumer);
         return this;
     }
-    public <S2T extends Modelable> SqlColumn<T, CT, ST> withModelColumn(String fieldName) {
+    public <S2T extends Modelable> SqlColumn<T, CT, ST> withModel(String fieldName) {
         obtainModelColumn(this, fieldName, null);
         return this;
     }

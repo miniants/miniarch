@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD,ElementType.TYPE})
 public @interface BusinessService {
+    String name() default "";
     boolean withMultiPart() default false;
     boolean requestBody() default false;
 }

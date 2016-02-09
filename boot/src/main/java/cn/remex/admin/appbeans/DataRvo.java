@@ -16,6 +16,8 @@ public class DataRvo extends BsRvo {
     private int pagination;
     private int pageCount;
     private int recordCount;
+    private int effectRowCount;
+    private String pk;
 
     public DataRvo(){
     }
@@ -29,6 +31,8 @@ public class DataRvo extends BsRvo {
             double b = (getRecordCount()*1.00)/getRowCount();
             this.pageCount = ((int)Math.ceil(b));
         }
+        effectRowCount = dbRvo.getEffectRowCount();
+        pk=dbRvo.getId();
     }
     public DataRvo(boolean status, List<?> datas) {
         super(status);
@@ -63,12 +67,26 @@ public class DataRvo extends BsRvo {
     public void setPageCount(int pageCount) {
         this.pageCount = pageCount;
     }
-
     public List<?> getDatas() {
         return datas;
     }
-
     public void setDatas(List<?> datas) {
         this.datas = datas;
+    }
+
+    public int getEffectRowCount() {
+        return effectRowCount;
+    }
+
+    public void setEffectRowCount(int effectRowCount) {
+        this.effectRowCount = effectRowCount;
+    }
+
+    public String getPk() {
+        return pk;
+    }
+
+    public void setPk(String pk) {
+        this.pk = pk;
     }
 }

@@ -181,12 +181,12 @@ public class Select<T extends Modelable> {
             part_jion_sb
                     .append("\n\rLEFT JOIN ").append(dialect.aliasTableName(Mid_table_name, Mid_table_alias))
                     .append("\n\r\tON ")
-                    .append(dialect.quoteFullName(Mid_table_alias, Mid_Primary_column)).append("=")
-                    .append(dialect.quoteFullName(meIsManyToManyPrimary?parentAlias:jioned_Tb_alias, RsqlConstants.SYS_id))
+                    .append(dialect.quoteFullName(Mid_table_alias, meIsManyToManyPrimary?Mid_Primary_column:Mid_Foreign_column)).append("=")
+                    .append(dialect.quoteFullName(parentAlias, RsqlConstants.SYS_id))
                     .append("\n\rLEFT JOIN ").append(dialect.aliasTableName(jioned_Tb, jioned_Tb_alias))
                     .append("\n\r\tON ")
-                    .append(dialect.quoteFullName(Mid_table_alias, Mid_Foreign_column)).append("=")
-                    .append(dialect.quoteFullName(meIsManyToManyPrimary?jioned_Tb_alias:parentAlias, RsqlConstants.SYS_id))
+                    .append(dialect.quoteFullName(Mid_table_alias, meIsManyToManyPrimary?Mid_Foreign_column:Mid_Primary_column)).append("=")
+                    .append(dialect.quoteFullName(jioned_Tb_alias, RsqlConstants.SYS_id))
             ;
         }
 
@@ -195,7 +195,7 @@ public class Select<T extends Modelable> {
         if(null!=column.getFilters())
             part_where += ((" AND ") + (column.getFilters().toSQL(false, column.getAliasName(), namedParams, paramIndex)));
 
-        //系统关键字段默认加载
+        //系统关键字段默认加载 //TODO LHY取消id的加载，如果需要则需显式调用withColumn
         if(!dbCvo._isHasGroupBy())
             part_column_sb.append(dialect.aliasFullName(jioned_Tb_alias, RsqlConstants.SYS_id, column.obtainChain().toString()+RsqlConstants.SYS_id)).append(",\r\n\t");
     }

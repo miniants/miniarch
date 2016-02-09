@@ -10,11 +10,9 @@ import cn.remex.db.exception.RsqlInitException;
 import cn.remex.db.lambdaapi.ColumnPredicate;
 import cn.remex.db.lambdaapi.ListColumnPredicate;
 import cn.remex.db.lambdaapi.ModelColumnPredicate;
-import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlConstants.SqlOper;
 import cn.remex.db.rsql.connection.RDBManager;
 import cn.remex.db.rsql.model.Modelable;
-import cn.remex.db.rsql.sqlutil.Node;
 import cn.remex.db.sql.*;
 import cn.remex.db.lambdaapi.WherePredicate;
 
@@ -160,19 +158,19 @@ public class DbCvo<T extends Modelable> extends DbCvoBase<T> {
         return this;
     }
     public <ST extends Modelable> DbCvo<T> withModel(ModelColumnPredicate<T, T, ST> mcp, Consumer<SqlColumn<T, T, ST>> sqlColumnConsumer) {
-        rootColumn.withModelColumn(mcp, sqlColumnConsumer);
+        rootColumn.withModel(mcp, sqlColumnConsumer);
         return this;
     }
     public <ST extends Modelable> DbCvo<T> withModel(ModelColumnPredicate<T, T, ST> mcp) {
-        rootColumn.withModelColumn(mcp);
+        rootColumn.withModel(mcp);
         return this;
     }
     public <ST extends Modelable> DbCvo<T> withModel(String fieldName, Consumer<SqlColumn<T, T, ST>> sqlColumnConsumer) {
-        rootColumn.withModelColumn(fieldName,sqlColumnConsumer);
+        rootColumn.withModel(fieldName,sqlColumnConsumer);
         return this;
     }
     public <ST extends Modelable> DbCvo<T> withModel(String fieldName) {
-        rootColumn.withModelColumn(fieldName);
+        rootColumn.withModel(fieldName);
         return this;
     }
 
@@ -214,7 +212,7 @@ public class DbCvo<T extends Modelable> extends DbCvoBase<T> {
                     if (param.param == null) {
                         param.param = this.withModel(objField);
                     } else
-                        param.param = ((SqlColumn) param.param).withModelColumn(baseField);
+                        param.param = ((SqlColumn) param.param).withModel(baseField);
                 }
                 end[0] = b;
             });
@@ -243,7 +241,7 @@ public class DbCvo<T extends Modelable> extends DbCvoBase<T> {
 //            sc.init(columns[0], nodeBean, nodeClass, nodeClass, SqlType.FieldType.TObject);
 //            this.addColumn(sc);//添加到DbCvo中将来dataCloumns属性将不再使用
 
-            rootColumn.withModelColumn(columns[0], m -> m.withColumns(columns[1]));
+            rootColumn.withModel(columns[0], m -> m.withColumns(columns[1]));
         }
         return this;
     }

@@ -43,7 +43,7 @@ public class RDBSpaceConfig {
 	private int maxconn;
 	private List<String> ormBeanPackages;
 
-	private Map<String, Class<?>> ormBeans = new HashMap<String, Class<?>>();
+	private Map<String, Class<?>> ormBeans = new HashMap<>();
 	private String password;
 	private String space;
 

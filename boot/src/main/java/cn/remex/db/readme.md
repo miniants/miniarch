@@ -44,13 +44,13 @@ Remex2 db模块
 
 三、API
 --------------
-#1. 数据库会话
-##1.1 说明:
+# 1. 数据库会话
+## 1.1 说明:
 * 当前线程同一个spaceName共享同一个数据库会话
 * 同一个数据会话内数据事务不隔离
 * 嵌套事务以最后一个事务为准统一提交
 
-##1.2 使用:
+## 1.2 使用:
 * 通过工厂接口:
 		
 		ContainerFactory.getSession()
@@ -58,27 +58,31 @@ Remex2 db模块
 		
 		ContainerFactory.createDbCvo(Class<? extends Modelable).[chainMethod].ready().[actionMethod];
 
-#2. 模型建立
-##2.1 说明:
-* 模型
-* 模型建立符合jpa规范
-* 模型建立需继承 ModelableImpl
-* 模型可持久化的属性支持:
-> 基本类型：数字,char,string
-> Model类型：继承于ModelableImpl的对象
-> List类型：List<? extends ModelableImpl>
-* 模型关系建立包括:
-> 一对一:通过@OneToOne()
-> 一对多:一方通过@OneToMany()；多方通过ManyToOne();
-> 多对多:通过@ManyToMany(),默认情况List数据与对应的Model建立多对多非级联关系.
-* 文档用语说明
-	* _当前Model_ 指当前模型，即当前设计的数据表
-	* _外键Model_ 指当前模型通过一对一、一对多、多对多关联的模型
+# 2. 模型建立
+* 说明:
+    * 模型
+    * 模型建立符合jpa规范
+    * 模型建立需继承 ModelableImpl
+    * 模型可持久化的属性支持:
+    > 基本类型：数字,char,string
+    > Model类型：继承于ModelableImpl的对象
+    > List类型：List<? extends ModelableImpl>
+    * 模型关系建立包括:
+    > 一对一:通过@OneToOne()
+    > 一对多:一方通过@OneToMany()；多方通过ManyToOne();
+    > 多对多:通过@ManyToMany(),默认情况List数据与对应的Model建立多对多非级联关系.
+    * 文档用语说明
+        * _当前Model_ 指当前模型，即当前设计的数据表
+        * _外键Model_ 指当前模型通过一对一、一对多、多对多关联的模型
 
-##2.2基本属性的建立
+## 2.1主键属性的建立
+* 框架要求系统主键必须是id，通过继承ModelableImpl实现，通过随机生成器生成SN+类大写首字母+
+*
+
+## 2.2基本属性的建立
 //TODO 文档补充，代码走查
 
-##2.3一对一关系建立
+## 2.3一对一关系建立
 * 方法
 
 默认：通过在Model中直接建立Model属性[fieldName]即可
@@ -92,7 +96,7 @@ Remex2 db模块
         cascade: {CascadeType.PERSIST, CascadeType.removed}
         mappedBy: 该属性必须成对匹配出现，在当前Model该属性与外键Model该属性相互引用
 
-##2.4一对多及多对多关系的建立
+## 2.4一对多及多对多关系的建立
 * 说明：
     * 在本架构内，OneToMany 与 ManyToOne属于是互为对方，
         

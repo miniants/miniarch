@@ -6,12 +6,16 @@ import cn.remex.core.CoreSvo;
 import cn.remex.core.RemexApplication;
 import cn.remex.core.exception.FilterException;
 import cn.remex.core.exception.NestedException;
+import cn.remex.core.util.RequestHelper;
+import cn.remex.db.model.cert.AuthUser;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 public class RemexFilter implements Filter, RemexConstants {
     /**
@@ -60,17 +64,19 @@ public class RemexFilter implements Filter, RemexConstants {
         String context = request.getContextPath();
         CoreSvo.initHttp(request, response);
         try {
-            if (/*needAuthenticate &&*/ !isPermit(request) && // 如果需要验证, // 如果没有在不需要验证的目录中或不是公共文件
-                    !AuthenticateBtx.checkToken()) {
-                // //如果验证没有通过
-                request.setAttribute("redirectURI", urlRoot + request.getServletPath() /*+ (Judgment.nullOrBlank(uriParams)?"":"?" + uriParams)*/);
-                response.sendRedirect(context+"/static/framework/login.html");
-            } else {
+            if (/* !needAuthenticate || */
+                    isPublic(request) || // 如果需要验证, // 如果没有在不需要验证的目录中或不是公共文件
+                    (AuthenticateBtx.checkToken() &&  isPermit(request))) {
 //                //短链接/加密连接rewrite 此功能暂时用不上
 //                if (RemexRewritUrl.isRemexWebEncodeUrl(svlPath))
 //                    request.getRequestDispatcher(RemexRewritUrl.decodeUrl(svlPath)).forward(request, response);
 //                else
                 chain.doFilter(sRequest, sResponse);
+            } else {
+                // //如果验证没有通过
+                logger.warn("权限验证没有通过，客户端IP:"+ RequestHelper.getClientIP(request)+",URI:"+uri);
+                request.setAttribute("redirectURI", urlRoot + request.getServletPath() /*+ (Judgment.nullOrBlank(uriParams)?"":"?" + uriParams)*/);
+                response.sendRedirect(context+"/static/framework/login.html");
 
             }
         } catch (Exception e) {
@@ -114,15 +120,30 @@ public class RemexFilter implements Filter, RemexConstants {
 
     }
 
-    private boolean isPermit(final HttpServletRequest request) {
+    private boolean isPublic(final HttpServletRequest request) {
         String uri = request.getRequestURI();
-        if(uri.contains("/static")||uri.contains("/AdminBs/login"))
+        if(uri.equals("/")||uri.contains("/static")||uri.contains("/AdminBs/login"))
             return true;
-
-        for (String dir : permitUriPres)
-            if (uri.startsWith(dir))
-                return true;
         return false;
+    }
+
+    private boolean isPermit(final HttpServletRequest request) {
+        if(true) return true;
+        String uri = request.getRequestURI();
+        String ctx = request.getContextPath();
+        //任意角色匹配即可访问
+        uri = uri.replaceFirst("/smvc", "").replaceAll(".json","").replaceAll(".jsp","").replaceAll(ctx, "")
+                .replaceAll("/[a-zA-Z\\-]*[\\d]+$","");
+        if(uri.equals("/"))
+            return true;
+        Map<String, Map<String, ?>> uris = AuthenticateBtx.obtainSysUriMapToRole();
+        Map<String, ?> rolesOfCurUri = uris.get(uri);
+        if(null == rolesOfCurUri)
+            return false;
+        boolean permit = AuthenticateBtx.obtainCurUser().getRoles().stream().anyMatch(curRole ->
+                        rolesOfCurUri.containsKey(curRole.getId())
+        );
+        return permit;
     }
 
 }

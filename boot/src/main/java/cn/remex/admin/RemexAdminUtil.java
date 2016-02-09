@@ -48,25 +48,25 @@ public class RemexAdminUtil {
 			l0.setSubMenus(new ArrayList<SysMenu>());
 			List<SysMenu> sm1list = s.createDbCvo(SysMenu.class)
 					.orderBy(SysMenu::getNodeOrder, Sort.ASC)
-					.filterBy(SysMenu::getParent, WhereRuleOper.eq, sysMenu1.getId())
+					.filterBy(SysMenu::getSupMenu, WhereRuleOper.eq, sysMenu1.getId())
 					.ready().queryBeans();
 			if(sm1list.size()>0)
 			for(SysMenu sm1:sm1list){
 				SysMenu l1 = new SysMenu();
 				ReflectUtil.copyProperties(l1, sm1);
-				l1.setParent(null);
+				l1.setSupMenu(null);
 				l0.getSubMenus().add(l1);
 				
 				l1.setSubMenus(new ArrayList<SysMenu>());
 				List<SysMenu> sm2list = s.createDbCvo(SysMenu.class)
 						.orderBy(SysMenu::getNodeOrder, Sort.ASC)
-						.filterBy(SysMenu::getParent, WhereRuleOper.eq, sm1.getId())
+						.filterBy(SysMenu::getSupMenu, WhereRuleOper.eq, sm1.getId())
 						.ready().queryBeans();
 				if(sm2list.size()>0)
 				for(SysMenu sm2:sm2list){
 					SysMenu l2 = new SysMenu();
 					ReflectUtil.copyProperties(l2, sm2);
-					l2.setParent(null);
+					l2.setSupMenu(null);
 					l1.getSubMenus().add(l2);
 				}
 			}

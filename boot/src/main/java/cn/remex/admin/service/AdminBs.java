@@ -17,7 +17,9 @@ import cn.remex.db.model.cert.AuthUser;
 import cn.remex.db.model.log.LogonLogMsg;
 import cn.remex.db.rsql.RsqlConstants;
 import cn.remex.db.rsql.RsqlCore;
+import cn.remex.db.rsql.model.ModelableImpl;
 import cn.remex.db.sql.Sort;
+import cn.remex.db.sql.SqlColumn;
 import cn.remex.web.service.BsCvo;
 import cn.remex.web.service.BsRvo;
 import cn.remex.web.service.BusinessService;
@@ -55,24 +57,33 @@ public class AdminBs {
         menu.setParentFlag(true);
         menu.setIcon("fa-dashboard");
         menu.setNodeName("系统配置");
-        menu.setParent(root);
+        menu.setSupMenu(root);
         ContainerFactory.getSession().store(menu);
         SysMenu xtpz = menu;
 
         menu = new SysMenu();
         menu.setIcon("fa-user");
         menu.setNodeName("用户");
-        menu.setParent(xtpz);
+        menu.setSupMenu(xtpz);
         ContainerFactory.getSession().store(menu);
 
         menu = new SysMenu();
         menu.setIcon("fa-users");
         menu.setNodeName("角色");
-        menu.setParent(xtpz);
+        menu.setSupMenu(xtpz);
         ContainerFactory.getSession().store(menu);
 
         return new BsRvo(true);
 	}
+
+    //系统初始化相关的方法
+    @BusinessService
+    public BsRvo resetSysUris() {
+        AuthenticateBtx.SysUriMapToRole = new HashMap<>();
+        List<SysUri> sysUris = AuthenticateBtx.obtainDefaultUris();
+        sysUris.forEach(sysUri -> ContainerFactory.getSession().storeByJpk(sysUri, null, "uri", "URI必须唯一"));
+        return new BsRvo(true, "重构默认URI权限成功,系统不会删除手动配置的URI,但会将系统默认的URI信息更新", "CODE01", sysUris, "text_layout", "text");
+    }
 
 	///menu Type 对应的功能方法。
 	@BusinessService
@@ -80,6 +91,9 @@ public class AdminBs {
         RsqlCore.reset(resetDb);
         return new BsRvo(true,"OK","CODE01",resetDb?"重构数据库成功":"清理数据库缓存成功","text_layout","text");
 	}
+
+
+
 	@BusinessService
 	public BsRvo execute(AdminBsCvo bsCvo) {
         return RemexAdminUtil.obtainAdminRvo(bsCvo,null,null);
@@ -119,7 +133,7 @@ public class AdminBs {
     }
     @BusinessService
     public BsRvo roles(DataCvo bsCvo){
-        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class, bsCvo).withColumns(RsqlConstants.SYS_modifyTime)
+        DbCvo<AuthRole> dbCvo = RemexAdminUtil.obtainDbCvo(AuthRole.class, bsCvo).withColumns()
            //.withList(AuthRole::getMenus).withList(AuthRole::getSysUris)
             ;
         DbRvo dbRvo = dbCvo.ready().query();
@@ -205,7 +219,7 @@ public class AdminBs {
 //        if(Judgment.nullOrBlank(menu.getId()))//新用户进行检查
 //            Assert.isNull(ContainerFactory.getSession().queryBeanByJpk(AuthUser.class, "id","username",menu.getUsername()),"该用户已经被注册!");
 
-        DbRvo dbRvo = ContainerFactory.getSession().storeBase(menu);
+        DbRvo dbRvo = ContainerFactory.getSession().store(menu);
         return new BsRvo(true,menu);
     }
     @BusinessService
@@ -216,15 +230,19 @@ public class AdminBs {
 
     @BusinessService
     public BsRvo menus(DataCvo bsCvo){
-        DbCvo<SysMenu> dbCvo = RemexAdminUtil.obtainDbCvo(SysMenu.class, bsCvo).withColumns();
+        DbCvo<SysMenu> dbCvo = RemexAdminUtil.obtainDbCvo(SysMenu.class, bsCvo).withColumns()
+                .withModel(SysMenu::getSupMenu);
         return new DataRvo(true ,dbCvo.ready().query());
     }
     @BusinessService
-    public BsRvo homeMenus(DataCvo bsCvo) {
-        DbCvo<SysMenu> dbCvo = RemexAdminUtil.obtainDbCvo(SysMenu.class, bsCvo)
+    public BsRvo homeMenus(String rootMenu) {
+        //获取三层菜单返回给前端
+        DbCvo<SysMenu> dbCvo = ContainerFactory.getSession().createDbCvo(SysMenu.class)
                 .orderBy(SysMenu::getNodeOrder, Sort.ASC)
-                .withModel(SysMenu::getParent, c -> c.filterBy(SysMenu::getNodeName, eq, "ROOTMENU"))
-                .withColumns().withList(SysMenu::getSubMenus, c -> c.withColumns());
+                .withModel(SysMenu::getSupMenu, c -> c.withColumns(ModelableImpl::getId)
+                        .filterBy(SysMenu::getNodeName, eq, Judgment.nullOrBlank(rootMenu) ? "ROOTMENU" : rootMenu))
+                .withColumns().withList(SysMenu::getSubMenus, sm->sm.withColumns().withList(SysMenu::getSubMenus, SqlColumn::withColumns))
+                .rowCount(1000);
         DbRvo dbRvo = dbCvo.ready().query();
         return new DataRvo(true, dbRvo);
     }

@@ -1608,7 +1608,7 @@ public class ReflectUtil implements RemexConstants {
 		}
 	}
 	static public <T extends Annotation> T getMethodAnnotation(final Class<?> clazz,final String methodName,final Class<T> annotationClass){
-		Method m = getMethod(clazz,methodName);
+		Method m = getMethod(clazz, methodName);
         if(null!=m){
             T anno = m.getAnnotation(annotationClass);
             if(null!=anno) {
@@ -1619,6 +1619,10 @@ public class ReflectUtil implements RemexConstants {
 	}
 	static public <T extends Annotation> T getAnnotation(final Class<?> clazz,final Class<T> annotationClass){
 		return clazz.getAnnotation(annotationClass);
+	}
+
+	static public <T extends Annotation> T getAnnotation(final Method method, final Class<T> annotationClass) {
+		return method.getAnnotation(annotationClass);
 	}
 	/**
 	 * 获取注解类
