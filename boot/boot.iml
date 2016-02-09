@@ -19,14 +19,10 @@
     <facet type="Spring" name="Spring">
       <configuration>
         <fileset id="fileset" name="Spring Application Context" removed="false">
-          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-rmi.xml</file>
-          <file>file://$MODULE_DIR$/src/main/resources/sp-servlet.xml</file>
-          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-sp.xml</file>
-          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-db.xml</file>
           <file>file://$MODULE_DIR$/src/main/resources/applicationContext-web.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-db.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/sp-servlet.xml</file>
           <file>file://$MODULE_DIR$/src/main/resources/applicationContext.xml</file>
-          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-iso.xml</file>
-          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-bus.xml</file>
         </fileset>
       </configuration>
     </facet>
