@@ -27,11 +27,6 @@
 		<url>http://www.miniants.cn</url>
 	</organization>
 
-	<modules>
-		<module>tenday</module>
-		<module>service</module>
-	</modules>
-
 	<profiles>
 	</profiles>
 	<!--	<scm>
