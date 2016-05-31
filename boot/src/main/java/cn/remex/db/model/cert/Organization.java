@@ -1,9 +1,13 @@
 package cn.remex.db.model.cert;
 
-import campus.comm.models.campusbase.ClassroomInfo;
 import cn.remex.db.rsql.model.ModelableImpl;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.List;
 
 /**
@@ -30,8 +34,8 @@ public class Organization extends ModelableImpl {
     private Organization parentUnit;//上级单位(组织机构id)
     @OneToMany(mappedBy = "parentUnit")
     private List<Organization> subUnits;
-    @OneToMany(mappedBy = "actualManagement")
-    private List<ClassroomInfo> classroomInfos;
+//    @OneToMany(mappedBy = "actualManagement")
+//    private List<ClassroomInfo> classroomInfos;
     @ManyToMany(mappedBy = "organizations")
     private List<AuthRole> manageRoles; //管理角色 2016年1月31日19:57:23
 
@@ -42,14 +46,14 @@ public class Organization extends ModelableImpl {
     public void setSubUnits(List<Organization> subUnits) {
         this.subUnits = subUnits;
     }
-
-    public List<ClassroomInfo> getClassroomInfos() {
-        return classroomInfos;
-    }
-
-    public void setClassroomInfos(List<ClassroomInfo> classroomInfos) {
-        this.classroomInfos = classroomInfos;
-    }
+//
+//    public List<ClassroomInfo> getClassroomInfos() {
+//        return classroomInfos;
+//    }
+//
+//    public void setClassroomInfos(List<ClassroomInfo> classroomInfos) {
+//        this.classroomInfos = classroomInfos;
+//    }
 
     public List<AuthRole> getManageRoles() {
         return manageRoles;
