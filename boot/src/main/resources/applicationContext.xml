@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 1.项目核心架构依赖的配置
+        通过annotation-config 启用spring注解
+        通过RemexApplication配置全局Spring Context对象并启用Bean代理，Spring事件，项目启动及注销事件 -->
+    <!--<context:component-scan base-package="cn.remex" />-->
+    <context:annotation-config/>
+    <!-- 切面配置 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <!-- 开启@AspectJ AOP代理 -->
+    <!--<aop:aspectj-autoproxy proxy-target-class="true"/> db中已开启-->
+    <!--&lt;!&ndash; 任务调度器 &ndash;&gt;-->
+    <!--<task:scheduler id="scheduler" pool-size="10"/>-->
+    <!--&lt;!&ndash; 任务执行器 &ndash;&gt;-->
+    <!--<task:executor id="executor" pool-size="10"/>-->
+    <!--&lt;!&ndash;开启注解调度支持 @Async @Scheduled&ndash;&gt;-->
+    <!--<task:annotation-driven executor="executor" scheduler="scheduler" proxy-target-class="true"/>-->
+    <bean class="cn.remex.core.RemexApplication"/>
+
+    <!-- 2.项目中的数据库配置 -->
+    <!-- 切面配置 -->
+    <bean class="cn.remex.db.rsql.aspect.RsqlTransactionalAspect"/>
+    <bean class="cn.remex.db.rsql.aspect.RsqlMonitorAspect"/>
+    <bean class="cn.remex.db.rsql.connection.RDBSpaceConfig">
+        <property name="spaceName" value="default"/>
+        <property name="type" value="mysql"/>
+        <property name="dialectClass" value="cn.remex.db.rsql.connection.dialect.MysqlDialect"/>
+        <property name="containerClass" value="cn.remex.db.rsql.RsqlContainer"/>
+        <property name="dataSource">
+            <bean class="org.logicalcobwebs.proxool.ProxoolDataSource">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="driverUrl" value="jdbc:mysql://www.kolabao.com:3666/CAMPUS?characterEncoding=utf-8&amp;autoReconnect=true&amp;rewriteBatchedStatements=true"/>
+                <property name="user" value="CAMPUS" />
+                <property name="password" value="CAMPUS_PW" />
+                <property name="alias" value="Pool_default" /><!--不能重复-->
+                <property name="houseKeepingSleepTime" value="90000" />
+                <property name="prototypeCount" value="0" />
+                <property name="maximumConnectionCount" value="50" />
+                <property name="minimumConnectionCount" value="2" />
+                <property name="simultaneousBuildThrottle" value="50" />
+                <property name="maximumConnectionLifetime" value="14400000" />
+                <property name="houseKeepingTestSql" value="select CURRENT_DATE" />
+                <property name="maximumActiveTime" value="7200000" />
+            </bean>
+        </property>
+        <!-- 配置用于建立数据库模型的包，不支持通配符，自动支持子包，自动添加cn.remex。建议数据模型的包都建立在一个大包下面。 -->
+        <property name="ormBeanPackages"><list>
+            <value>campus</value>
+        </list></property>
+    </bean>
+    <bean class="cn.remex.db.rsql.connection.RDBSpaceConfig">
+        <property name="spaceName" value="ustb"/>
+        <property name="type" value="oracle"/>
+        <property name="dialectClass" value="cn.remex.db.rsql.connection.dialect.OracleDialect"/>
+        <property name="containerClass" value="cn.remex.db.rsql.RsqlContainer"/>
+        <property name="dataSource">
+            <bean class="org.logicalcobwebs.proxool.ProxoolDataSource">
+                <property name="driver" value="oracle.jdbc.OracleDriver"/>
+                <property name="driverUrl" value="jdbc:oracle:thin:@202.204.52.14:1936:jw"/>
+                <property name="user" value="publicjw" />
+                <property name="password" value="jwpublicdatazczx" />
+                <property name="alias" value="Pool_ustb" /><!--不能重复-->
+                <property name="houseKeepingSleepTime" value="90000" />
+                <property name="prototypeCount" value="0" />
+                <property name="maximumConnectionCount" value="50" />
+                <property name="minimumConnectionCount" value="2" />
+                <property name="simultaneousBuildThrottle" value="50" />
+                <property name="maximumConnectionLifetime" value="14400000" />
+                <!--<property name="houseKeepingTestSql" value="select CURRENT_DATE" />-->
+                <property name="maximumActiveTime" value="7200000" />
+            </bean>
+        </property>
+        <!-- 配置用于建立数据库模型的包，不支持通配符，自动支持子包，自动添加cn.remex。建议数据模型的包都建立在一个大包下面。 -->
+        <property name="ormBeanPackages"><list>
+            <!--<value>campus.models</value>-->
+        </list></property>
+    </bean>
+
+
+    <!-- 3.业务服务BusinessService & EventService -->
+    <bean class="cn.remex.web.aspect.BusinessServiceAspect"/>
+    <bean class="cn.remex.web.RemexWebConfig">
+        <property name="crossDomain"
+                  value="http://localhost:63342, http://dev.kolabao.com, http://lhy.kolabao.com, http://campusdev.kolabao.com"/>
+        <!--<property name="crossDomain" value="http://dev.kolabao.com"/>-->
+        <property name="bsPackages">
+            <list>
+                <value>cn.remex.web.service</value>
+                <value>campus</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="cn.remex.contrib.service.WeiXinService"/>
+    <bean class="campus.teacheval.eventService.StartTeachEvalTaskListener"/>
+    <bean class="campus.teacheval.eventService.SaveTeachEvalTaskListerner"/>
+    <bean class="campus.teacheval.eventService.UpdateEvalResultListener"/>
+
+    <!-- 4.微信模块的各种配置 -->
+    <bean id="weixin" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <!-- state_redirect 用于微信菜单回调时自定义state参数控制二次跳转，AdminService中使用该参数，wxmenu.jsp控制跳转 -->
+                <entry key="state_redirect"><map>
+                    <entry key="STU_LOGIN" value="/static/student/login.html"/>
+                    <entry key="STU_TEACH_EVAL" value="/static/student/index.html"/>
+                    <entry key="STU_courseList" value="/static/student/index.html#/courseSchedule"/>
+                    <entry key="STU_noCourseRoom" value="/static/student/index.html#/freeClassroom"/>
+                    <entry key="STU_examArrange" value="/static/student/index.html#/examArrange"/>
+                    <entry key="STU_queryScore" value="/static/student/index.html#/viewGrades"/>
+                    <entry key="STU_help" value="/static/student/faq.html"/>
+                </map></entry>
+                <!--
+                 微信公众号  服务号微信公众号  服务号 jzyx@kolabao.com / jzyx123654
+                 -->
+                <!-- 极智校园 dev环境 -->
+                <entry key="token" value="zxcdsaqwe321456rtfgvb"/>
+                <entry key="appid" value="wxd2778238b2bdc45a"/>
+                <entry key="secret" value="52ef98d1c665a50e3b67a9726b3c92be"/>
+
+                <!--
+                 微信公众号  服务号微信公众号  服务号 chexian@kolabao.com / chexian123654
+                 -->
+                <!-- 考拉保 pe环境 -->
+                <!--<entry key="token" value="qwer1234asdf1234zxcv1234"/>-->
+                <!--<entry key="appid" value="wx42ab7988b79c4e5e"/>-->
+                <!--<entry key="secret" value="439fdb4bbeb97b6b6bd9f78405978eb5"/>-->
+
+
+                <entry key="subscribeMsg"
+                       value="欢迎登陆贝壳校园，我的校园，我的主场！
+
+查课表、查无课教室、查考试安排、查成绩，狂点“轻松一校”
+
+近日新上线教学评教功能，就等大王来巡山！猛戳下方的“点评一下课堂”即可进入。"/>
+                <entry key="payBackUrl" value="http://campus.kolabao.com/smvc/WeChatPayNotify/payNotify"/>
+
+            </map>
+        </property>
+    </bean>
+    <bean id="weixin_menus" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="cn.remex.wechat.beans.menu.Button">
+                    <property name="name" value="点评一下课堂"/><property name="type" value="view"/>
+                    <property name="url" value="https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{weixin['appid']}&amp;redirect_uri=http%3a%2f%2fdev.kolabao.com%2fsmvc%2fWeiXinService%2fredirectWxMenu.jsp&amp;response_type=code&amp;scope=snsapi_base&amp;state=STU_TEACH_EVAL#wechat_redirect"/>
+                </bean>
+                <bean class="cn.remex.wechat.beans.menu.Button">
+                    <property name="name" value="轻松一校"/>
+                    <property name="type" value="view"/>
+                    <property name="sub_button">
+                        <list>
+                            <bean class="cn.remex.wechat.beans.menu.Button">
+                                <property name="name" value="课程表"/><property name="type" value="view"/>
+                                <property name="url" value="https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{weixin['appid']}&amp;redirect_uri=http%3a%2f%2fdev.kolabao.com%2fsmvc%2fWeiXinService%2fredirectWxMenu.jsp&amp;response_type=code&amp;scope=snsapi_base&amp;state=STU_courseList#wechat_redirect"/>
+                            </bean>
+                            <bean class="cn.remex.wechat.beans.menu.Button">
+                                <property name="name" value="无课教室"/><property name="type" value="view"/>
+                                <property name="url" value="https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{weixin['appid']}&amp;redirect_uri=http%3a%2f%2fdev.kolabao.com%2fsmvc%2fWeiXinService%2fredirectWxMenu.jsp&amp;response_type=code&amp;scope=snsapi_base&amp;state=STU_noCourseRoom#wechat_redirect"/>
+                            </bean>
+                            <bean class="cn.remex.wechat.beans.menu.Button">
+                                <property name="name" value="考试安排"/><property name="type" value="view"/>
+                                <property name="url" value="https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{weixin['appid']}&amp;redirect_uri=http%3a%2f%2fdev.kolabao.com%2fsmvc%2fWeiXinService%2fredirectWxMenu.jsp&amp;response_type=code&amp;scope=snsapi_base&amp;state=STU_examArrange#wechat_redirect"/>
+                            </bean>
+                            <bean class="cn.remex.wechat.beans.menu.Button">
+                                <property name="name" value="成绩查询"/><property name="type" value="view"/>
+                                <property name="url" value="https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{weixin['appid']}&amp;redirect_uri=http%3a%2f%2fdev.kolabao.com%2fsmvc%2fWeiXinService%2fredirectWxMenu.jsp&amp;response_type=code&amp;scope=snsapi_base&amp;state=STU_queryScore#wechat_redirect"/>
+                            </bean>
+                            <bean class="cn.remex.wechat.beans.menu.Button">
+                                <property name="name" value="帮助指南"/><property name="type" value="view"/>
+                                <property name="url" value="http://dev.kolabao.com/static/student/faq.html"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="FilePath" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <!--详细内容查看 SystemConfig -->
+                <entry key="WIN_ResultFIle" value="/static/userdata/"/>
+                <entry key="LINUX_ResultFIle" value="/static/userdata/"/>
+            </map>
+        </property>
+    </bean>
+
+</beans>
